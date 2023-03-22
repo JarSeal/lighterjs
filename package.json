@@ -1,0 +1,30 @@
+{
+  "name": "lighterjs",
+  "version": "1.0.0",
+  "description": "Light weight JS UI framework",
+  "main": "src/index.js",
+  "repository": "https://github.com/JarSeal/lighterjs.git",
+  "author": "JarSeal",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "dev": "vite serve --port 8080",
+    "build": "cross-env vite build"
+  },
+  "devDependencies": {
+    "eslint": "^8.36.0",
+    "eslint-config-import": "^0.13.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.6",
+    "vite": "^4.2.1"
+  },
+  "dependencies": {
+    "uuid": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=16.13.2",
+    "yarn": ">=1.22.15"
+  }
+}
