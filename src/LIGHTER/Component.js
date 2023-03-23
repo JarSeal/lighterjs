@@ -1,105 +1,68 @@
-import { RouterRef } from './Router';
-import { Logger } from './utils';
+import { v4 as uuidv4 } from 'uuid';
 
-const ids = {};
-const logger = new Logger('LIGHTER.js COMPO *****');
+const components = {};
 
 class Component {
-  constructor(data) {
-    if (!data || !data.id) {
-      logger.error('Component id missing.', data);
-      throw new Error('Call stack');
+  constructor(props) {
+    if (props?.parent || props?.children) {
+      console.error(
+        `Component props contains a reserved keyword (parent or children. Props: ${JSON.stringify(
+          props
+        )}`
+      );
+      throw new Error('Invalid Component props key.');
     }
-    if (ids[data.id]) {
-      if (data.autoDiscard === undefined) data.autoDiscard = true; // Default is true
-      if (data.autoDiscard) {
-        ids[data.id].discard(true);
-      } else {
-        logger.error('ID is already in use.', data);
-        throw new Error('Call stack');
-      }
+    if (props?.id || props?._id) {
+      this.id = props.id || props._id;
+    } else {
+      this.id = uuidv4();
     }
-    ids[data.id] = this;
-    this.id = data.id;
-    this.data = data;
-    this.parent;
-    this.parentId = data.parentId ? data.parentId : null;
-    this.template;
+    this.props = {
+      id: this.id,
+      ...props,
+    };
+    components[this.id] = this;
     this.elem;
-    this.drawing = false;
-    this.discarding = false;
+    this.parent;
+    this.template;
+    this.children = {};
     this.listeners = {};
     this.listenersToAdd = [];
-    this.children = {};
-    this.simpletonIndex = 0;
-    this.Router = RouterRef;
-    this.logger = logger;
-    this.firstDraw = true;
+    this.drawing = false;
+    this.discarding = false;
     this.isComponent = true;
-    // *****************
-    // [ RESERVED KEYS ]
-    // data = {
-    //     id, (required, string)
-    //     parentId (optional, string, used when addChild from with the parent method is not possible)
-    //     replace (optional, boolean, default=false, whether the Component should replace the parent's innerHTML or not)
-    //     class (optional, string/array, element classe(s))
-    //     style (optional, flat object, element inline style(s))
-    //     attributes (optional, flat object, element attributes as key and value as value)
-    //     appendHtml (optional, string, element's appended innerHTML text/html)
-    //     prepend (optional, boolean, use prepend instead append)
-    //     html (optional, string, element's replacing innerHTML text/html)
-    //     text (optional, string, element innerText text)
-    //     tag (optional, string, element tag name/type)
-    //     attach (optional, string, an alternate element id to add the component)
-    //     template (optional, string, default=<div id="${data.id}"></div>, element HTML)
-    //     noRedraws (optional, boolean, whether the element shouldn't be redrawn after the first draw)
-    //     autoDiscard (optional, boolean, whether the component should self discard on initiation)
-    // }
-  }
-
-  draw(drawInput) {
-    // Main Component drawing logic
-    if (this.drawing || this.discarding) return;
-    this.drawing = true;
-    if (!this.parentId) {
-      this.drawing = false;
-      logger.error(
-        'Parent id missing. New Component creation should have a parentId or the the creation should be wrapped in this.addChild() method.',
-        this.data
-      );
-      throw new Error('Call stack');
-    }
-    let data = this.data;
-    if (drawInput) data = Object.assign(this.data, drawInput);
-    if (!this.firstDraw && data.noRedraws) {
-      this.drawing = false;
-      return;
-    }
-    if (this.elem) this.discard();
-    this.parent = document.getElementById(data.attach || this.parentId);
-    if (!this.template) this.template = data.template || this._createDefaultTemplate(this.id, data);
-    this.template = this._templateId(this.template, data).trim();
-    if (data.replace) {
-      // Exclusive element draw to parent's innerHTML
-      this.parent.innerHTML = this.template;
-    } else {
-      // Append element as parent's child
-      const template = document.createElement('template');
-      template.innerHTML = this.template;
+    if (this.props.attachId) {
       if (this.parent) {
-        data.prepend
-          ? this.parent.prepend(template.content.firstChild)
-          : this.parent.append(template.content.firstChild);
+        this.parent.elem = document.getElementById(this.props.attachId);
+      } else {
+        this.parent = { elem: document.getElementById(this.props.attachId) };
       }
     }
-    this.elem = document.getElementById(this.id);
-    this._setElemData(this.elem, data);
-    if (this.firstDraw) {
-      this.init(data);
-      this.firstDraw = false;
+  }
+
+  paint() {}
+  addListeners() {}
+
+  draw = (newProps) => {
+    // @TODO: add option to input component straight into the draw function (must have an id)
+    if (this.drawing || this.discarding) return;
+    this.drawing = true;
+    if (newProps) {
+      console.log('newProps', this.props, newProps);
     }
-    this.paint(data);
-    this.addListeners(data);
+    const props = { ...this.props, ...newProps };
+    this.props = props;
+    if (this.elem) this._discard();
+    if (!this.template !== props.template) {
+      this.template = props.template || this._createDefaultTemplate(props);
+    }
+    const template = document.createElement('template');
+    template.innerHTML = this.template;
+    this.elem = template.content.firstChild;
+    props.prepend ? this.parent.elem.prepend(this.elem) : this.parent.elem.append(this.elem);
+    this._setElemData(this.elem, props);
+    this.paint(props);
+    this.addListeners(props);
     for (let i = 0; i < this.listenersToAdd.length; i++) {
       if (this.listenersToAdd[i].targetId) {
         this.listenersToAdd[i].target = document.getElementById(this.listenersToAdd[i].targetId);
@@ -107,24 +70,66 @@ class Component {
       this.addListener(this.listenersToAdd[i]);
     }
     this.listenersToAdd = [];
-    this.simpletonIndex = 0;
     this.drawing = false;
-  }
+    return this;
+  };
 
-  reDrawSelf(drawInput) {
-    this.simpletonIndex = 0;
-    this.draw(drawInput);
-  }
+  add = (componentOrProps) => {
+    let component = componentOrProps;
+    if (!component.isComponent) component = new Component(componentOrProps);
+    this.children[component.id] = component;
+    if (!component.props.attachId) component.parent = this;
+    return component;
+  };
 
-  rePaint() {
-    this.simpletonIndex = 0;
-    this.paint(this.data);
-  }
+  addListener = (listener) => {
+    let { id, target, type, fn } = listener;
+    if (!type || !fn) {
+      console.error(
+        `Could not add listener, type, and/or fn missing. Listener props: ${JSON.stringify(
+          listener
+        )}`,
+        this
+      );
+      throw new Error('Call stack');
+    }
+    if (!id) {
+      id = this.id;
+      listener.id = id;
+    }
+    if (!target) {
+      target = this.elem;
+      if (target === null) {
+        console.error(
+          `Could not add listener, target elem was given but is null. Listener props: ${JSON.stringify(
+            listener
+          )}`,
+          this
+        );
+        throw new Error('Call stack');
+      }
+      listener.target = target;
+    }
+    if (this.listeners[id]) this.removeListener(id);
+    if (!target) return;
+    target.addEventListener(type, fn);
+    this.listeners[id] = listener;
+  };
 
-  init() {}
-  paint() {}
+  removeListener = (id) => {
+    if (!id) {
+      console.error(
+        `Could not remove listener, id missing. Listener props: ${JSON.stringify(id)}`,
+        this
+      );
+      throw new Error('Call stack');
+    }
+    const { target, type, fn } = this.listeners[id];
+    target.removeEventListener(type, fn);
+    delete this.listeners[id];
+  };
 
-  discard(fullDiscard, callback) {
+  _discard = (fullDiscard) => {
     if (this.discarding) return;
     this.discarding = true;
     // Remove listeners
@@ -135,7 +140,7 @@ class Component {
     // Discard children
     keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i++) {
-      this.children[keys[i]].discard(fullDiscard);
+      this.children[keys[i]]._discard(fullDiscard);
       if (fullDiscard) delete this.children[keys[i]];
     }
     // Remove element from DOM
@@ -143,176 +148,38 @@ class Component {
       this.elem.remove();
       this.elem = null;
     }
-    if (fullDiscard) delete ids[this.id];
-    this.erase();
+    if (fullDiscard) delete components[this.id];
     this.discarding = false;
-    if (callback) callback();
-  }
-
-  erase() {} // Additional discard logic from the custom Component
-
-  drawHTML = (data) => {
-    const id = this.id + '-simpleton-' + this.simpletonIndex;
-    const compData = Object.assign({}, { id }, data);
-    let compo = this.children[id];
-    if (!compo) compo = this.addChild(compData);
-    compo.draw();
-    this.simpletonIndex++;
   };
 
-  drawChildren = (full) => {
-    const keys = Object.keys(this.children);
-    for (let i = 0; i < keys.length; i++) {
-      this.children[keys[i]].draw();
-      if (full) this.children[keys[i]].drawChildren();
+  _setElemData = (elem, props) => {
+    if (!elem || !props) return;
+    if (props.classes?.length) {
+      elem.classList.add(...props.classes);
     }
-  };
-
-  addChild(component) {
-    if (!component.isComponent) component = new Component(component);
-    this.children[component.id] = component;
-    component.parentId = this.id;
-    return component;
-  }
-
-  addChildDraw = (component) => {
-    const createdComponent = this.addChild(component);
-    createdComponent.draw();
-    return createdComponent;
-  };
-
-  discardChild(id, notFull) {
-    if (!this.children[id]) return;
-    let fullDiscard = true;
-    if (notFull) fullDiscard = false;
-    this.children[id].discard(fullDiscard);
-    delete this.children[id];
-    delete ids[id];
-  }
-
-  addListener(listener) {
-    let { id, target, type, fn } = listener;
-    if (!type || !fn) {
-      logger.error('Could not add listener, type, and/or fn missing.');
-      throw new Error('Call stack');
-    }
-    if (!id) {
-      id = this.id;
-      listener.id = id;
-    }
-    if (!target) {
-      target = this.elem;
-      if (target === null) {
-        logger.error('Could not add listener, target elem was given but is null.');
-        throw new Error('Call stack');
-      }
-      listener.target = target;
-    }
-    if (this.listeners[id]) this.removeListener(id);
-    if (!target) return;
-    target.addEventListener(type, fn);
-    this.listeners[id] = listener;
-  }
-
-  addListeners() {}
-
-  addListenerAfterDraw(listener) {
-    this.listenersToAdd.push(listener);
-  }
-
-  removeListener(id) {
-    if (!id) {
-      logger.error('Could not remove listener, id missing.');
-      throw new Error('Call stack');
-    }
-    const { target, type, fn } = this.listeners[id];
-    target.removeEventListener(type, fn);
-    delete this.listeners[id];
-  }
-
-  _templateId(template, data) {
-    if (
-      !template.includes(`id="${data.id}"`) &&
-      !template.includes(`id='${data.id}'`) &&
-      !template.includes(`id=${data.id}`)
-    ) {
-      template = template.trim();
-      const parts = template.split('>');
-      parts[0] = parts[0].trim();
-      parts[0] += ` id="${data.id}"`;
-      template = parts.join('>');
-    }
-    return template;
-  }
-
-  _setElemData(elem, data) {
-    if (!elem) return;
-    if (data.class) {
-      if (typeof data.class === 'string' || data.class instanceof String) {
-        elem.classList.add(data.class);
-      } else {
-        // data.class is propably an array then
-        elem.classList.add(...data.class);
-      }
-    }
-    if (data.attributes) {
-      const keys = Object.keys(data.attributes);
+    if (props.attributes) {
+      const keys = Object.keys(props.attributes);
       for (let i = 0; i < keys.length; i++) {
-        elem.setAttribute(keys[i], data.attributes[keys[i]]);
+        elem.setAttribute(keys[i], props.attributes[keys[i]]);
       }
     }
-    if (data.style) {
-      const keys = Object.keys(data.style);
+    if (props.style) {
+      const keys = Object.keys(props.style);
       for (let i = 0; i < keys.length; i++) {
-        elem.style[keys[i]] = data.style[keys[i]];
+        elem.style[keys[i]] = props.style[keys[i]];
       }
     }
-    if (data.text) elem.innerText = data.text;
-    if (data.html) elem.innerHTML = data.html;
-    if (data.appendHtml) elem.innerHTML += data.appendHtml;
-  }
+    if (props.text) elem.innerText = props.text;
+  };
 
-  _createDefaultTemplate(id, data) {
-    const tag = data && data.tag ? data.tag : false;
-    if (tag) {
-      return `<${tag} id="${id}"></${tag}>`;
+  _createDefaultTemplate = (props) => {
+    let idString = '';
+    if (props._id) idString = ` id="${props.id}"`;
+    if (props?.tag) {
+      return `<${props.tag}${idString}></${props.tag}>`;
     } else {
-      return `<div id="${id}"></div>`; // Default
+      return `<div${idString}></div>`; // Default
     }
-  }
-
-  _addToCSSClass = (c) => {
-    this.data.class = this.data.class ? `${this.data.class} ${c}` : c;
-    return this.data.class;
-  };
-
-  _importHtml = (html, styles) => {
-    let template = document.createElement('div');
-    template.innerHTML = html;
-    template = template.firstChild;
-    let styleKeys = [];
-    let allStyles = {};
-    for (let i = 0; i < styles.length; i++) {
-      styleKeys = [...styleKeys, ...Object.keys(styles[i])];
-      allStyles = { ...allStyles, ...styles[i] };
-    }
-    const replaceClasses = (classList) => {
-      for (let i = 0; i < styleKeys.length; i++) {
-        if (classList.contains(styleKeys[i])) {
-          classList.remove(styleKeys[i]);
-          classList.add(allStyles[styleKeys[i]]);
-        }
-      }
-    };
-    const loopChildren = (elem) => {
-      Array.from(elem.children).map((child) => {
-        replaceClasses(child.classList);
-        if (child.children.length) loopChildren(child);
-      });
-    };
-    replaceClasses(template.classList);
-    loopChildren(template);
-    return template.outerHTML;
   };
 }
 

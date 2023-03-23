@@ -1,4 +1,4 @@
-import Component from './Component/Component';
+import AppRoot from './examples/Components/AppRoot';
 
-console.log('HERE');
-const component = new Component();
+const component = new AppRoot({ attachId: 'root' });
+component.draw();

@@ -2,7 +2,10 @@
 class LocalStorage {
   constructor(keyPrefix) {
     this.keyPrefix = keyPrefix || '';
-    this.localStorageAvailable = this._lsTest();
+    this.localStorageAvailable = false;
+    if (this._lsTest()) {
+      this.localStorageAvailable = true;
+    }
   }
 
   getItem(key, defaultValue) {
@@ -61,7 +64,10 @@ class LocalStorage {
 class SessionStorage {
   constructor(keyPrefix) {
     this.keyPrefix = keyPrefix || '';
-    this.sessionStorageAvailable = this._lsTest();
+    this.sessionStorageAvailable = false;
+    if (this._lsTest()) {
+      this.sessionStorageAvailable = true;
+    }
   }
 
   getItem(key, defaultValue) {
@@ -116,12 +122,9 @@ class SessionStorage {
   }
 }
 
-// Logger
-// The callback returns the type ('log', 'error', 'warning') and the arguments
 class Logger {
-  constructor(prefix, callback, quiet) {
+  constructor(prefix, quiet) {
     this.prefix = prefix || '';
-    this.callback = callback;
     this.showLogs = true;
     this.showErrors = true;
     this.showWarnings = true;
@@ -129,19 +132,16 @@ class Logger {
   }
 
   log(...args) {
-    if (this.callback) this.callback('log', ...args);
     if (!this.showLogs) return;
     console.log(this.prefix, ...args);
   }
 
   error(...args) {
-    if (this.callback) this.callback('error', ...args);
     if (!this.showErrors) return;
     console.error(this.prefix, ...args);
   }
 
   warn(...args) {
-    if (this.callback) this.callback('warning', ...args);
     if (!this.showWarnings) return;
     console.warn(this.prefix, ...args);
   }
