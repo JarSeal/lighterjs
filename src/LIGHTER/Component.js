@@ -1,11 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 
+import { RouterRef } from './Router';
+import { Logger } from './utils';
+
 const components = {};
+const logger = new Logger('LIGHTER.js COMPO *****');
 
 class Component {
   constructor(props) {
     if (props?.parent || props?.children) {
-      console.error(
+      logger.error(
         `Component props contains a reserved keyword (parent or children. Props: ${JSON.stringify(
           props
         )}`
@@ -38,18 +42,15 @@ class Component {
         this.parent = { elem: document.getElementById(this.props.attachId) };
       }
     }
+    this.router = RouterRef;
   }
 
   paint() {}
   addListeners() {}
 
   draw = (newProps) => {
-    // @TODO: add option to input component straight into the draw function (must have an id)
     if (this.drawing || this.discarding) return;
     this.drawing = true;
-    if (newProps) {
-      console.log('newProps', this.props, newProps);
-    }
     const props = { ...this.props, ...newProps };
     this.props = props;
     if (this.elem) this._discard();
@@ -85,7 +86,7 @@ class Component {
   addListener = (listener) => {
     let { id, target, type, fn } = listener;
     if (!type || !fn) {
-      console.error(
+      logger.error(
         `Could not add listener, type, and/or fn missing. Listener props: ${JSON.stringify(
           listener
         )}`,
@@ -100,7 +101,7 @@ class Component {
     if (!target) {
       target = this.elem;
       if (target === null) {
-        console.error(
+        logger.error(
           `Could not add listener, target elem was given but is null. Listener props: ${JSON.stringify(
             listener
           )}`,
@@ -118,7 +119,7 @@ class Component {
 
   removeListener = (id) => {
     if (!id) {
-      console.error(
+      logger.error(
         `Could not remove listener, id missing. Listener props: ${JSON.stringify(id)}`,
         this
       );
@@ -182,5 +183,8 @@ class Component {
     }
   };
 }
+
+export const setLoggerCallback = (callback) => logger.setCallback(callback);
+export const isLoggerQuiet = (isQuiet) => (isQuiet ? logger.turnOff() : logger.turnOn());
 
 export default Component;

@@ -128,6 +128,8 @@ class Logger {
     if (quiet) this.turnOff();
   }
 
+  setCallback = (callback) => (this.callback = callback);
+
   log(...args) {
     if (this.callback) this.callback('log', ...args);
     if (!this.showLogs) return;
