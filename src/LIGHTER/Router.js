@@ -377,7 +377,7 @@ class Router {
     this.curRouteData.component.draw();
   };
 
-  _createNewView(routeData) {
+  _createNewView = (routeData) => {
     routeData.component = new routeData.source({
       ...this.commonData,
       id: routeData.id,
@@ -389,9 +389,9 @@ class Router {
     if (!routeData.component?.parent?.elem) {
       routeData.component.parent = routeData.component.getComponentById(routeData.attachId);
     }
-  }
+  };
 
-  _getRouteParams(model, route) {
+  _getRouteParams = (model, route) => {
     if (!model.includes(':')) return false;
     const modelParts = model.split('/');
     route = route.split('?')[0];
@@ -415,7 +415,7 @@ class Router {
       }
     }
     return params;
-  }
+  };
 }
 
 export let RouterRef = null;
