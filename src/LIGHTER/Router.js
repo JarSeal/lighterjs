@@ -4,7 +4,7 @@ let routerInitiated = false;
 const logger = new Logger('LIGHTER.js ROUTER *****');
 
 class Router {
-  constructor(routesData, parentId, rcCallback, componentData) {
+  constructor(routesData, attachId, rcCallback, componentData) {
     // routesData = {
     //   routes: [], (= see below [Array] [required])
     //   basePath: '', (= basepath of the whole app [String] [optional])
@@ -12,7 +12,7 @@ class Router {
     //   titleSuffix: '', (= page and document title suffix [String] [optional])
     //   langFn: function() {}, (= language strings getter function [Function] [optional])
     // } [Object] [required]
-    // parentId = id of the element that the Router is attached to [String] [required]
+    // attachId = id of the element that the Router is attached to [String] [required]
     // rcCallback = after the route has changed callback function [Function] [required]
     // componentData = additional component data to be added to all view components [Object] [optional]
     // *****************
@@ -36,19 +36,19 @@ class Router {
     }
     if (!routesData || !routesData.routes || !routesData.routes.length) {
       logger.error(
-        'Missing routesData parameter, routesData.routes, or routesData.routes is empty.\nRequired params: new Route(routesData, parentId, rcCallback);'
+        'Missing routesData parameter, routesData.routes, or routesData.routes is empty.\nRequired params: new Route(routesData, attachId, rcCallback);'
       );
       throw new Error('Call stack');
     }
-    if (!parentId) {
+    if (!attachId) {
       logger.error(
-        'Missing parentId parameter.\nRequired params: new Route(routesData, parentId, rcCallback);'
+        'Missing attachId parameter.\nRequired params: new Route(routesData, attachId, rcCallback);'
       );
       throw new Error('Call stack');
     }
     if (!rcCallback) {
       logger.error(
-        'Missing rcCallback (route change callback) parameter / function.\nRequired params: new Route(routesData, parentId, rcCallback);'
+        'Missing rcCallback (route change callback) parameter / function.\nRequired params: new Route(routesData, attachId, rcCallback);'
       );
       throw new Error('Call stack');
     }
@@ -73,10 +73,10 @@ class Router {
     this.prevRouteData = null;
     if (!componentData) componentData = {};
     this.commonData = componentData;
-    this.initRouter(routesData.routes, parentId);
+    this.initRouter(routesData.routes, attachId);
   }
 
-  initRouter = async (routes, parentId) => {
+  initRouter = async (routes, attachId) => {
     this.setRoute();
     let changeUrlPath = false;
     if (this.curRoute.length < this.basePath.length) {
@@ -145,10 +145,10 @@ class Router {
         logger.warn(`Route '${routes[i].id}' is missing the title. Setting id as title.`);
         routes[i].title = routes[i].id;
       }
-      routes[i].parentId = parentId;
+      routes[i].attachId = attachId;
       this.routes.push(routes[i]);
       if (this._compareRoutes(routes[i].route, this.curRoute) && !this.curRoute.includes(':')) {
-        routes[i].parentId = parentId;
+        routes[i].attachId = attachId;
         this._createNewView(routes[i]);
         routeFound = true;
         this.curRouteData = routes[i];
@@ -157,7 +157,7 @@ class Router {
       if (!routeFound) {
         const params = this._getRouteParams(this.routes[i].route, this.curRoute);
         if (params) {
-          routes[i].parentId = parentId;
+          routes[i].attachId = attachId;
           this._createNewView(routes[i]);
           routeFound = true;
           this.curRouteData = routes[i];
@@ -379,7 +379,7 @@ class Router {
   }
 
   draw() {
-    if (this.prevRouteData && this.prevRouteData.component) {
+    if (this.prevRouteData?.component) {
       this.prevRouteData.component.discard(true);
       this.prevRouteData.component = null;
     }
@@ -390,11 +390,14 @@ class Router {
     routeData.component = new routeData.source({
       ...this.commonData,
       id: routeData.id,
-      parentId: routeData.parentId,
+      attachId: routeData.attachId,
       title: routeData.title,
       template: routeData.template,
       extraRouteData: routeData.extraRouteData,
     });
+    if (!routeData.component?.parent?.elem) {
+      routeData.component.parent = routeData.component.getComponentById(routeData.attachId);
+    }
   }
 
   _getRouteParams(model, route) {

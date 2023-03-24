@@ -32,6 +32,7 @@ class MainMenuItem extends Component {
         text: this.props.itemData.text,
         onClick: () => {
           console.log('CLICK', this.props.itemData.path);
+          this.router.changeRoute(this.props.itemData.path);
         },
       })
     ).draw();

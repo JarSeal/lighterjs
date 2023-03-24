@@ -8,6 +8,20 @@ const logger = new Logger('LIGHTER.js COMPO *****');
 
 class Component {
   constructor(props) {
+    // props (optional) = {
+    //   id: string (if not given an 'id' or '_id', an UUID is created for the component)
+    //   _id: string (same as 'id' but will also place the 'id' attribute to the element as well)
+    //   template: string (HTML template of the component)
+    //   attachId: string (id of the component that this component will be attached to in the DOM, if not set the parent elem will be the target, which is set in the add function)
+    //   text: string (text node to render in the element)
+    //   classes: string[] (array of strings to be added as the elements CSS classes)
+    //   attributes: {
+    //     key: value (the key and value pairs will be added as the element's HTML attributes, eg. <li key="value"><li>)
+    //   }
+    //   style: {
+    //     cssProperty: "value" (the key and value pairs will be added as the element's inline styles, eg. <li style="color: red;"><li>)
+    //   }
+    // }
     if (props?.parent || props?.children) {
       logger.error(
         `Component props contains a reserved keyword (parent or children. Props: ${JSON.stringify(
@@ -37,9 +51,9 @@ class Component {
     this.isComponent = true;
     if (this.props.attachId) {
       if (this.parent) {
-        this.parent.elem = document.getElementById(this.props.attachId);
+        this.parent.elem = this.getComponentElemById(this.props.attachId);
       } else {
-        this.parent = { elem: document.getElementById(this.props.attachId) };
+        this.parent = { elem: this.getComponentElemById(this.props.attachId) };
       }
     }
     this.router = RouterRef;
@@ -53,7 +67,7 @@ class Component {
     this.drawing = true;
     const props = { ...this.props, ...newProps };
     this.props = props;
-    if (this.elem) this._discard();
+    if (this.elem) this.discard();
     if (!this.template !== props.template) {
       this.template = props.template || this._createDefaultTemplate(props);
     }
@@ -66,7 +80,7 @@ class Component {
     this.addListeners(props);
     for (let i = 0; i < this.listenersToAdd.length; i++) {
       if (this.listenersToAdd[i].targetId) {
-        this.listenersToAdd[i].target = document.getElementById(this.listenersToAdd[i].targetId);
+        this.listenersToAdd[i].target = this.getComponentElemById(this.listenersToAdd[i].targetId);
       }
       this.addListener(this.listenersToAdd[i]);
     }
@@ -130,7 +144,7 @@ class Component {
     delete this.listeners[id];
   };
 
-  _discard = (fullDiscard) => {
+  discard = (fullDiscard) => {
     if (this.discarding) return;
     this.discarding = true;
     // Remove listeners
@@ -141,7 +155,7 @@ class Component {
     // Discard children
     keys = Object.keys(this.children);
     for (let i = 0; i < keys.length; i++) {
-      this.children[keys[i]]._discard(fullDiscard);
+      this.children[keys[i]].discard(fullDiscard);
       if (fullDiscard) delete this.children[keys[i]];
     }
     // Remove element from DOM
@@ -181,6 +195,13 @@ class Component {
     } else {
       return `<div${idString}></div>`; // Default
     }
+  };
+
+  getComponentById = (id) => components[id];
+  getComponentElemById = (id) => {
+    const component = components[id];
+    if (!component?.elem) return document.getElementById(id);
+    return component.elem;
   };
 }
 
