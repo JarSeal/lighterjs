@@ -24,16 +24,17 @@ class MainMenuItem extends Component {
   constructor(props) {
     super(props);
     this.props.template = '<li></li>';
+    if (this.router.isCurrent(this.props.itemData.path)) {
+      this.props.classes = ['current'];
+    }
   }
 
   paint = () => {
     this.add(
       new Button({
-        text: this.props.itemData.text,
-        onClick: () => {
-          console.log('CLICK', this.props.itemData.path);
-          this.router.changeRoute(this.props.itemData.path);
-        },
+        text:
+          this.props.itemData.text + (this.router.isCurrent(this.props.itemData.path) ? ' *' : ''),
+        onClick: () => this.router.changeRoute(this.props.itemData.path),
       })
     ).draw();
   };

@@ -188,16 +188,14 @@ class Router {
     this.curHistoryState = e.state || {};
   };
 
-  _createPageTitle(title) {
-    return this.titlePrefix + title + this.titleSuffix;
-  }
+  _createPageTitle = (title) => this.titlePrefix + title + this.titleSuffix;
 
-  _createRouteState() {
+  _createRouteState = () => {
     const newState = Object.assign({}, this.nextHistoryState);
     this.nextHistoryState = {};
     this.curHistoryState = {};
     return newState;
-  }
+  };
 
   replaceRoute = (route, ignoreBasePath) => {
     let basePath = this.basePath;
@@ -298,7 +296,7 @@ class Router {
     this.rcCallback(this.curRoute);
   };
 
-  _compareRoutes(first, second, checkWithParams) {
+  _compareRoutes = (first, second, checkWithParams) => {
     first = first.split('?')[0];
     second = second.split('?')[0];
     if (checkWithParams && (first.includes(':') || second.includes(':'))) {
@@ -317,30 +315,23 @@ class Router {
       second = secondParts.join('/');
     }
     return first === second || first + '/' === second || first === second + '/';
-  }
+  };
 
-  getRoute(noBasePath) {
+  getRoute = (noBasePath) => {
     if (noBasePath) return this.curRoute.replace(this.basePath, '');
     return this.curRoute;
-  }
+  };
 
-  getRouteData() {
-    return { ...this.curRouteData, prevRouteData: this.prevRouteData };
-  }
+  getRouteData = () => ({ ...this.curRouteData, prevRouteData: this.prevRouteData });
 
-  getRouteParams() {
-    return this.curRouteData.params;
-  }
+  getRouteParams = () => this.curRouteData.params;
 
-  isCurrent(route) {
-    return (
-      this.basePath + route === this.curRoute ||
-      this.basePath + route === this.curRoute + '/' ||
-      this.basePath + route + '/' === this.curRoute
-    );
-  }
+  isCurrent = (route) =>
+    this.basePath + route === this.curRoute ||
+    this.basePath + route === this.curRoute + '/' ||
+    this.basePath + route + '/' === this.curRoute;
 
-  setRoute() {
+  setRoute = () => {
     let path = location.pathname;
     if (!path) {
       this.curRoute = this.basePath + '/';
@@ -351,17 +342,17 @@ class Router {
       }
       this.curRoute = path;
     }
-  }
+  };
 
-  addRoute(routeData) {
+  addRoute = (routeData) => {
     routeData.route = this.basePath + routeData.route;
     this.routes.push(routeData);
     if (this._compareRoutes(routeData.route, this.curRoute)) {
       this.curRouteData = routeData;
     }
-  }
+  };
 
-  notFound() {
+  notFound = () => {
     let template;
     for (let i = 0; i < this.routes.length; i++) {
       if (this.routes[i].is404) {
@@ -376,15 +367,15 @@ class Router {
     this.curRouteData = template;
     document.title = this._createPageTitle(template.title);
     this._createNewView(template);
-  }
+  };
 
-  draw() {
+  draw = () => {
     if (this.prevRouteData?.component) {
       this.prevRouteData.component.discard(true);
       this.prevRouteData.component = null;
     }
     this.curRouteData.component.draw();
-  }
+  };
 
   _createNewView(routeData) {
     routeData.component = new routeData.source({
