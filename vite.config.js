@@ -9,7 +9,7 @@ export default defineConfig({
     },
     lib: {
       entry: './LIGHTER/index.js',
-      name: 'Lighter JS',
+      name: 'lighterjs',
       fileName: 'index',
     },
     manifest: true,
