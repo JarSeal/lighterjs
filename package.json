@@ -9,7 +9,7 @@
   "private": false,
   "scripts": {
     "dev": "vite serve --port 8080",
-    "build": "cross-env vite build"
+    "build": "vite build"
   },
   "devDependencies": {
     "@babel/core": "^7.21.3",
