@@ -1,7 +1,7 @@
 {
-  "LIGHTER/index.js": {
+  "Lighter/index.js": {
     "file": "index.umd.js",
     "isEntry": true,
-    "src": "LIGHTER/index.js"
+    "src": "Lighter/index.js"
   }
 }

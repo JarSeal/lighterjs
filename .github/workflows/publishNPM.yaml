@@ -18,34 +18,62 @@ jobs:
         with:
           node-version: '16.13.2'
           registry-url: 'https://registry.npmjs.org'
+
       - name: install packages
         run: yarn install
+
       - name: build dist package
         run: yarn build
 
-      - name: Set tags env variables.
+      # Commit message with tags: "Commit message #v1.1.2" (the version number tag must be the last string in the message)
+      # - name: get and set possible version number as Github env variable
+      #   run: |
+      #     # Set "checking" variable to false by default.
+      #     echo "publish=false" >> $GITHUB_ENV
+
+      #     # Get your last commit message, not the merge commit.
+      #     text=$(git log -1 --no-merges --pretty=%B)
+
+      #     # Read the commit message into an array split by "#".
+      #     readarray -d "#" -t commit_message <<< "$text"
+
+      #     # Sanity check.
+      #     echo "version number?: ${commit_message[1]}"
+
+      #     # Add version number and overwrite "checking" variable to true if there is one.
+      #     if [[ "${commit_message[1]}" == *"v"*  ]]; then
+      #       echo "publish=true" >> $GITHUB_ENV
+      #       readarray -d "#" -t version <<< "$commit_message[1]"
+      #       echo "version_number=${version[1]}" >> $GITHUB_ENV
+      #     fi
+
+      - name: read "publish" tag
         run: |
-          # Set "checking" variable to false by default.
-          echo "has_tags=false" >> $GITHUB_ENV
+          echo "publish=false" >> $GITHUB_ENV
+
           # Get your last commit message, not the merge commit.
           text=$(git log -1 --no-merges --pretty=%B)
+
           # Read the commit message into an array split by "#".
           readarray -d "#" -t commit_message <<< "$text"
-          # Sanity check.
-          echo "the tags are: ${commit_message[1]}"
-          # Add tags and overwrite "checking" variable to true if there are tags.
-          if [[ "${commit_message[1]}" == *"@"*  ]]; then
-            echo "has_tags=true" >> $GITHUB_ENV
-            echo "spec_tags=${commit_message[1]}" >> $GITHUB_ENV
+
+          # Check if "publish" tag exists and set env variable
+          if [[ "${commit_message[1]}" == "publish"  ]]; then
+            echo "publish=true" >> $GITHUB_ENV
           fi
 
-      - name: test tag name (bump 4)
-        run: |
-          echo "Trying this ${{ github.ref_name }}!"
+      - uses: JS-DevTools/npm-publish@v1
+        if: ${{ env.publish == 'true' }}
+        with:
+          token: ${{ secrets.NODE_AUTH_TOKEN }}
+          access: 'public'
+          greater-version-only: true
+          dry-run: true
 
-      # - uses: JS-DevTools/npm-publish@v1
-      #   with:
-      #     token: ${{ secrets.NODE_AUTH_TOKEN }}
+      - name: test tag name (bump 5)
+        run: |
+          echo "Trying this ${{ github.publish }}!"
+          echo "Trying this2 ${{ env.publish }}!"
 
       # - working-directory: ./src/dist
       #   run: npm set init-author-name "JarSeal"

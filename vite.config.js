@@ -8,7 +8,7 @@ export default defineConfig({
       transformMixedEsModules: true,
     },
     lib: {
-      entry: './LIGHTER/index.js',
+      entry: './Lighter/index.js',
       name: 'lighterjs',
       fileName: 'index',
     },

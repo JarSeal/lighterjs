@@ -2,7 +2,7 @@
   "name": "lighterjs",
   "version": "1.0.0",
   "description": "Light weight JS UI framework",
-  "main": "src/index.js",
+  "main": "src/Lighter/index.js",
   "repository": "https://github.com/JarSeal/lighterjs.git",
   "author": "JarSeal",
   "license": "MIT",
