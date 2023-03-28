@@ -18,7 +18,9 @@ jobs:
         with:
           node-version: '16.13.2'
           registry-url: 'https://registry.npmjs.org'
-      - name: build package
+      - name: install packages
+        run: yarn install
+      - name: build dist package
         run: yarn build
 
       - name: test tag name
