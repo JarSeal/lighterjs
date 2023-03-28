@@ -1,4 +1,4 @@
-import Component from '../../Lighter2/Component';
+import Component from '../../Lighter/Component';
 
 class Button extends Component {
   constructor(props) {

@@ -1,4 +1,4 @@
-import Component from '../../../Lighter2/Component';
+import Component from '../../../Lighter/Component';
 import Button from '../Button';
 
 class MainMenu extends Component {
