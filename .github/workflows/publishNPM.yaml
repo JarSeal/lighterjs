@@ -70,7 +70,7 @@ jobs:
           greater-version-only: true
           dry-run: true
 
-      - name: test tag name (bump 5)
+      - name: test tag name (bump 6)
         run: |
           echo "Trying this ${{ github.publish }}!"
           echo "Trying this2 ${{ env.publish }}!"
