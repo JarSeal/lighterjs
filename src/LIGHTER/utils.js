@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 // Local Storage
 class LocalStorage {
   constructor(keyPrefix) {
@@ -161,4 +163,6 @@ class Logger {
   }
 }
 
-export { LocalStorage, SessionStorage, Logger };
+const createUUID = () => uuidv4();
+
+export { LocalStorage, SessionStorage, Logger, createUUID };
