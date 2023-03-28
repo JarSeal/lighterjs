@@ -1,4 +1,4 @@
-import Component from '../../../Lighter/Component';
+import Component from '../../../Lighter2/Component';
 
 class HomePage extends Component {
   constructor(props) {

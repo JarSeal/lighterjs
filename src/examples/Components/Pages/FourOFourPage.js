@@ -1,4 +1,4 @@
-import Component from '../../../Lighter/Component';
+import Component from '../../../Lighter2/Component';
 
 class FourOFourPage extends Component {
   constructor(props) {

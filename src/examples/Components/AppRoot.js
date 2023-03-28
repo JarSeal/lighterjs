@@ -1,5 +1,5 @@
-import Component from '../../Lighter/Component';
-import Router from '../../Lighter/Router';
+import Component from '../../Lighter2/Component';
+import Router from '../../Lighter2/Router';
 import MainMenu from './Menus/MainMenu';
 import BasicComponentsPage from './Pages/BasicComponentsPage';
 import FourOFourPage from './Pages/FourOFourPage';
