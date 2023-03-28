@@ -54,8 +54,12 @@ jobs:
           # Get your last commit message, not the merge commit.
           text=$(git log -1 --no-merges --pretty=%B)
 
+          echo "commit msg: ${text}"
+
           # Read the commit message into an array split by "#".
           readarray -d "#" -t commit_message <<< "$text"
+
+          echo "tag: ${commit_message[1]}"
 
           # Check if "publish" tag exists and set env variable
           if [[ "${commit_message[1]}" == "publish"  ]]; then
