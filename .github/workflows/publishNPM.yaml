@@ -23,7 +23,7 @@ jobs:
       - name: build dist package
         run: yarn build
 
-      - name: test tag name
+      - name: test tag name (bump 1)
         run: |
           echo "Trying this ${{ github.event.release.tag_name }}!"
 
