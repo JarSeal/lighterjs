@@ -62,7 +62,7 @@ jobs:
           echo "tag: ${commit_message[1]}"
 
           # Check if "publish" tag exists and set env variable
-          if [[ "${commit_message[1]}" == "publish"  ]]; then
+          if [[ "${commit_message[1]}" == *"publish"*  ]]; then
             echo "publish=true" >> $GITHUB_ENV
           fi
 
