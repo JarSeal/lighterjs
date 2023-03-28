@@ -71,8 +71,7 @@ jobs:
         with:
           token: ${{ secrets.NODE_AUTH_TOKEN }}
           access: 'public'
-          greater-version-only: true
-          dry-run: true
+          dry-run: false
 
       - name: test tag name (bump 6)
         run: |
