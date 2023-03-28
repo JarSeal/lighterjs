@@ -23,7 +23,7 @@ jobs:
       - name: build dist package
         run: yarn build
 
-      - name: test tag name (bump 2)
+      - name: test tag name (bump 3)
         run: |
           echo "Trying this ${{ github.ref_name }}!"
 
