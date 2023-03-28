@@ -1,0 +1,51 @@
+# Publish NPM package to npmjs.com pipeline
+name: Publish NPM package
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16.13.2'
+          registry-url: 'https://registry.npmjs.org'
+      - name: build package
+        run: yarn build
+
+      - name: test tag name
+        run: |
+          echo "Trying this ${{ github.event.release.tag_name }}!"
+
+      # - uses: JS-DevTools/npm-publish@v1
+      #   with:
+      #     token: ${{ secrets.NODE_AUTH_TOKEN }}
+
+      # - working-directory: ./src/dist
+      #   run: npm set init-author-name "JarSeal"
+      # - working-directory: ./src/dist
+      #   run: npm set init-license "MIT"
+      # - working-directory: ./src/dist
+      #   run: npm set init-name "lighterjs"
+      # - working-directory: ./src/dist
+      #   run: npm set init-description "Light weight vanilla JS component, state, and router framework."
+      # - working-directory: ./src/dist
+      #   run: npm set init-version ""
+
+      # - name: init package
+      #   working-directory: ./src/dist
+      #   run: npm init --yes
+
+      # - name: publish package
+      #   working-directory: ./src/dist
+      #   run: npm publish --access public
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
