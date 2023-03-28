@@ -23,7 +23,23 @@ jobs:
       - name: build dist package
         run: yarn build
 
-      - name: test tag name (bump 3)
+      - name: Set tags env variables.
+        run: |
+          # Set "checking" variable to false by default.
+          echo "has_tags=false" >> $GITHUB_ENV
+          # Get your last commit message, not the merge commit.
+          text=$(git log -1 --no-merges --pretty=%B)
+          # Read the commit message into an array split by "#".
+          readarray -d "#" -t commit_message <<< "$text"
+          # Sanity check.
+          echo "the tags are: ${commit_message[1]}"
+          # Add tags and overwrite "checking" variable to true if there are tags.
+          if [[ "${commit_message[1]}" == *"@"*  ]]; then
+            echo "has_tags=true" >> $GITHUB_ENV
+            echo "spec_tags=${commit_message[1]}" >> $GITHUB_ENV
+          fi
+
+      - name: test tag name (bump 4)
         run: |
           echo "Trying this ${{ github.ref_name }}!"
 
