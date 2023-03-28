@@ -23,9 +23,9 @@ jobs:
       - name: build dist package
         run: yarn build
 
-      - name: test tag name (bump 1)
+      - name: test tag name (bump 2)
         run: |
-          echo "Trying this ${{ github.event.release.tag_name }}!"
+          echo "Trying this ${{ github.ref_name }}!"
 
       # - uses: JS-DevTools/npm-publish@v1
       #   with:
