@@ -25,28 +25,6 @@ jobs:
       - name: build dist package
         run: yarn build
 
-      # Commit message with tags: "Commit message #v1.1.2" (the version number tag must be the last string in the message)
-      # - name: get and set possible version number as Github env variable
-      #   run: |
-      #     # Set "checking" variable to false by default.
-      #     echo "publish=false" >> $GITHUB_ENV
-
-      #     # Get your last commit message, not the merge commit.
-      #     text=$(git log -1 --no-merges --pretty=%B)
-
-      #     # Read the commit message into an array split by "#".
-      #     readarray -d "#" -t commit_message <<< "$text"
-
-      #     # Sanity check.
-      #     echo "version number?: ${commit_message[1]}"
-
-      #     # Add version number and overwrite "checking" variable to true if there is one.
-      #     if [[ "${commit_message[1]}" == *"v"*  ]]; then
-      #       echo "publish=true" >> $GITHUB_ENV
-      #       readarray -d "#" -t version <<< "$commit_message[1]"
-      #       echo "version_number=${version[1]}" >> $GITHUB_ENV
-      #     fi
-
       - name: read "publish" tag
         run: |
           echo "publish=false" >> $GITHUB_ENV
@@ -72,29 +50,3 @@ jobs:
           token: ${{ secrets.NPM_ACCESS_TOKEN }}
           access: 'public'
           dry-run: false
-
-      - name: test tag name (bump 7)
-        run: |
-          echo "Trying this ${{ github.publish }}!"
-          echo "Trying this2 ${{ env.publish }}!"
-
-      # - working-directory: ./src/dist
-      #   run: npm set init-author-name "JarSeal"
-      # - working-directory: ./src/dist
-      #   run: npm set init-license "MIT"
-      # - working-directory: ./src/dist
-      #   run: npm set init-name "lighterjs"
-      # - working-directory: ./src/dist
-      #   run: npm set init-description "Light weight vanilla JS component, state, and router framework."
-      # - working-directory: ./src/dist
-      #   run: npm set init-version ""
-
-      # - name: init package
-      #   working-directory: ./src/dist
-      #   run: npm init --yes
-
-      # - name: publish package
-      #   working-directory: ./src/dist
-      #   run: npm publish --access public
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
