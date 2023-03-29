@@ -208,7 +208,7 @@ class Component {
   _checkParentAndAttachId = () => {
     if (!this.parent && !this.props.attachId) {
       logger.error(
-        'Component does not have a parent nor does it have an "attachId" as a prop. One of these is required. Either pass in an "attachId" as prop or attach this component to the parent component with "parentComponent.addChild()" method.'
+        'Component does not have a parent nor does it have an "attachId" as a prop. One of these is required. Either pass in an "attachId" as prop or attach this component to the parent component with "parentComponent.add()" method.'
       );
       throw new Error('Call stack');
     }
