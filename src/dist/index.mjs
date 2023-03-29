@@ -1,12 +1,12 @@
 var k = Object.defineProperty;
 var x = (a, t, e) => t in a ? k(a, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : a[t] = e;
 var h = (a, t, e) => (x(a, typeof t != "symbol" ? t + "" : t, e), e);
-let g;
+let m;
 const C = new Uint8Array(16);
 function _() {
-  if (!g && (g = typeof crypto < "u" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto), !g))
+  if (!m && (m = typeof crypto < "u" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto), !m))
     throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
-  return g(C);
+  return m(C);
 }
 const u = [];
 for (let a = 0; a < 256; ++a)
@@ -58,7 +58,7 @@ class O {
     }
   }
 }
-class T {
+class A {
   constructor(t) {
     this.keyPrefix = t || "", this.sessionStorageAvailable = this._lsTest();
   }
@@ -86,7 +86,7 @@ class T {
     }
   }
 }
-class P {
+class I {
   constructor(t, e, s) {
     h(this, "setCallback", (t) => this.callback = t);
     this.prefix = t || "", this.callback = e, this.showLogs = !0, this.showErrors = !0, this.showWarnings = !0, s && this.turnOff();
@@ -107,10 +107,10 @@ class P {
     this.showLogs = !0, this.showErrors = !0, this.showWarnings = !0;
   }
 }
-const j = () => S();
+const T = () => S();
 let y = !1;
-const d = new P("LIGHTER.js ROUTER *****");
-class A {
+const d = new I("LIGHTER.js ROUTER *****");
+class j {
   constructor(t, e, s, r) {
     h(this, "initRouter", async (t, e) => {
       this.setRoute();
@@ -318,7 +318,7 @@ Required params: new Route(routesData, attachId, rcCallback);`
         `Missing rcCallback (route change callback) parameter / function.
 Required params: new Route(routesData, attachId, rcCallback);`
       ), new Error("Call stack");
-    I = this, this.routes = [], this.nextHistoryState = {}, this.curHistoryState = {}, this.basePath = t.basePath || "", this.titlePrefix = t.titlePrefix || "", this.titleSuffix = t.titleSuffix || "", this.langFn = t.langFn, this.curRoute = this.basePath + "/", this.rcCallback = s, this.redirectRoute = null, this.curRouteData = {
+    P = this, this.routes = [], this.nextHistoryState = {}, this.curHistoryState = {}, this.basePath = t.basePath || "", this.titlePrefix = t.titlePrefix || "", this.titleSuffix = t.titleSuffix || "", this.langFn = t.langFn, this.curRoute = this.basePath + "/", this.rcCallback = s, this.redirectRoute = null, this.curRouteData = {
       route: this.basePath + "/",
       source: null,
       params: {},
@@ -326,8 +326,8 @@ Required params: new Route(routesData, attachId, rcCallback);`
     }, this.prevRoute = null, this.prevRouteData = null, r || (r = {}), this.commonData = r, this.initRouter(t.routes, e);
   }
 }
-let I = null;
-const m = {}, R = new P("LIGHTER.js COMPO *****");
+let P = null;
+const R = {}, g = new I("LIGHTER.js COMPO *****");
 class v {
   constructor(t) {
     h(this, "draw", (t) => {
@@ -337,7 +337,7 @@ class v {
       const e = { ...this.props, ...t };
       this.props = e, this.elem && this.discard(), !this.template !== e.template && (this.template = e.template || this._createDefaultTemplate(e));
       const s = document.createElement("template");
-      s.innerHTML = this.template, this.elem = s.content.firstChild, e.prepend ? this.parent.elem.prepend(this.elem) : this.parent.elem.append(this.elem), this._setElemData(this.elem, e), this.paint(e), this.addListeners(e);
+      s.innerHTML = this.template, this.elem = s.content.firstChild, this._checkParentAndAttachId(), e.prepend ? this.parent.elem.prepend(this.elem) : this.parent.elem.append(this.elem), this._setElemData(this.elem, e), this.paint(e), this.addListeners(e);
       for (let r = 0; r < this.listenersToAdd.length; r++)
         this.listenersToAdd[r].targetId && (this.listenersToAdd[r].target = this.getComponentElemById(this.listenersToAdd[r].targetId)), this.addListener(this.listenersToAdd[r]);
       return this.listenersToAdd = [], this.drawing = !1, this;
@@ -349,7 +349,7 @@ class v {
     h(this, "addListener", (t) => {
       let { id: e, target: s, type: r, fn: i } = t;
       if (!r || !i)
-        throw R.error(
+        throw g.error(
           `Could not add listener, type, and/or fn missing. Listener props: ${JSON.stringify(
             t
           )}`,
@@ -357,7 +357,7 @@ class v {
         ), new Error("Call stack");
       if (e || (e = this.id, t.id = e), !s) {
         if (s = this.elem, s === null)
-          throw R.error(
+          throw g.error(
             `Could not add listener, target elem was given but is null. Listener props: ${JSON.stringify(
               t
             )}`,
@@ -369,7 +369,7 @@ class v {
     });
     h(this, "removeListener", (t) => {
       if (!t)
-        throw R.error(
+        throw g.error(
           `Could not remove listener, id missing. Listener props: ${JSON.stringify(t)}`,
           this
         ), new Error("Call stack");
@@ -386,7 +386,7 @@ class v {
       e = Object.keys(this.children);
       for (let s = 0; s < e.length; s++)
         this.children[e[s]].discard(t), t && delete this.children[e[s]];
-      this.elem && (this.elem.remove(), this.elem = null), t && delete m[this.id], this.discarding = !1;
+      this.elem && (this.elem.remove(), this.elem = null), t && delete R[this.id], this.discarding = !1;
     });
     h(this, "_setElemData", (t, e) => {
       var s;
@@ -408,13 +408,19 @@ class v {
       let e = "";
       return t._id && (e = ` id="${t.id}"`), t != null && t.tag ? `<${t.tag}${e}></${t.tag}>` : `<div${e}></div>`;
     });
-    h(this, "getComponentById", (t) => m[t]);
+    h(this, "getComponentById", (t) => R[t]);
     h(this, "getComponentElemById", (t) => {
-      const e = m[t];
+      const e = R[t];
       return e != null && e.elem ? e.elem : document.getElementById(t);
     });
+    h(this, "_checkParentAndAttachId", () => {
+      if (!this.parent && !this.props.attachId)
+        throw g.error(
+          'Component does not have a parent nor does it have an "attachId" as a prop. One of these is required. Either pass in an "attachId" as prop or attach this component to the parent component with "parentComponent.addChild()" method.'
+        ), new Error("Call stack");
+    });
     if (t != null && t.parent || t != null && t.children)
-      throw R.error(
+      throw g.error(
         `Component props contains a reserved keyword (parent or children. Props: ${JSON.stringify(
           t
         )}`
@@ -422,7 +428,7 @@ class v {
     t != null && t.id || t != null && t._id ? this.id = t.id || t._id : this.id = S(), this.props = {
       id: this.id,
       ...t
-    }, m[this.id] = this, this.elem, this.parent, this.template, this.children = {}, this.listeners = {}, this.listenersToAdd = [], this.drawing = !1, this.discarding = !1, this.isComponent = !0, this.props.attachId && (this.parent ? this.parent.elem = this.getComponentElemById(this.props.attachId) : this.parent = { elem: this.getComponentElemById(this.props.attachId) }), this.router = I;
+    }, R[this.id] = this, this.elem, this.parent, this.template, this.children = {}, this.listeners = {}, this.listenersToAdd = [], this.drawing = !1, this.discarding = !1, this.isComponent = !0, this.props.attachId && (this.parent ? this.parent.elem = this.getComponentElemById(this.props.attachId) : this.parent = { elem: this.getComponentElemById(this.props.attachId) }), this.router = P;
   }
   paint() {
   }
@@ -536,9 +542,9 @@ class H {
 export {
   v as Component,
   O as LocalStorage,
-  P as Logger,
-  A as Router,
-  T as SessionStorage,
+  I as Logger,
+  j as Router,
+  A as SessionStorage,
   H as State,
-  j as createUUID
+  T as createUUID
 };

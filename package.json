@@ -9,7 +9,7 @@
   "private": false,
   "scripts": {
     "dev": "vite serve --port 8080",
-    "build": "vite build"
+    "build": "vite build && mkdir -p ./src/dist/demo/examples && cp ./src/index.js ./src/dist/demo && cp ./src/index.html ./src/dist/demo && cp -a ./src/examples ./src/dist/demo/examples"
   },
   "dependencies": {
     "uuid": "9.0.0"
