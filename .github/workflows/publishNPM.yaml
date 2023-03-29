@@ -69,7 +69,7 @@ jobs:
       - uses: JS-DevTools/npm-publish@v1
         if: ${{ env.publish == 'true' }}
         with:
-          token: ${{ secrets.NODE_AUTH_TOKEN }}
+          token: ${{ secrets.NPM_ACCESS_TOKEN }}
           access: 'public'
           dry-run: false
 
