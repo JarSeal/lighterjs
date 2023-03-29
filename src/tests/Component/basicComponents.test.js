@@ -87,5 +87,7 @@ describe('Basic Component tests', () => {
     expect(appRoot.elem.classList.contains('anotherClass')).toBeTruthy();
   });
 
-  // Test for updating component props with new draw
+  // Test for updating component props with a new draw
+
+  // Test for adding a click, focus, and blur listeners
 });
