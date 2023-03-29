@@ -73,7 +73,7 @@ jobs:
           access: 'public'
           dry-run: false
 
-      - name: test tag name (bump 6)
+      - name: test tag name (bump 7)
         run: |
           echo "Trying this ${{ github.publish }}!"
           echo "Trying this2 ${{ env.publish }}!"
