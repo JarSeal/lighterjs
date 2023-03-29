@@ -74,6 +74,7 @@ class Component {
     const template = document.createElement('template');
     template.innerHTML = this.template;
     this.elem = template.content.firstChild;
+    this._checkParentAndAttachId();
     props.prepend ? this.parent.elem.prepend(this.elem) : this.parent.elem.append(this.elem);
     this._setElemData(this.elem, props);
     this.paint(props);
@@ -202,6 +203,15 @@ class Component {
     const component = components[id];
     if (!component?.elem) return document.getElementById(id);
     return component.elem;
+  };
+
+  _checkParentAndAttachId = () => {
+    if (!this.parent && !this.props.attachId) {
+      logger.error(
+        'Component does not have a parent nor does it have an "attachId" as a prop. One of these is required. Either pass in an "attachId" as prop or attach this component to the parent component with "parentComponent.addChild()" method.'
+      );
+      throw new Error('Call stack');
+    }
   };
 }
 
