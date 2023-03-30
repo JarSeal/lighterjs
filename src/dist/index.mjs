@@ -1,12 +1,12 @@
-var k = Object.defineProperty;
-var x = (a, t, e) => t in a ? k(a, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : a[t] = e;
-var h = (a, t, e) => (x(a, typeof t != "symbol" ? t + "" : t, e), e);
+var C = Object.defineProperty;
+var v = (a, t, e) => t in a ? C(a, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : a[t] = e;
+var h = (a, t, e) => (v(a, typeof t != "symbol" ? t + "" : t, e), e);
 let m;
-const C = new Uint8Array(16);
+const x = new Uint8Array(16);
 function _() {
   if (!m && (m = typeof crypto < "u" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto), !m))
     throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
-  return m(C);
+  return m(x);
 }
 const u = [];
 for (let a = 0; a < 256; ++a)
@@ -14,12 +14,12 @@ for (let a = 0; a < 256; ++a)
 function D(a, t = 0) {
   return (u[a[t + 0]] + u[a[t + 1]] + u[a[t + 2]] + u[a[t + 3]] + "-" + u[a[t + 4]] + u[a[t + 5]] + "-" + u[a[t + 6]] + u[a[t + 7]] + "-" + u[a[t + 8]] + u[a[t + 9]] + "-" + u[a[t + 10]] + u[a[t + 11]] + u[a[t + 12]] + u[a[t + 13]] + u[a[t + 14]] + u[a[t + 15]]).toLowerCase();
 }
-const E = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), b = {
+const E = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), w = {
   randomUUID: E
 };
 function S(a, t, e) {
-  if (b.randomUUID && !t && !a)
-    return b.randomUUID();
+  if (w.randomUUID && !t && !a)
+    return w.randomUUID();
   a = a || {};
   const s = a.random || (a.rng || _)();
   if (s[6] = s[6] & 15 | 64, s[8] = s[8] & 63 | 128, t) {
@@ -109,7 +109,7 @@ class I {
 }
 const T = () => S();
 let y = !1;
-const d = new I("LIGHTER.js ROUTER *****");
+const c = new I("LIGHTER.js ROUTER *****");
 class j {
   constructor(t, e, s, r) {
     h(this, "initRouter", async (t, e) => {
@@ -121,10 +121,10 @@ class j {
       }
       for (let i = 0; i < t.length; i++) {
         if (!t[i].route)
-          throw d.error(`Route '${t[i].id}' is missing the route attribute.`), new Error("Call stack");
+          throw c.error(`Route '${t[i].id}' is missing the route attribute.`), new Error("Call stack");
         if (t[i].route = this.basePath + t[i].route, t[i].redirect) {
           if (t[i].redirect = this.basePath + t[i].redirect, t[i].redirect === t[i].route)
-            throw d.error(`Route's redirect cannot be the same as the route '${t[i].route}'.`), new Error("Call stack");
+            throw c.error(`Route's redirect cannot be the same as the route '${t[i].route}'.`), new Error("Call stack");
           this._compareRoutes(t[i].route, this.curRoute) && (this.curRoute = t[i].redirect, s = !0);
         }
         if (this._compareRoutes(t[i].route, this.curRoute, !0) && t[i].beforeDraw) {
@@ -147,10 +147,10 @@ class j {
           continue;
         }
         if (!t[i].id)
-          throw d.error("Route is missing the id attribute."), new Error("Call stack");
-        if (this.langFn && (t[i].titleKey ? t[i].title = this.langFn(t[i].titleKey) : d.warn(
+          throw c.error("Route is missing the id attribute."), new Error("Call stack");
+        if (this.langFn && (t[i].titleKey ? t[i].title = this.langFn(t[i].titleKey) : c.warn(
           `Router has a langFn defined, but route '${t[i].id}' is missing the titleKey.`
-        )), t[i].title || (d.warn(`Route '${t[i].id}' is missing the title. Setting id as title.`), t[i].title = t[i].id), t[i].attachId = e, this.routes.push(t[i]), this._compareRoutes(t[i].route, this.curRoute) && !this.curRoute.includes(":") && (t[i].attachId = e, this._createNewView(t[i]), r = !0, this.curRouteData = t[i], document.title = this._createPageTitle(t[i].title)), !r) {
+        )), t[i].title || (c.warn(`Route '${t[i].id}' is missing the title. Setting id as title.`), t[i].title = t[i].id), t[i].attachId = e, this.routes.push(t[i]), this._compareRoutes(t[i].route, this.curRoute) && !this.curRoute.includes(":") && (t[i].attachId = e, this._createNewView(t[i]), r = !0, this.curRouteData = t[i], document.title = this._createPageTitle(t[i].title)), !r) {
           const l = this._getRouteParams(this.routes[i].route, this.curRoute);
           l && (t[i].attachId = e, this._createNewView(t[i]), r = !0, this.curRouteData = t[i], this.curRouteData.params = l, document.title = this._createPageTitle(t[i].title));
         }
@@ -196,10 +196,10 @@ class j {
       const s = e.forceUpdate, r = e.ignoreBasePath, i = e.doNotSetState, l = e.replaceState;
       let n = this.basePath;
       r && (n = ""), t = n + t;
-      let c;
+      let d;
       for (let o = 0; o < this.routes.length; o++)
         if (this._compareRoutes(this.routes[o].route, t, !0) && this.routes[o].beforeDraw) {
-          c = await this.routes[o].beforeDraw({
+          d = await this.routes[o].beforeDraw({
             route: this.routes[o],
             curRouteData: this.curRouteData,
             curRoute: this.curRoute,
@@ -207,7 +207,7 @@ class j {
             commonData: this.commonData,
             prevRouteData: this.prevRouteData,
             prevRoute: this.prevRouteData
-          }), c && (t = n + c);
+          }), d && (t = n + d);
           break;
         }
       for (let o = 0; o < this.routes.length; o++)
@@ -229,9 +229,9 @@ class j {
           p = !0, this.prevRouteData = Object.assign({}, this.curRouteData), this.curRouteData = this.routes[o], document.title = this._createPageTitle(this.routes[o].title), this._createNewView(this.routes[o]);
           break;
         }
-        const w = this._getRouteParams(this.routes[o].route, t);
-        if (w) {
-          p = !0, this.prevRouteData = Object.assign({}, this.curRouteData), this.curRouteData = this.routes[o], this.curRouteData.params = w, document.title = this._createPageTitle(this.routes[o].title), this._createNewView(this.routes[o]);
+        const b = this._getRouteParams(this.routes[o].route, t);
+        if (b) {
+          p = !0, this.prevRouteData = Object.assign({}, this.curRouteData), this.curRouteData = this.routes[o], this.curRouteData.params = b, document.title = this._createPageTitle(this.routes[o].title), this._createNewView(this.routes[o]);
           break;
         }
       }
@@ -264,12 +264,16 @@ class j {
       for (let e = 0; e < this.routes.length; e++)
         this.routes[e].is404 && (t = this.routes[e]);
       if (!t)
-        throw d.error("Could not find 404 template."), new Error("Call stack");
+        throw c.error("Could not find 404 template."), new Error("Call stack");
       this.prevRouteData = Object.assign({}, this.curRouteData), this.curRouteData = t, document.title = this._createPageTitle(t.title), this._createNewView(t);
     });
     h(this, "draw", () => {
       var t;
-      (t = this.prevRouteData) != null && t.component && (this.prevRouteData.component.discard(!0), this.prevRouteData.component = null), this.curRouteData.component.draw();
+      (t = this.prevRouteData) != null && t.component && (this.prevRouteData.component.discard(!0), this.prevRouteData.component = null), console.log(
+        "TUUT",
+        this.curRouteData.component,
+        this.curRouteData.component.getComponentById(this.curRouteData.attachId)
+      ), this.curRouteData.component.draw();
     });
     h(this, "_createNewView", (t) => {
       var e, s;
@@ -295,26 +299,26 @@ class j {
         if (s[n] && s[n].includes(":")) {
           if (!r[n])
             return !1;
-          const c = s[n].replace(":", "");
-          l[c] = r[n];
+          const d = s[n].replace(":", "");
+          l[d] = r[n];
         } else if (!s[n] === void 0 || !r[n] === void 0 || s[n] !== r[n])
           return !1;
       return l;
     });
     if (y)
-      throw d.error("Router has already been initiated. Only one router per app is allowed."), new Error("Call stack");
+      throw c.error("Router has already been initiated. Only one router per app is allowed."), new Error("Call stack");
     if (!t || !t.routes || !t.routes.length)
-      throw d.error(
+      throw c.error(
         `Missing routesData parameter, routesData.routes, or routesData.routes is empty.
 Required params: new Route(routesData, attachId, rcCallback);`
       ), new Error("Call stack");
     if (!e)
-      throw d.error(
+      throw c.error(
         `Missing attachId parameter.
 Required params: new Route(routesData, attachId, rcCallback);`
       ), new Error("Call stack");
     if (!s)
-      throw d.error(
+      throw c.error(
         `Missing rcCallback (route change callback) parameter / function.
 Required params: new Route(routesData, attachId, rcCallback);`
       ), new Error("Call stack");
@@ -327,24 +331,22 @@ Required params: new Route(routesData, attachId, rcCallback);`
   }
 }
 let P = null;
-const R = {}, g = new I("LIGHTER.js COMPO *****");
-class v {
+const H = (a) => c.setCallback(a), U = (a) => a ? c.turnOff() : c.turnOn(), R = {}, g = new I("LIGHTER.js COMPO *****");
+class k {
   constructor(t) {
     h(this, "draw", (t) => {
       if (this.drawing || this.discarding)
         return;
       this.drawing = !0;
       const e = { ...this.props, ...t };
-      this.props = e, this.elem && this.discard(), !this.template !== e.template && (this.template = e.template || this._createDefaultTemplate(e));
-      const s = document.createElement("template");
-      s.innerHTML = this.template, this.elem = s.content.firstChild, this._checkParentAndAttachId(), e.prepend ? this.parent.elem.prepend(this.elem) : this.parent.elem.append(this.elem), this._setElemData(this.elem, e), this.paint(e), this.addListeners(e);
-      for (let r = 0; r < this.listenersToAdd.length; r++)
-        this.listenersToAdd[r].targetId && (this.listenersToAdd[r].target = this.getComponentElemById(this.listenersToAdd[r].targetId)), this.addListener(this.listenersToAdd[r]);
-      return this.listenersToAdd = [], this.drawing = !1, this;
+      this.props = e, this.elem && this.discard(), this._checkParentAndAttachId(), !this.template !== e.template && (this.template = e.template || this._createDefaultTemplate(e)), this._createElement(), e.prepend ? this.parent.elem.prepend(this.elem) : this.parent.elem.append(this.elem), this.paint(e), this.addListeners(e);
+      for (let s = 0; s < this.listenersToAdd.length; s++)
+        this.listenersToAdd[s].targetId && (this.listenersToAdd[s].target = this.getComponentElemById(this.listenersToAdd[s].targetId)), this.addListener(this.listenersToAdd[s]);
+      return this.listenersToAdd = [], this.drawing = !1, this.id === "route-home" && console.log("TADAA2", e, this.elem, this.parent), this;
     });
     h(this, "add", (t) => {
       let e = t;
-      return e.isComponent || (e = new v(t)), this.children[e.id] = e, e.props.attachId || (e.parent = this), e;
+      return e.isComponent || (e = new k(t)), this.children[e.id] = e, e.props.attachId || (e.parent = this), e;
     });
     h(this, "addListener", (t) => {
       let { id: e, target: s, type: r, fn: i } = t;
@@ -401,12 +403,13 @@ class v {
           for (let i = 0; i < r.length; i++)
             t.style[r[i]] = e.style[r[i]];
         }
-        e.text && (t.innerText = e.text);
+        e.text && (t.innerText = e.text), e._id && !t.getAttribute("id") && t.setAttribute("id", e._id);
       }
     });
-    h(this, "_createDefaultTemplate", (t) => {
-      let e = "";
-      return t._id && (e = ` id="${t.id}"`), t != null && t.tag ? `<${t.tag}${e}></${t.tag}>` : `<div${e}></div>`;
+    h(this, "_createDefaultTemplate", (t) => t != null && t.tag ? `<${t.tag}></${t.tag}>` : "<div></div>");
+    h(this, "_createElement", () => {
+      const t = document.createElement("template");
+      t.innerHTML = this.template, this.elem = t.content.firstChild, this._setElemData(this.elem, this.props);
     });
     h(this, "getComponentById", (t) => R[t]);
     h(this, "getComponentElemById", (t) => {
@@ -416,7 +419,7 @@ class v {
     h(this, "_checkParentAndAttachId", () => {
       if (!this.parent && !this.props.attachId)
         throw g.error(
-          'Component does not have a parent nor does it have an "attachId" as a prop. One of these is required. Either pass in an "attachId" as prop or attach this component to the parent component with "parentComponent.addChild()" method.'
+          'Component does not have a parent nor does it have an "attachId" as a prop. One of these is required. Either pass in an "attachId" as prop or attach this component to the parent component with "parentComponent.add()" method.'
         ), new Error("Call stack");
     });
     if (t != null && t.parent || t != null && t.children)
@@ -428,15 +431,15 @@ class v {
     t != null && t.id || t != null && t._id ? this.id = t.id || t._id : this.id = S(), this.props = {
       id: this.id,
       ...t
-    }, R[this.id] = this, this.elem, this.parent, this.template, this.children = {}, this.listeners = {}, this.listenersToAdd = [], this.drawing = !1, this.discarding = !1, this.isComponent = !0, this.props.attachId && (this.parent ? this.parent.elem = this.getComponentElemById(this.props.attachId) : this.parent = { elem: this.getComponentElemById(this.props.attachId) }), this.router = P;
+    }, R[this.id] = this, this.elem, this.parent, this.children = {}, this.listeners = {}, this.listenersToAdd = [], this.drawing = !1, this.discarding = !1, this.isComponent = !0, this.props.attachId && (this.parent ? this.parent.elem = this.getComponentElemById(this.props.attachId) : this.parent = { elem: this.getComponentElemById(this.props.attachId) }), this.router = P, this.template = (t == null ? void 0 : t.template) || this._createDefaultTemplate(t), t != null && t.preCreateElement && this._createElement();
   }
   paint() {
   }
   addListeners() {
   }
 }
-const f = {};
-class H {
+const N = (a) => g.setCallback(a), $ = (a) => a ? g.turnOff() : g.turnOn(), f = {};
+class B {
   constructor(t) {
     this.initState = t, this.state = t || {}, this.listeners = [], this.listenerCallbacks = [];
   }
@@ -455,8 +458,8 @@ class H {
     }
     let n = r ? f[i[0]] : this.state[i[0]];
     n === void 0 && (r ? f[i[0]] = n = {} : this.state[i[0]] = n = {});
-    for (let c = 1; c < i.length - 1; c++)
-      n[i[c]] === void 0 && (n[i[c]] = {}), n = n[i[c]];
+    for (let d = 1; d < i.length - 1; d++)
+      n[i[d]] === void 0 && (n[i[d]] = {}), n = n[i[d]];
     r ? n[i[i.length - 1]] = e : (l = n[i[i.length - 1]], n[i[i.length - 1]] = e, this._checkListeners(l, e, t)), s && !r && this.addListener(t, s);
   }
   get(t, e) {
@@ -540,11 +543,16 @@ class H {
   }
 }
 export {
-  v as Component,
+  k as Component,
   O as LocalStorage,
   I as Logger,
   j as Router,
+  P as RouterRef,
   A as SessionStorage,
-  H as State,
-  T as createUUID
+  B as State,
+  T as createUUID,
+  $ as isComponentLoggerQuiet,
+  U as isRouterLoggerQuiet,
+  N as setComponentLoggerCallback,
+  H as setRouterLoggerCallback
 };
