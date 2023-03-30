@@ -128,7 +128,8 @@ class Component {
     }
     if (this.listeners[id]) this.removeListener(id);
     if (!target) return;
-    target.addEventListener(type, fn);
+    listener.fn = (e) => fn(e, this);
+    target.addEventListener(type, listener.fn);
     this.listeners[id] = listener;
   };
 
