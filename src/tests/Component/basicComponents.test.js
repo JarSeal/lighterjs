@@ -85,9 +85,64 @@ describe('Basic Component tests', () => {
     expect(appRoot.elem.style.maxWidth).toEqual('12px');
     expect(appRoot.elem.classList.contains('myClass')).toBeTruthy();
     expect(appRoot.elem.classList.contains('anotherClass')).toBeTruthy();
+
+    appRoot.discard(true);
+    expect(document.getElementById('root').children.length).toEqual(0);
   });
 
-  // Test for updating component props with a new draw
+  it('should create an appRoot component with another component as a child and draw them to DOM', () => {
+    const appRoot = new Component({
+      _id: 'appRoot',
+      attachId: 'root',
+      text: 'this is appRoot',
+      classes: ['myClass'],
+    });
+    appRoot.draw();
+    let appRootElem = document.getElementById('appRoot');
+    expect(appRootElem !== null).toBeTruthy();
+    expect(appRootElem.getAttribute('id')).toEqual('appRoot');
+    expect(appRootElem.innerText).toEqual('this is appRoot');
 
-  // Test for adding a click, focus, and blur listeners
+    // New draw with new props
+    appRoot.draw({ text: 'this is the updated appRoot text', classes: ['myClass2'] });
+    appRootElem = document.getElementById('appRoot');
+    expect(appRootElem.innerText).toEqual('this is the updated appRoot text');
+    expect(appRootElem.classList.contains('myClass2')).toBeTruthy();
+    expect(appRootElem.classList.contains('myClass')).toBeFalsy();
+
+    appRoot.discard(true);
+    expect(document.getElementById('root').children.length).toEqual(0);
+  });
+
+  it('should add a click listener and make the click change the button text, and then remove the listener successfully', () => {
+    const appRoot = new Component({
+      _id: 'appRoot',
+      attachId: 'root',
+    });
+    appRoot.draw();
+    const button = appRoot.add({ _id: 'mybtn', template: '<button>My button</button>' }).draw();
+    expect(document.getElementById('mybtn').textContent).toEqual('My button');
+    let counter = 0;
+    let componentIdFromListener;
+    button.addListener({
+      id: 'btn-click',
+      type: 'click',
+      fn: (e, componentReference) => {
+        counter++;
+        componentIdFromListener = componentReference.id;
+        const elem = e.target;
+        elem.textContent = 'Button text changed ' + counter;
+      },
+    });
+    button.elem.click();
+    expect(document.getElementById('mybtn').textContent).toEqual('Button text changed 1');
+    expect(componentIdFromListener).toEqual('mybtn');
+
+    button.removeListener('btn-click');
+    button.elem.click();
+    expect(document.getElementById('mybtn').textContent).toEqual('Button text changed 1');
+
+    appRoot.discard(true);
+    expect(document.getElementById('root').children.length).toEqual(0);
+  });
 });
