@@ -21,6 +21,7 @@ class Component {
     //   style: {
     //     cssProperty: "value" (the key and value pairs will be added as the element's inline styles, eg. <li style="color: red;"><li>)
     //   }
+    //   preCreateElement: boolean (whether to create the element in the constructor, default false)
     // }
     if (props?.parent || props?.children) {
       logger.error(
@@ -42,7 +43,6 @@ class Component {
     components[this.id] = this;
     this.elem;
     this.parent;
-    this.template;
     this.children = {};
     this.listeners = {};
     this.listenersToAdd = [];
@@ -57,6 +57,9 @@ class Component {
       }
     }
     this.router = RouterRef;
+
+    this.template = props?.template || this._createDefaultTemplate(props);
+    if (props?.preCreateElement) this._createElement();
   }
 
   paint() {}
@@ -68,15 +71,12 @@ class Component {
     const props = { ...this.props, ...newProps };
     this.props = props;
     if (this.elem) this.discard();
+    this._checkParentAndAttachId();
     if (!this.template !== props.template) {
       this.template = props.template || this._createDefaultTemplate(props);
     }
-    const template = document.createElement('template');
-    template.innerHTML = this.template;
-    this.elem = template.content.firstChild;
-    this._checkParentAndAttachId();
+    this._createElement();
     props.prepend ? this.parent.elem.prepend(this.elem) : this.parent.elem.append(this.elem);
-    this._setElemData(this.elem, props);
     this.paint(props);
     this.addListeners(props);
     for (let i = 0; i < this.listenersToAdd.length; i++) {
@@ -186,16 +186,24 @@ class Component {
       }
     }
     if (props.text) elem.innerText = props.text;
+    if (props._id && !elem.getAttribute('id')) {
+      elem.setAttribute('id', props._id);
+    }
   };
 
   _createDefaultTemplate = (props) => {
-    let idString = '';
-    if (props._id) idString = ` id="${props.id}"`;
     if (props?.tag) {
-      return `<${props.tag}${idString}></${props.tag}>`;
+      return `<${props.tag}></${props.tag}>`;
     } else {
-      return `<div${idString}></div>`; // Default
+      return `<div></div>`; // Default
     }
+  };
+
+  _createElement = () => {
+    const elemTemplate = document.createElement('template');
+    elemTemplate.innerHTML = this.template;
+    this.elem = elemTemplate.content.firstChild;
+    this._setElemData(this.elem, this.props);
   };
 
   getComponentById = (id) => components[id];
