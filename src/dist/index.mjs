@@ -1,6 +1,6 @@
-var C = Object.defineProperty;
-var v = (a, t, e) => t in a ? C(a, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : a[t] = e;
-var h = (a, t, e) => (v(a, typeof t != "symbol" ? t + "" : t, e), e);
+var v = Object.defineProperty;
+var C = (a, t, e) => t in a ? v(a, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : a[t] = e;
+var h = (a, t, e) => (C(a, typeof t != "symbol" ? t + "" : t, e), e);
 let m;
 const x = new Uint8Array(16);
 function _() {
@@ -11,11 +11,11 @@ function _() {
 const u = [];
 for (let a = 0; a < 256; ++a)
   u.push((a + 256).toString(16).slice(1));
-function D(a, t = 0) {
+function E(a, t = 0) {
   return (u[a[t + 0]] + u[a[t + 1]] + u[a[t + 2]] + u[a[t + 3]] + "-" + u[a[t + 4]] + u[a[t + 5]] + "-" + u[a[t + 6]] + u[a[t + 7]] + "-" + u[a[t + 8]] + u[a[t + 9]] + "-" + u[a[t + 10]] + u[a[t + 11]] + u[a[t + 12]] + u[a[t + 13]] + u[a[t + 14]] + u[a[t + 15]]).toLowerCase();
 }
-const E = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), w = {
-  randomUUID: E
+const L = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), w = {
+  randomUUID: L
 };
 function S(a, t, e) {
   if (w.randomUUID && !t && !a)
@@ -28,7 +28,7 @@ function S(a, t, e) {
       t[e + r] = s[r];
     return t;
   }
-  return D(s);
+  return E(s);
 }
 class O {
   constructor(t) {
@@ -269,11 +269,7 @@ class j {
     });
     h(this, "draw", () => {
       var t;
-      (t = this.prevRouteData) != null && t.component && (this.prevRouteData.component.discard(!0), this.prevRouteData.component = null), console.log(
-        "TUUT",
-        this.curRouteData.component,
-        this.curRouteData.component.getComponentById(this.curRouteData.attachId)
-      ), this.curRouteData.component.draw();
+      (t = this.prevRouteData) != null && t.component && (this.prevRouteData.component.discard(!0), this.prevRouteData.component = null), this.curRouteData.component.draw();
     });
     h(this, "_createNewView", (t) => {
       var e, s;
@@ -342,7 +338,7 @@ class k {
       this.props = e, this.elem && this.discard(), this._checkParentAndAttachId(), !this.template !== e.template && (this.template = e.template || this._createDefaultTemplate(e)), this._createElement(), e.prepend ? this.parent.elem.prepend(this.elem) : this.parent.elem.append(this.elem), this.paint(e), this.addListeners(e);
       for (let s = 0; s < this.listenersToAdd.length; s++)
         this.listenersToAdd[s].targetId && (this.listenersToAdd[s].target = this.getComponentElemById(this.listenersToAdd[s].targetId)), this.addListener(this.listenersToAdd[s]);
-      return this.listenersToAdd = [], this.drawing = !1, this.id === "route-home" && console.log("TADAA2", e, this.elem, this.parent), this;
+      return this.listenersToAdd = [], this.drawing = !1, this;
     });
     h(this, "add", (t) => {
       let e = t;
@@ -439,7 +435,7 @@ class k {
   }
 }
 const N = (a) => g.setCallback(a), $ = (a) => a ? g.turnOff() : g.turnOn(), f = {};
-class B {
+class F {
   constructor(t) {
     this.initState = t, this.state = t || {}, this.listeners = [], this.listenerCallbacks = [];
   }
@@ -549,7 +545,7 @@ export {
   j as Router,
   P as RouterRef,
   A as SessionStorage,
-  B as State,
+  F as State,
   T as createUUID,
   $ as isComponentLoggerQuiet,
   U as isRouterLoggerQuiet,
