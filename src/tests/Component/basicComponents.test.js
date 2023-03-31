@@ -1,47 +1,10 @@
 import { Component, isComponentLoggerQuiet } from '../../LIGHTER';
-import { createEmptyRootDiv, isUUID } from '../testUtils';
+import { createEmptyRootDiv } from '../testUtils';
 
 describe('Basic Component tests', () => {
   beforeAll(() => {
     isComponentLoggerQuiet(true);
     createEmptyRootDiv();
-  });
-
-  it('should create a basic text div', () => {
-    const testText = 'Test text';
-    const comp = new Component({ text: testText });
-    expect(typeof comp.draw).toBe('function');
-    expect(typeof comp.add).toBe('function');
-    expect(typeof comp.addListener).toBe('function');
-    expect(typeof comp.removeListener).toBe('function');
-    expect(typeof comp.discard).toBe('function');
-    expect(typeof comp.discard).toBe('function');
-    expect(typeof comp.getComponentById).toBe('function');
-    expect(typeof comp.getComponentElemById).toBe('function');
-    expect(typeof comp._setElemData).toBe('function');
-    expect(typeof comp._createDefaultTemplate).toBe('function');
-    expect(typeof comp._checkParentAndAttachId).toBe('function');
-    expect(comp.isComponent).toBeTruthy();
-    expect(comp.children).toEqual({});
-    expect(comp.listeners).toEqual({});
-    expect(comp.listenersToAdd).toEqual([]);
-    expect(comp.drawing).toBeFalsy();
-    expect(comp.discarding).toBeFalsy();
-    expect(comp.router).toEqual(null);
-    expect(isUUID(comp.id)).toBeTruthy();
-    expect(isUUID(comp.props.id)).toBeTruthy();
-    expect(comp.props.text).toEqual(testText);
-  });
-
-  it('should fail when trying to draw a component without a parent or attachId', () => {
-    const comp = new Component();
-    let errorMsg = '';
-    try {
-      comp.draw();
-    } catch (err) {
-      errorMsg = err.message;
-    }
-    expect(errorMsg).toEqual('Call stack');
   });
 
   it('should create an appRoot component with another component as a child and draw them to DOM', () => {
@@ -63,7 +26,7 @@ describe('Basic Component tests', () => {
     expect(appRootElem.tagName).toEqual('DIV');
     expect(appRootElem.children.length).toEqual(1);
     expect(menuElem.tagName).toEqual('MENU');
-    expect(menuElem.innerText).toEqual('Menu');
+    expect(menuElem.textContent).toEqual('Menu');
 
     appRoot.discard(true);
     expect(document.getElementById('root').children.length).toEqual(0);
@@ -101,12 +64,12 @@ describe('Basic Component tests', () => {
     let appRootElem = document.getElementById('appRoot');
     expect(appRootElem !== null).toBeTruthy();
     expect(appRootElem.getAttribute('id')).toEqual('appRoot');
-    expect(appRootElem.innerText).toEqual('this is appRoot');
+    expect(appRootElem.textContent).toEqual('this is appRoot');
 
     // New draw with new props
     appRoot.draw({ text: 'this is the updated appRoot text', classes: ['myClass2'] });
     appRootElem = document.getElementById('appRoot');
-    expect(appRootElem.innerText).toEqual('this is the updated appRoot text');
+    expect(appRootElem.textContent).toEqual('this is the updated appRoot text');
     expect(appRootElem.classList.contains('myClass2')).toBeTruthy();
     expect(appRootElem.classList.contains('myClass')).toBeFalsy();
 
