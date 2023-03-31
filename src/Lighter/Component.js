@@ -36,6 +36,10 @@ class Component {
     } else {
       this.id = uuidv4();
     }
+    if (components[this.id]) {
+      logger.error(`Component id already exists: ${this.id}. All id's must be unique.`);
+      throw new Error('Duplicate component id.');
+    }
     this.props = {
       id: this.id,
       ...props,
@@ -66,7 +70,7 @@ class Component {
   addListeners() {}
 
   draw = (newProps) => {
-    if (this.drawing || this.discarding) return;
+    if (this.drawing || this.discarding) return this;
     this.drawing = true;
     const props = { ...this.props, ...newProps };
     this.props = props;
@@ -186,7 +190,7 @@ class Component {
         elem.style[keys[i]] = props.style[keys[i]];
       }
     }
-    if (props.text) elem.innerText = props.text;
+    if (props.text) elem.textContent = props.text;
     if (props._id && !elem.getAttribute('id')) {
       elem.setAttribute('id', props._id);
     }
