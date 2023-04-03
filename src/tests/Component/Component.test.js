@@ -150,8 +150,11 @@ describe('Component class tests', () => {
   });
 
   // Test discard and full discard
+  it('should discard and full discard created components (and its possible children)', () => {});
 
   // Test getComponentById
+  it('should get component class by its ID', () => {});
 
   // Test getComponentElemById
+  it('should get component element but its ID', () => {});
 });
