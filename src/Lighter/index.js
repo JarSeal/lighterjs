@@ -1,6 +1,8 @@
 import Component, {
   isLoggerQuiet as isComponentLoggerQuiet,
   setLoggerCallback as setComponentLoggerCallback,
+  getComponentById,
+  getComponentElemById,
 } from './Component';
 import Router, {
   isLoggerQuiet as isRouterLoggerQuiet,
@@ -20,6 +22,8 @@ export {
   createUUID,
   isComponentLoggerQuiet,
   setComponentLoggerCallback,
+  getComponentById,
+  getComponentElemById,
   isRouterLoggerQuiet,
   setRouterLoggerCallback,
   RouterRef,

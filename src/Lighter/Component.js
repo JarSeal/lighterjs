@@ -73,6 +73,17 @@ class Component {
     if (this.drawing || this.discarding) return this;
     this.drawing = true;
     const props = { ...this.props, ...newProps };
+    // Check errors
+    if (newProps?.id || newProps?._id) {
+      this.drawing = false;
+      logger.error(
+        `ID of a component cannot be changed once it has been initialised. Old ID: "${
+          this.id
+        }", new ID: ${newProps.id || newProps._id}`
+      );
+      throw new Error('ID cannot be changed');
+    }
+    if (!components[props.id]) components[props.id] = this;
     this.props = props;
     if (this.elem) this.discard();
     this._checkParentAndAttachId();
@@ -211,12 +222,8 @@ class Component {
     this._setElemData(this.elem, this.props);
   };
 
-  getComponentById = (id) => components[id];
-  getComponentElemById = (id) => {
-    const component = components[id];
-    if (!component?.elem) return document.getElementById(id);
-    return component.elem;
-  };
+  getComponentById = (id) => getComponentById(id);
+  getComponentElemById = (id) => getComponentElemById(id);
 
   _checkParentAndAttachId = () => {
     if (!this.parent && !this.props.attachId) {
@@ -230,5 +237,11 @@ class Component {
 
 export const setLoggerCallback = (callback) => logger.setCallback(callback);
 export const isLoggerQuiet = (isQuiet) => (isQuiet ? logger.turnOff() : logger.turnOn());
+export const getComponentById = (id) => components[id];
+export const getComponentElemById = (id) => {
+  const component = components[id];
+  if (!component?.elem) return document.getElementById(id);
+  return component.elem;
+};
 
 export default Component;
