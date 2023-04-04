@@ -1,4 +1,9 @@
-import { Component, isComponentLoggerQuiet } from '../../LIGHTER';
+import {
+  Component,
+  isComponentLoggerQuiet,
+  getComponentById,
+  getComponentElemById,
+} from '../../LIGHTER';
 import { createEmptyRootDiv, isUUID } from '../testUtils';
 
 describe('Component class tests', () => {
@@ -150,11 +155,89 @@ describe('Component class tests', () => {
   });
 
   // Test discard and full discard
-  it('should discard and full discard created components (and its possible children)', () => {});
+  it('should discard and full discard created components (and its possible children)', () => {
+    const appRoot = new Component({
+      _id: 'appRoot',
+      attachId: 'root',
+      text: 'test',
+    });
+    appRoot.draw();
+
+    const div = appRoot.add({ _id: 'my-div' }).draw();
+    const discardDiv = div.add({ _id: 'discard-div' }).draw();
+
+    expect(Boolean(document.getElementById('appRoot'))).toBeTruthy();
+    expect(Boolean(document.getElementById('my-div'))).toBeTruthy();
+    expect(Boolean(document.getElementById('discard-div'))).toBeTruthy();
+    expect(getComponentById('discard-div').isComponent).toBeTruthy();
+
+    // Soft and hard discard for a single component
+    discardDiv.discard();
+    expect(Boolean(document.getElementById('discard-div'))).toBeFalsy();
+    expect(getComponentById('discard-div').isComponent).toBeTruthy();
+    discardDiv.draw();
+    discardDiv.discard(true);
+    expect(Boolean(document.getElementById('discard-div'))).toBeFalsy();
+    expect(getComponentById('discard-div')?.isComponent).toBeFalsy();
+
+    // Since the discardDiv is still in this components memory,
+    // it can be redrawn (garbage collector finishes the job afterwards).
+    // Drawing it again, will add it to the component's list.
+    discardDiv.draw();
+
+    // Soft discard of a component with children
+    div.discard();
+
+    expect(Boolean(document.getElementById('my-div'))).toBeFalsy();
+    expect(Boolean(document.getElementById('discard-div'))).toBeFalsy();
+    expect(getComponentById('my-div').isComponent).toBeTruthy();
+    expect(getComponentById('discard-div').isComponent).toBeTruthy();
+
+    div.draw();
+    discardDiv.draw();
+    expect(Boolean(document.getElementById('discard-div'))).toBeTruthy();
+
+    // Hard discard of a component with children
+    div.discard(true);
+
+    expect(Boolean(document.getElementById('my-div'))).toBeFalsy();
+    expect(Boolean(document.getElementById('discard-div'))).toBeFalsy();
+    expect(getComponentById('my-div')).toBeFalsy();
+    expect(getComponentById('discard-div')).toBeFalsy();
+
+    appRoot.discard(true);
+  });
 
   // Test getComponentById
-  it('should get component class by its ID', () => {});
+  it('should get component class by its ID', () => {
+    const appRoot = new Component({
+      _id: 'appRoot',
+      attachId: 'root',
+      text: 'test',
+    });
+    appRoot.draw();
+
+    const appRootComponent = getComponentById('appRoot');
+
+    expect(getComponentById('appRoot')).toEqual(appRootComponent);
+    expect(getComponentById('someNoneExistingId')).toEqual(undefined);
+
+    appRoot.discard(true);
+  });
 
   // Test getComponentElemById
-  it('should get component element but its ID', () => {});
+  it('should get component element by its ID', () => {
+    const appRoot = new Component({
+      _id: 'appRoot',
+      attachId: 'root',
+      text: 'test',
+    });
+    appRoot.draw();
+
+    const appRootElem = getComponentElemById('appRoot');
+
+    expect(appRootElem).toEqual(appRoot.elem);
+
+    appRoot.discard(true);
+  });
 });
