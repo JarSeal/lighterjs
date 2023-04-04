@@ -61,8 +61,10 @@ describe('Component class tests', () => {
     expect(document.getElementById('appRoot').textContent).toEqual('test');
 
     appRoot.discarding = false;
+    appRoot.draw({ text: 'testing' });
+    expect(document.getElementById('appRoot').textContent).toEqual('testing');
+
     appRoot.discard(true);
-    expect(document.getElementById('root').children.length).toEqual(0);
   });
 
   it('should fail when trying to draw a component without a parent or attachId', () => {
@@ -129,7 +131,6 @@ describe('Component class tests', () => {
     expect(error).toEqual('Call stack');
 
     appRoot.discard(true);
-    expect(document.getElementById('root').children.length).toEqual(0);
   });
 
   it('should fail when trying to remove an unknown listener', () => {
@@ -151,7 +152,6 @@ describe('Component class tests', () => {
     expect(error).toEqual("Cannot read properties of undefined (reading 'target')");
 
     appRoot.discard(true);
-    expect(document.getElementById('root').children.length).toEqual(0);
   });
 
   // Test discard and full discard
@@ -206,6 +206,7 @@ describe('Component class tests', () => {
     expect(getComponentById('discard-div')).toBeFalsy();
 
     appRoot.discard(true);
+    expect(document.getElementById('root').children.length).toEqual(0);
   });
 
   // Test getComponentById

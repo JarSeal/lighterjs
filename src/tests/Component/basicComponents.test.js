@@ -29,7 +29,6 @@ describe('Basic Component tests', () => {
     expect(menuElem.textContent).toEqual('Menu');
 
     appRoot.discard(true);
-    expect(document.getElementById('root').children.length).toEqual(0);
   });
 
   it('should create an appRoot component with attributes', () => {
@@ -50,7 +49,6 @@ describe('Basic Component tests', () => {
     expect(appRoot.elem.classList.contains('anotherClass')).toBeTruthy();
 
     appRoot.discard(true);
-    expect(document.getElementById('root').children.length).toEqual(0);
   });
 
   it('should create an appRoot component with another component as a child and draw them to DOM', () => {
@@ -74,7 +72,6 @@ describe('Basic Component tests', () => {
     expect(appRootElem.classList.contains('myClass')).toBeFalsy();
 
     appRoot.discard(true);
-    expect(document.getElementById('root').children.length).toEqual(0);
   });
 
   it('should add a click listener and make the click change the button text, and then remove the listener successfully', () => {
