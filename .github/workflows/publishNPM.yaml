@@ -10,7 +10,7 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -24,6 +24,9 @@ jobs:
 
       - name: run linter
         run: yarn lint
+
+      - name: remove dist folder
+        run: rm -rf ./src/dist
 
       - name: run tests
         run: yarn test
