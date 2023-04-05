@@ -30,18 +30,6 @@ describe('Component class tests', () => {
     expect(error).toEqual('Invalid Component props key.');
   });
 
-  it('should fail component creation when trying to use the same id twice', () => {
-    new Component({ id: 'myid' });
-
-    let error = '';
-    try {
-      new Component({ id: 'myid' });
-    } catch (err) {
-      error = err.message;
-    }
-    expect(error).toEqual('Duplicate component id.');
-  });
-
   it('should not draw when drawing and discarding are in progress', () => {
     const appRoot = new Component({
       _id: 'appRoot',

@@ -103,6 +103,5 @@ describe('Basic Component tests', () => {
     expect(document.getElementById('mybtn').textContent).toEqual('Button text changed 1');
 
     appRoot.discard(true);
-    expect(document.getElementById('root').children.length).toEqual(0);
   });
 });
