@@ -6,7 +6,7 @@ class HomePage extends Component {
   }
 
   paint = () => {
-    this.add({ text: 'Home page' }).draw();
+    this.add({ _id: 'home-page', text: 'Home page' }).draw();
   };
 }
 

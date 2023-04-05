@@ -32,7 +32,7 @@ class AppRoot extends Component {
           id: 'route-four-o-four',
           source: FourOFourPage,
           is404: true,
-          title: '404 Page Not Found',
+          title: '404: Page Not Found',
         },
       ],
     };
