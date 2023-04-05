@@ -1,6 +1,6 @@
 {
   "name": "lighterjs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Light weight and class based vanilla JS UI framework",
   "main": "src/Lighter/index.js",
   "repository": "https://github.com/JarSeal/lighterjs.git",
