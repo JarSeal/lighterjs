@@ -36,12 +36,16 @@ jobs:
 
       - name: cleanup and move dist contents to root
         run: |
+          # Remove ".prettierrc", hidden json files, and then all the rest root files
           rm ./.prettierrc ./.*.json ./*.*
+
+          # Copy the "dist" folder's content to root
           cp -r ./src/dist/** ./
-          rm -rf .github
-          rm -rf node_modules
-          rm -rf src
-          ls -a
+
+          # Remove folders
+          rm -rf ./.github
+          rm -rf ./node_modules
+          rm -rf ./src
 
       - name: read "publish" tag
         run: |
