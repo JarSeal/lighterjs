@@ -23,4 +23,5 @@ import { Component } from 'lighterjs';
 
 const appRoot = new Component({ attachId: 'root', text: 'Hello world!" });
 appRoot.draw();
+// Renders the text "Hello world!" on the page.
 ```
