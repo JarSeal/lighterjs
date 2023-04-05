@@ -32,7 +32,7 @@ jobs:
         run: yarn build
 
       - name: cleanup and move dist contents to root
-        run: rm ./*.* && cp -r ./src/dist/** ./ && rm -rf .github && rm -rf node_modules && rm -rf src
+        run: rm ./*.* && cp -r ./src/dist/** ./ && rm -rf .github && rm -rf node_modules && rm -rf src && ls
 
       - name: read "publish" tag
         run: |
