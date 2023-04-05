@@ -35,7 +35,7 @@ jobs:
         run: yarn build
 
       - name: cleanup and move dist contents to root
-        run: cp -r ./src/dist/** ./ && rm -rf .github && rm -rf node_modules && rm -rf src && rm .[!.]* * && ls -a
+        run: cp -r ./src/dist/** ./ && rm -rf .github && rm -rf node_modules && rm -rf src && rm -f * > /dev/null && ls -a
 
       - name: read "publish" tag
         run: |
