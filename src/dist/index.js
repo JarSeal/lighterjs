@@ -1,36 +1,36 @@
-var v = Object.defineProperty;
-var C = (a, t, e) => t in a ? v(a, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : a[t] = e;
-var h = (a, t, e) => (C(a, typeof t != "symbol" ? t + "" : t, e), e);
-let m;
-const x = new Uint8Array(16);
-function _() {
-  if (!m && (m = typeof crypto < "u" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto), !m))
+var C = Object.defineProperty;
+var x = (n, t, e) => t in n ? C(n, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : n[t] = e;
+var o = (n, t, e) => (x(n, typeof t != "symbol" ? t + "" : t, e), e);
+let R;
+const _ = new Uint8Array(16);
+function P() {
+  if (!R && (R = typeof crypto < "u" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto), !R))
     throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
-  return m(x);
+  return R(_);
 }
 const u = [];
-for (let a = 0; a < 256; ++a)
-  u.push((a + 256).toString(16).slice(1));
-function E(a, t = 0) {
-  return (u[a[t + 0]] + u[a[t + 1]] + u[a[t + 2]] + u[a[t + 3]] + "-" + u[a[t + 4]] + u[a[t + 5]] + "-" + u[a[t + 6]] + u[a[t + 7]] + "-" + u[a[t + 8]] + u[a[t + 9]] + "-" + u[a[t + 10]] + u[a[t + 11]] + u[a[t + 12]] + u[a[t + 13]] + u[a[t + 14]] + u[a[t + 15]]).toLowerCase();
+for (let n = 0; n < 256; ++n)
+  u.push((n + 256).toString(16).slice(1));
+function D(n, t = 0) {
+  return (u[n[t + 0]] + u[n[t + 1]] + u[n[t + 2]] + u[n[t + 3]] + "-" + u[n[t + 4]] + u[n[t + 5]] + "-" + u[n[t + 6]] + u[n[t + 7]] + "-" + u[n[t + 8]] + u[n[t + 9]] + "-" + u[n[t + 10]] + u[n[t + 11]] + u[n[t + 12]] + u[n[t + 13]] + u[n[t + 14]] + u[n[t + 15]]).toLowerCase();
 }
-const L = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), w = {
-  randomUUID: L
+const E = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), S = {
+  randomUUID: E
 };
-function S(a, t, e) {
-  if (w.randomUUID && !t && !a)
-    return w.randomUUID();
-  a = a || {};
-  const s = a.random || (a.rng || _)();
+function I(n, t, e) {
+  if (S.randomUUID && !t && !n)
+    return S.randomUUID();
+  n = n || {};
+  const s = n.random || (n.rng || P)();
   if (s[6] = s[6] & 15 | 64, s[8] = s[8] & 63 | 128, t) {
     e = e || 0;
     for (let r = 0; r < 16; ++r)
       t[e + r] = s[r];
     return t;
   }
-  return E(s);
+  return D(s);
 }
-class O {
+class T {
   constructor(t) {
     this.keyPrefix = t || "", this.localStorageAvailable = this._lsTest();
   }
@@ -58,7 +58,7 @@ class O {
     }
   }
 }
-class A {
+class j {
   constructor(t) {
     this.keyPrefix = t || "", this.sessionStorageAvailable = this._lsTest();
   }
@@ -86,9 +86,9 @@ class A {
     }
   }
 }
-class I {
+class v {
   constructor(t, e, s) {
-    h(this, "setCallback", (t) => this.callback = t);
+    o(this, "setCallback", (t) => this.callback = t);
     this.prefix = t || "", this.callback = e, this.showLogs = !0, this.showErrors = !0, this.showWarnings = !0, s && this.turnOff();
   }
   log(...t) {
@@ -107,12 +107,12 @@ class I {
     this.showLogs = !0, this.showErrors = !0, this.showWarnings = !0;
   }
 }
-const T = () => S();
-let y = !1;
-const c = new I("LIGHTER.js ROUTER *****");
-class j {
+const H = () => I();
+let b = !1;
+const c = new v("LIGHTER.js ROUTER *****");
+class U {
   constructor(t, e, s, r) {
-    h(this, "initRouter", async (t, e) => {
+    o(this, "initRouter", async (t, e) => {
       this.setRoute();
       let s = !1;
       if (this.curRoute.length < this.basePath.length && (this.curRoute = this.basePath + "/", s = !0), !t) {
@@ -120,15 +120,19 @@ class j {
         return;
       }
       for (let i = 0; i < t.length; i++) {
-        if (!t[i].route)
-          throw c.error(`Route '${t[i].id}' is missing the route attribute.`), new Error("Call stack");
+        if (!t[i].route) {
+          const a = `Route '${t[i].id}' is missing the route attribute.`;
+          throw c.error(a), new Error(a);
+        }
         if (t[i].route = this.basePath + t[i].route, t[i].redirect) {
-          if (t[i].redirect = this.basePath + t[i].redirect, t[i].redirect === t[i].route)
-            throw c.error(`Route's redirect cannot be the same as the route '${t[i].route}'.`), new Error("Call stack");
+          if (t[i].redirect = this.basePath + t[i].redirect, t[i].redirect === t[i].route) {
+            const a = `Route's redirect cannot be the same as the route '${t[i].route}'.`;
+            throw c.error(a), new Error(a);
+          }
           this._compareRoutes(t[i].route, this.curRoute) && (this.curRoute = t[i].redirect, s = !0);
         }
         if (this._compareRoutes(t[i].route, this.curRoute, !0) && t[i].beforeDraw) {
-          const l = await t[i].beforeDraw({
+          const a = await t[i].beforeDraw({
             route: t[i],
             curRouteData: this.curRouteData,
             curRoute: this.curRoute,
@@ -137,7 +141,7 @@ class j {
             prevRouteData: null,
             prevRoute: null
           });
-          l && (this.curRoute = this.basePath + l, s = !0);
+          a && (this.curRoute = this.basePath + a, s = !0);
         }
       }
       let r = !1;
@@ -146,132 +150,140 @@ class j {
           this.routes.push(t[i]);
           continue;
         }
-        if (!t[i].id)
-          throw c.error("Route is missing the id attribute."), new Error("Call stack");
+        if (!t[i].id) {
+          const a = "Route is missing the id attribute.";
+          throw c.error(a), new Error(a);
+        }
         if (this.langFn && (t[i].titleKey ? t[i].title = this.langFn(t[i].titleKey) : c.warn(
           `Router has a langFn defined, but route '${t[i].id}' is missing the titleKey.`
         )), t[i].title || (c.warn(`Route '${t[i].id}' is missing the title. Setting id as title.`), t[i].title = t[i].id), t[i].attachId = e, this.routes.push(t[i]), this._compareRoutes(t[i].route, this.curRoute) && !this.curRoute.includes(":") && (t[i].attachId = e, this._createNewView(t[i]), r = !0, this.curRouteData = t[i], document.title = this._createPageTitle(t[i].title)), !r) {
-          const l = this._getRouteParams(this.routes[i].route, this.curRoute);
-          l && (t[i].attachId = e, this._createNewView(t[i]), r = !0, this.curRouteData = t[i], this.curRouteData.params = l, document.title = this._createPageTitle(t[i].title));
+          const a = this._getRouteParams(this.routes[i].route, this.curRoute);
+          a && (t[i].attachId = e, this._createNewView(t[i]), r = !0, this.curRouteData = t[i], this.curRouteData.params = a, document.title = this._createPageTitle(t[i].title));
         }
       }
       if (r || this.notFound(), window.onpopstate = this.routeChangeListener, s) {
         const i = this._createRouteState();
         window.history.pushState(i, "", this.curRoute), this.curHistoryState = i;
       }
-      y = !0;
+      b = !0;
     });
-    h(this, "routeChangeListener", (t) => {
+    o(this, "routeChangeListener", (t) => {
       this.setRoute(), this.changeRoute(this.curRoute, {
         forceUpdate: !0,
         ignoreBasePath: !0,
         doNotSetState: !0
       }), this.curHistoryState = t.state || {};
     });
-    h(this, "_createPageTitle", (t) => this.titlePrefix + t + this.titleSuffix);
-    h(this, "_createRouteState", () => {
+    o(this, "_createPageTitle", (t) => this.titlePrefix + t + this.titleSuffix);
+    o(this, "_createRouteState", () => {
       const t = Object.assign({}, this.nextHistoryState);
       return this.nextHistoryState = {}, this.curHistoryState = {}, t;
     });
-    h(this, "replaceRoute", (t, e) => {
+    o(this, "replaceRoute", (t, e) => {
       let s = this.basePath;
       e && (s = ""), t = s + t;
       const r = this._createRouteState();
       window.history.replaceState(r, "", t);
     });
-    h(this, "setNextHistoryState", (t) => {
+    o(this, "setNextHistoryState", (t) => {
       this.nextHistoryState = Object.assign(this.nextHistoryState, t);
     });
-    h(this, "setCurHistoryState", (t) => {
+    o(this, "setCurHistoryState", (t) => {
       this.curHistoryState = Object.assign(this.curHistoryState, t), window.history.replaceState(this.curHistoryState, "");
     });
-    h(this, "getCurHistoryState", () => this.curHistoryState);
+    o(this, "getCurHistoryState", () => this.curHistoryState);
     // Options: Object
     // - forceUpdate: Boolean
     // - ignoreBasePath: Boolean
     // - doNotSetState: Boolean
     // - replaceState: Boolean (if true, doNotSetState is also true, so no need to declare it)
-    h(this, "changeRoute", async (t, e) => {
+    o(this, "changeRoute", async (t, e) => {
       e || (e = {});
-      const s = e.forceUpdate, r = e.ignoreBasePath, i = e.doNotSetState, l = e.replaceState;
-      let n = this.basePath;
-      r && (n = ""), t = n + t;
+      const s = e.forceUpdate, r = e.ignoreBasePath, i = e.doNotSetState, a = e.replaceState;
+      let h = this.basePath;
+      r && (h = ""), t = h + t;
       let d;
-      for (let o = 0; o < this.routes.length; o++)
-        if (this._compareRoutes(this.routes[o].route, t, !0) && this.routes[o].beforeDraw) {
-          d = await this.routes[o].beforeDraw({
-            route: this.routes[o],
+      for (let l = 0; l < this.routes.length; l++)
+        if (this._compareRoutes(this.routes[l].route, t, !0) && this.routes[l].beforeDraw) {
+          d = await this.routes[l].beforeDraw({
+            route: this.routes[l],
             curRouteData: this.curRouteData,
             curRoute: this.curRoute,
             basePath: this.basePath,
             commonData: this.commonData,
             prevRouteData: this.prevRouteData,
             prevRoute: this.prevRouteData
-          }), d && (t = n + d);
+          }), d && (t = h + d);
           break;
         }
-      for (let o = 0; o < this.routes.length; o++)
-        if (this.routes[o].redirect && this._compareRoutes(this.routes[o].route, t)) {
-          t = this.routes[o].redirect;
+      for (let l = 0; l < this.routes.length; l++)
+        if (this.routes[l].redirect && this._compareRoutes(this.routes[l].route, t)) {
+          t = this.routes[l].redirect;
           break;
         }
       if (this._compareRoutes(t, this.curRoute) && !s)
         return;
-      if (s && (this.curRouteData.component.discard(!0), this.curRouteData.component = null), !i && !l) {
-        const o = this._createRouteState();
-        window.history.pushState(o, "", t);
+      if (s && (this.curRouteData.component.discard(!0), this.curRouteData.component = null), !i && !a) {
+        const l = this._createRouteState();
+        window.history.pushState(l, "", t);
       } else
-        l && this.replaceRoute(t, !0);
+        a && this.replaceRoute(t, !0);
       this.prevRoute = this.curRoute, this.setRoute();
       let p = !1;
-      for (let o = 0; o < this.routes.length; o++) {
-        if (this._compareRoutes(this.routes[o].route, t) && !t.includes(":")) {
-          p = !0, this.prevRouteData = Object.assign({}, this.curRouteData), this.curRouteData = this.routes[o], document.title = this._createPageTitle(this.routes[o].title), this._createNewView(this.routes[o]);
+      for (let l = 0; l < this.routes.length; l++) {
+        if (this._compareRoutes(this.routes[l].route, t) && !t.includes(":")) {
+          p = !0, this.prevRouteData = Object.assign({}, this.curRouteData), this.curRouteData = this.routes[l], document.title = this._createPageTitle(this.routes[l].title), this._createNewView(this.routes[l]);
           break;
         }
-        const b = this._getRouteParams(this.routes[o].route, t);
-        if (b) {
-          p = !0, this.prevRouteData = Object.assign({}, this.curRouteData), this.curRouteData = this.routes[o], this.curRouteData.params = b, document.title = this._createPageTitle(this.routes[o].title), this._createNewView(this.routes[o]);
+        const y = this._getRouteParams(this.routes[l].route, t);
+        if (y) {
+          p = !0, this.prevRouteData = Object.assign({}, this.curRouteData), this.curRouteData = this.routes[l], this.curRouteData.params = y, document.title = this._createPageTitle(this.routes[l].title), this._createNewView(this.routes[l]);
           break;
         }
       }
       p || this.notFound(), this.rcCallback(this.curRoute);
     });
-    h(this, "_compareRoutes", (t, e, s) => {
+    o(this, "_compareRoutes", (t, e, s) => {
       if (t = t.split("?")[0], e = e.split("?")[0], s && (t.includes(":") || e.includes(":"))) {
         const r = t.split("/"), i = e.split("/");
-        let l = r.length;
-        i.length > r.length && (l = i.length);
-        for (let n = 0; n < l; n++)
-          r[n] && r[n].includes(":") ? r[n] = i[n] : i[n] && i[n].includes(":") && (i[n] = r[n]);
+        let a = r.length;
+        i.length > r.length && (a = i.length);
+        for (let h = 0; h < a; h++)
+          r[h] && r[h].includes(":") ? r[h] = i[h] : i[h] && i[h].includes(":") && (i[h] = r[h]);
         t = r.join("/"), e = i.join("/");
       }
       return t === e || t + "/" === e || t === e + "/";
     });
-    h(this, "getRoute", (t) => t ? this.curRoute.replace(this.basePath, "") : this.curRoute);
-    h(this, "getRouteData", () => ({ ...this.curRouteData, prevRouteData: this.prevRouteData }));
-    h(this, "getRouteParams", () => this.curRouteData.params);
-    h(this, "isCurrent", (t) => this.basePath + t === this.curRoute || this.basePath + t === this.curRoute + "/" || this.basePath + t + "/" === this.curRoute);
-    h(this, "setRoute", () => {
+    o(this, "getRoute", (t) => t ? this.curRoute.replace(this.basePath, "") : this.curRoute);
+    o(this, "getRouteData", () => ({ ...this.curRouteData, prevRouteData: this.prevRouteData }));
+    o(this, "getRouteParams", () => this.curRouteData.params);
+    o(this, "isCurrent", (t) => this.basePath + t === this.curRoute || this.basePath + t === this.curRoute + "/" || this.basePath + t + "/" === this.curRoute);
+    o(this, "setRoute", () => {
       let t = location.pathname;
       t ? (t.length > 1 && t.substring(t.length - 1, t.length) === "/" && (t = t.substring(0, t.length - 1)), this.curRoute = t) : this.curRoute = this.basePath + "/";
     });
-    h(this, "addRoute", (t) => {
+    o(this, "addRoute", (t) => {
       t.route = this.basePath + t.route, this.routes.push(t), this._compareRoutes(t.route, this.curRoute) && (this.curRouteData = t);
     });
-    h(this, "notFound", () => {
+    o(this, "notFound", () => {
       let t;
       for (let e = 0; e < this.routes.length; e++)
         this.routes[e].is404 && (t = this.routes[e]);
-      if (!t)
-        throw c.error("Could not find 404 template."), new Error("Call stack");
+      if (!t) {
+        const e = "Could not find 404 template.";
+        throw c.error(e), new Error(e);
+      }
       this.prevRouteData = Object.assign({}, this.curRouteData), this.curRouteData = t, document.title = this._createPageTitle(t.title), this._createNewView(t);
     });
-    h(this, "draw", () => {
+    o(this, "draw", () => {
       var t;
       (t = this.prevRouteData) != null && t.component && (this.prevRouteData.component.discard(!0), this.prevRouteData.component = null), this.curRouteData.component.draw();
     });
-    h(this, "_createNewView", (t) => {
+    o(this, "remove", () => {
+      var t, e;
+      (t = this.prevRouteData) != null && t.component && this.prevRouteData.component.discard(!0), (e = this.curRouteData) != null && e.component && this.curRouteData.component.discard(!0), w = null, b = !1;
+    });
+    o(this, "_createNewView", (t) => {
       var e, s;
       t.component = new t.source({
         ...this.commonData,
@@ -282,7 +294,7 @@ class j {
         extraRouteData: t.extraRouteData
       }), (s = (e = t.component) == null ? void 0 : e.parent) != null && s.elem || (t.component.parent = t.component.getComponentById(t.attachId));
     });
-    h(this, "_getRouteParams", (t, e) => {
+    o(this, "_getRouteParams", (t, e) => {
       if (!t.includes(":"))
         return !1;
       const s = t.split("/");
@@ -290,35 +302,44 @@ class j {
       const r = e.split("/");
       let i = s.length;
       r.length > s.length && (i = r.length);
-      let l = {};
-      for (let n = 0; n < i; n++)
-        if (s[n] && s[n].includes(":")) {
-          if (!r[n])
+      let a = {};
+      for (let h = 0; h < i; h++)
+        if (s[h] && s[h].includes(":")) {
+          if (!r[h])
             return !1;
-          const d = s[n].replace(":", "");
-          l[d] = r[n];
-        } else if (!s[n] === void 0 || !r[n] === void 0 || s[n] !== r[n])
+          const d = s[h].replace(":", "");
+          a[d] = r[h];
+        } else if (!s[h] === void 0 || !r[h] === void 0 || s[h] !== r[h])
           return !1;
-      return l;
+      return a;
     });
-    if (y)
-      throw c.error("Router has already been initiated. Only one router per app is allowed."), new Error("Call stack");
-    if (!t || !t.routes || !t.routes.length)
-      throw c.error(
-        `Missing routesData parameter, routesData.routes, or routesData.routes is empty.
-Required params: new Route(routesData, attachId, rcCallback);`
-      ), new Error("Call stack");
+    if (b) {
+      const a = "Router has already been initiated. Only one router per app is allowed.";
+      throw c.error(a), new Error(a);
+    }
+    if (!t || !t.routes || !t.routes.length) {
+      const a = `Missing routesData parameter, routesData.routes, or routesData.routes is empty.
+Required params: new Route(routesData, attachId, rcCallback);`;
+      throw c.error(a), new Error(a);
+    }
     if (!e)
       throw c.error(
         `Missing attachId parameter.
 Required params: new Route(routesData, attachId, rcCallback);`
       ), new Error("Call stack");
-    if (!s)
-      throw c.error(
-        `Missing rcCallback (route change callback) parameter / function.
-Required params: new Route(routesData, attachId, rcCallback);`
-      ), new Error("Call stack");
-    P = this, this.routes = [], this.nextHistoryState = {}, this.curHistoryState = {}, this.basePath = t.basePath || "", this.titlePrefix = t.titlePrefix || "", this.titleSuffix = t.titleSuffix || "", this.langFn = t.langFn, this.curRoute = this.basePath + "/", this.rcCallback = s, this.redirectRoute = null, this.curRouteData = {
+    if (!s) {
+      const a = `Missing rcCallback (route change callback) parameter / function.
+Required params: new Route(routesData, attachId, rcCallback);`;
+      throw c.error(a), new Error(a);
+    }
+    let i = !1;
+    for (let a = 0; a < t.routes.length; a++)
+      t.routes[a].is404 && (i = !0);
+    if (!i) {
+      const a = "Could not find 404 template.";
+      throw c.error(a), new Error(a);
+    }
+    w = this, this.routes = [], this.nextHistoryState = {}, this.curHistoryState = {}, this.basePath = t.basePath || "", this.titlePrefix = t.titlePrefix || "", this.titleSuffix = t.titleSuffix || "", this.langFn = t.langFn, this.curRoute = this.basePath + "/", this.rcCallback = s, this.redirectRoute = null, this.curRouteData = {
       route: this.basePath + "/",
       source: null,
       params: {},
@@ -326,25 +347,29 @@ Required params: new Route(routesData, attachId, rcCallback);`
     }, this.prevRoute = null, this.prevRouteData = null, r || (r = {}), this.commonData = r, this.initRouter(t.routes, e);
   }
 }
-let P = null;
-const H = (a) => c.setCallback(a), U = (a) => a ? c.turnOff() : c.turnOn(), R = {}, g = new I("LIGHTER.js COMPO *****");
+let w = null;
+const N = (n) => c.setCallback(n), $ = (n) => n ? c.turnOff() : c.turnOn(), m = {}, g = new v("LIGHTER.js COMPO *****");
 class k {
   constructor(t) {
-    h(this, "draw", (t) => {
+    o(this, "draw", (t) => {
       if (this.drawing || this.discarding)
-        return;
+        return this;
       this.drawing = !0;
       const e = { ...this.props, ...t };
-      this.props = e, this.elem && this.discard(), this._checkParentAndAttachId(), !this.template !== e.template && (this.template = e.template || this._createDefaultTemplate(e)), this._createElement(), e.prepend ? this.parent.elem.prepend(this.elem) : this.parent.elem.append(this.elem), this.paint(e), this.addListeners(e);
+      if (t != null && t.id || t != null && t._id)
+        throw this.drawing = !1, g.error(
+          `ID of a component cannot be changed once it has been initialised. Old ID: "${this.id}", new ID: ${t.id || t._id}`
+        ), new Error("ID cannot be changed");
+      m[e.id] || (m[e.id] = this), this.props = e, this.elem && this.discard(), this._checkParentAndAttachId(), !this.template !== e.template && (this.template = e.template || this._createDefaultTemplate(e)), this._createElement(), e.prepend ? this.parent.elem.prepend(this.elem) : this.parent.elem.append(this.elem), this.paint(e), this.addListeners(e);
       for (let s = 0; s < this.listenersToAdd.length; s++)
         this.listenersToAdd[s].targetId && (this.listenersToAdd[s].target = this.getComponentElemById(this.listenersToAdd[s].targetId)), this.addListener(this.listenersToAdd[s]);
       return this.listenersToAdd = [], this.drawing = !1, this;
     });
-    h(this, "add", (t) => {
+    o(this, "add", (t) => {
       let e = t;
       return e.isComponent || (e = new k(t)), this.children[e.id] = e, e.props.attachId || (e.parent = this), e;
     });
-    h(this, "addListener", (t) => {
+    o(this, "addListener", (t) => {
       let { id: e, target: s, type: r, fn: i } = t;
       if (!r || !i)
         throw g.error(
@@ -363,9 +388,9 @@ class k {
           ), new Error("Call stack");
         t.target = s;
       }
-      this.listeners[e] && this.removeListener(e), s && (s.addEventListener(r, i), this.listeners[e] = t);
+      this.listeners[e] && this.removeListener(e), s && (t.fn = (a) => i(a, this), s.addEventListener(r, t.fn), this.listeners[e] = t);
     });
-    h(this, "removeListener", (t) => {
+    o(this, "removeListener", (t) => {
       if (!t)
         throw g.error(
           `Could not remove listener, id missing. Listener props: ${JSON.stringify(t)}`,
@@ -374,7 +399,7 @@ class k {
       const { target: e, type: s, fn: r } = this.listeners[t];
       e.removeEventListener(s, r), delete this.listeners[t];
     });
-    h(this, "discard", (t) => {
+    o(this, "discard", (t) => {
       if (this.discarding)
         return;
       this.discarding = !0;
@@ -384,9 +409,9 @@ class k {
       e = Object.keys(this.children);
       for (let s = 0; s < e.length; s++)
         this.children[e[s]].discard(t), t && delete this.children[e[s]];
-      this.elem && (this.elem.remove(), this.elem = null), t && delete R[this.id], this.discarding = !1;
+      this.elem && (this.elem.remove(), this.elem = null), t && delete m[this.id], this.discarding = !1;
     });
-    h(this, "_setElemData", (t, e) => {
+    o(this, "_setElemData", (t, e) => {
       var s;
       if (!(!t || !e)) {
         if ((s = e.classes) != null && s.length && t.classList.add(...e.classes), e.attributes) {
@@ -399,20 +424,17 @@ class k {
           for (let i = 0; i < r.length; i++)
             t.style[r[i]] = e.style[r[i]];
         }
-        e.text && (t.innerText = e.text), e._id && !t.getAttribute("id") && t.setAttribute("id", e._id);
+        e.text && (t.textContent = e.text), e._id && !t.getAttribute("id") && t.setAttribute("id", e._id);
       }
     });
-    h(this, "_createDefaultTemplate", (t) => t != null && t.tag ? `<${t.tag}></${t.tag}>` : "<div></div>");
-    h(this, "_createElement", () => {
+    o(this, "_createDefaultTemplate", (t) => t != null && t.tag ? `<${t.tag}></${t.tag}>` : "<div></div>");
+    o(this, "_createElement", () => {
       const t = document.createElement("template");
       t.innerHTML = this.template, this.elem = t.content.firstChild, this._setElemData(this.elem, this.props);
     });
-    h(this, "getComponentById", (t) => R[t]);
-    h(this, "getComponentElemById", (t) => {
-      const e = R[t];
-      return e != null && e.elem ? e.elem : document.getElementById(t);
-    });
-    h(this, "_checkParentAndAttachId", () => {
+    o(this, "getComponentById", (t) => L(t));
+    o(this, "getComponentElemById", (t) => O(t));
+    o(this, "_checkParentAndAttachId", () => {
       if (!this.parent && !this.props.attachId)
         throw g.error(
           'Component does not have a parent nor does it have an "attachId" as a prop. One of these is required. Either pass in an "attachId" as prop or attach this component to the parent component with "parentComponent.add()" method.'
@@ -424,18 +446,21 @@ class k {
           t
         )}`
       ), new Error("Invalid Component props key.");
-    t != null && t.id || t != null && t._id ? this.id = t.id || t._id : this.id = S(), this.props = {
+    t != null && t.id || t != null && t._id ? this.id = t.id || t._id : this.id = I(), this.props = {
       id: this.id,
       ...t
-    }, R[this.id] = this, this.elem, this.parent, this.children = {}, this.listeners = {}, this.listenersToAdd = [], this.drawing = !1, this.discarding = !1, this.isComponent = !0, this.props.attachId && (this.parent ? this.parent.elem = this.getComponentElemById(this.props.attachId) : this.parent = { elem: this.getComponentElemById(this.props.attachId) }), this.router = P, this.template = (t == null ? void 0 : t.template) || this._createDefaultTemplate(t), t != null && t.preCreateElement && this._createElement();
+    }, m[this.id] = this, this.elem, this.parent, this.children = {}, this.listeners = {}, this.listenersToAdd = [], this.drawing = !1, this.discarding = !1, this.isComponent = !0, this.props.attachId && (this.parent ? this.parent.elem = this.getComponentElemById(this.props.attachId) : this.parent = { elem: this.getComponentElemById(this.props.attachId) }), this.router = w, this.template = (t == null ? void 0 : t.template) || this._createDefaultTemplate(t), t != null && t.preCreateElement && this._createElement();
   }
   paint() {
   }
   addListeners() {
   }
 }
-const N = (a) => g.setCallback(a), $ = (a) => a ? g.turnOff() : g.turnOn(), f = {};
-class F {
+const F = (n) => g.setCallback(n), M = (n) => n ? g.turnOff() : g.turnOn(), L = (n) => m[n], O = (n) => {
+  const t = m[n];
+  return t != null && t.elem ? t.elem : document.getElementById(n);
+}, f = {};
+class B {
   constructor(t) {
     this.initState = t, this.state = t || {}, this.listeners = [], this.listenerCallbacks = [];
   }
@@ -443,20 +468,20 @@ class F {
     if (!t)
       return;
     const i = t.split(".");
-    let l;
+    let a;
     if (i.length === 1) {
       if (r) {
         f[t] = e;
         return;
       }
-      l = this.state[i[i.length - 1]], this.state[t] = e, this._checkListeners(l, e, t);
+      a = this.state[i[i.length - 1]], this.state[t] = e, this._checkListeners(a, e, t);
       return;
     }
-    let n = r ? f[i[0]] : this.state[i[0]];
-    n === void 0 && (r ? f[i[0]] = n = {} : this.state[i[0]] = n = {});
+    let h = r ? f[i[0]] : this.state[i[0]];
+    h === void 0 && (r ? f[i[0]] = h = {} : this.state[i[0]] = h = {});
     for (let d = 1; d < i.length - 1; d++)
-      n[i[d]] === void 0 && (n[i[d]] = {}), n = n[i[d]];
-    r ? n[i[i.length - 1]] = e : (l = n[i[i.length - 1]], n[i[i.length - 1]] = e, this._checkListeners(l, e, t)), s && !r && this.addListener(t, s);
+      h[i[d]] === void 0 && (h[i[d]] = {}), h = h[i[d]];
+    r ? h[i[i.length - 1]] = e : (a = h[i[i.length - 1]], h[i[i.length - 1]] = e, this._checkListeners(a, e, t)), s && !r && this.addListener(t, s);
   }
   get(t, e) {
     if (!t)
@@ -540,15 +565,17 @@ class F {
 }
 export {
   k as Component,
-  O as LocalStorage,
-  I as Logger,
-  j as Router,
-  P as RouterRef,
-  A as SessionStorage,
-  F as State,
-  T as createUUID,
-  $ as isComponentLoggerQuiet,
-  U as isRouterLoggerQuiet,
-  N as setComponentLoggerCallback,
-  H as setRouterLoggerCallback
+  T as LocalStorage,
+  v as Logger,
+  U as Router,
+  w as RouterRef,
+  j as SessionStorage,
+  B as State,
+  H as createUUID,
+  L as getComponentById,
+  O as getComponentElemById,
+  M as isComponentLoggerQuiet,
+  $ as isRouterLoggerQuiet,
+  F as setComponentLoggerCallback,
+  N as setRouterLoggerCallback
 };
