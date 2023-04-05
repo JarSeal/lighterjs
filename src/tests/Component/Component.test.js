@@ -3,7 +3,7 @@ import {
   isComponentLoggerQuiet,
   getComponentById,
   getComponentElemById,
-} from '../../LIGHTER';
+} from '../../Lighter';
 import { createEmptyRootDiv, isUUID } from '../testUtils';
 
 describe('Component class tests', () => {

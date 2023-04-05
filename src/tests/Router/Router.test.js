@@ -1,4 +1,4 @@
-import { Router, Component, isRouterLoggerQuiet } from '../../LIGHTER';
+import { Router, Component, isRouterLoggerQuiet } from '../../Lighter';
 import MainMenu from '../Pages/Components/MainMenu';
 import { createEmptyRootDiv, Pages } from '../testUtils';
 

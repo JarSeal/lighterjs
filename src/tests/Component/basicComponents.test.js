@@ -1,4 +1,4 @@
-import { Component, isComponentLoggerQuiet } from '../../LIGHTER';
+import { Component, isComponentLoggerQuiet } from '../../Lighter';
 import { createEmptyRootDiv } from '../testUtils';
 
 describe('Basic Component tests', () => {
