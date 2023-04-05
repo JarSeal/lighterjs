@@ -20,6 +20,7 @@ const buildPackageJson = () => {
     'name',
     'version',
     'description',
+    'keywords',
     'main',
     'repository',
     'author',

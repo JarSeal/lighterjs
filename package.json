@@ -1,7 +1,17 @@
 {
   "name": "lighterjs",
   "version": "1.0.3",
-  "description": "Light weight and class based vanilla JS UI framework",
+  "description": "A light weight and class based vanilla JS UI framework, with Component, Router, and State handling.",
+  "keywords": [
+    "UI",
+    "Framework",
+    "Vanilla",
+    "Class",
+    "Light",
+    "Component",
+    "Router",
+    "State"
+  ],
   "main": "src/Lighter/index.js",
   "repository": "https://github.com/JarSeal/lighterjs.git",
   "author": "JarSeal",
@@ -12,7 +22,7 @@
     "dev": "vite serve --port 8080",
     "lint": "eslint .",
     "test": "jest --verbose --runInBand --detectOpenHandles",
-    "build": "vite build && mkdir -p ./src/dist/demo/examples && cp ./src/index.js ./src/dist/demo && cp ./src/index.html ./src/dist/demo && cp -a ./src/examples ./src/dist/demo/examples && yarn buildPackageJson",
+    "build": "vite build && mkdir -p ./src/dist/demo/examples && cp ./src/index.js ./src/dist/demo && cp ./src/index.html ./src/dist/demo && cp -a ./src/examples ./src/dist/demo/examples && yarn buildPackageJson && cp ./README.md ./src/dist/README.md",
     "buildPackageJson": "node buildPackageJson"
   },
   "dependencies": {

@@ -1,7 +1,17 @@
 {
   "name": "lighterjs",
-  "version": "1.0.2",
-  "description": "Light weight and class based vanilla JS UI framework",
+  "version": "1.0.3",
+  "description": "A light weight and class based vanilla JS UI framework, with Component, Router, and State handling.",
+  "keywords": [
+    "UI",
+    "Framework",
+    "Vanilla",
+    "Class",
+    "Light",
+    "Component",
+    "Router",
+    "State"
+  ],
   "main": "index.js",
   "repository": "https://github.com/JarSeal/lighterjs.git",
   "author": "JarSeal",
