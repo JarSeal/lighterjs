@@ -21,7 +21,7 @@ class Component {
     //   style: {
     //     cssProperty: "value" (the key and value pairs will be added as the element's inline styles, eg. <li style="color: red;"><li>)
     //   }
-    //   preCreateElement: boolean (whether to create the element in the constructor, default false)
+    //   preCreateElement: boolean (whether to create the DOM element in the constructor, default false)
     // }
     if (props?.parent || props?.children) {
       logger.error(
@@ -35,10 +35,6 @@ class Component {
       this.id = props.id || props._id;
     } else {
       this.id = uuidv4();
-    }
-    if (components[this.id]) {
-      logger.error(`Component id already exists: ${this.id}. All id's must be unique.`);
-      throw new Error('Duplicate component id.');
     }
     this.props = {
       id: this.id,

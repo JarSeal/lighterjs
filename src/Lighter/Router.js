@@ -26,19 +26,20 @@ class Router {
     //   beforeDraw: (routeData) => { return '/401'; }, (= function to call before the view is shown, return a new route if needed)
     // },
     // {
-    //   route: '', (= route path [String] [required])
-    //   redirect: '', (= redirect path [String] [required])
+    //   route: '', (= route path [String] [required if redirect missing])
+    //   redirect: '', (= redirect path [String] [required if route missing])
     // }]
     // *****************
     if (routerInitiated) {
-      logger.error('Router has already been initiated. Only one router per app is allowed.');
-      throw new Error('Call stack');
+      const errorMsg = 'Router has already been initiated. Only one router per app is allowed.';
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
     }
     if (!routesData || !routesData.routes || !routesData.routes.length) {
-      logger.error(
-        'Missing routesData parameter, routesData.routes, or routesData.routes is empty.\nRequired params: new Route(routesData, attachId, rcCallback);'
-      );
-      throw new Error('Call stack');
+      const errorMsg =
+        'Missing routesData parameter, routesData.routes, or routesData.routes is empty.\nRequired params: new Route(routesData, attachId, rcCallback);';
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
     }
     if (!attachId) {
       logger.error(
@@ -47,10 +48,19 @@ class Router {
       throw new Error('Call stack');
     }
     if (!rcCallback) {
-      logger.error(
-        'Missing rcCallback (route change callback) parameter / function.\nRequired params: new Route(routesData, attachId, rcCallback);'
-      );
-      throw new Error('Call stack');
+      const errorMsg =
+        'Missing rcCallback (route change callback) parameter / function.\nRequired params: new Route(routesData, attachId, rcCallback);';
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+    let fourOFourFound = false;
+    for (let i = 0; i < routesData.routes.length; i++) {
+      if (routesData.routes[i].is404) fourOFourFound = true;
+    }
+    if (!fourOFourFound) {
+      const errorMsg = 'Could not find 404 template.';
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
     }
     RouterRef = this;
     this.routes = [];
@@ -90,15 +100,17 @@ class Router {
     for (let i = 0; i < routes.length; i++) {
       // First loop check a redirect against curRoute
       if (!routes[i].route) {
-        logger.error(`Route '${routes[i].id}' is missing the route attribute.`);
-        throw new Error('Call stack');
+        const errorMsg = `Route '${routes[i].id}' is missing the route attribute.`;
+        logger.error(errorMsg);
+        throw new Error(errorMsg);
       }
       routes[i].route = this.basePath + routes[i].route;
       if (routes[i].redirect) {
         routes[i].redirect = this.basePath + routes[i].redirect;
         if (routes[i].redirect === routes[i].route) {
-          logger.error(`Route's redirect cannot be the same as the route '${routes[i].route}'.`);
-          throw new Error('Call stack');
+          const errorMsg = `Route's redirect cannot be the same as the route '${routes[i].route}'.`;
+          logger.error(errorMsg);
+          throw new Error(errorMsg);
         }
         if (this._compareRoutes(routes[i].route, this.curRoute)) {
           this.curRoute = routes[i].redirect;
@@ -129,8 +141,9 @@ class Router {
         continue;
       }
       if (!routes[i].id) {
-        logger.error('Route is missing the id attribute.');
-        throw new Error('Call stack');
+        const errorMsg = 'Route is missing the id attribute.';
+        logger.error(errorMsg);
+        throw new Error(errorMsg);
       }
       if (this.langFn) {
         if (routes[i].titleKey) {
@@ -360,8 +373,9 @@ class Router {
       }
     }
     if (!template) {
-      logger.error('Could not find 404 template.');
-      throw new Error('Call stack');
+      const errorMsg = 'Could not find 404 template.';
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
     }
     this.prevRouteData = Object.assign({}, this.curRouteData);
     this.curRouteData = template;
@@ -375,6 +389,17 @@ class Router {
       this.prevRouteData.component = null;
     }
     this.curRouteData.component.draw();
+  };
+
+  remove = () => {
+    if (this.prevRouteData?.component) {
+      this.prevRouteData.component.discard(true);
+    }
+    if (this.curRouteData?.component) {
+      this.curRouteData.component.discard(true);
+    }
+    RouterRef = null;
+    routerInitiated = false;
   };
 
   _createNewView = (routeData) => {
