@@ -32,7 +32,7 @@ const buildPackageJson = () => {
   });
 
   // Add main prop
-  trimmedPack.main = 'index.mjs';
+  trimmedPack.main = 'index.js';
 
   // Save build package.json
   const path = './src/dist/package.json';
