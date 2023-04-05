@@ -22,8 +22,17 @@ jobs:
       - name: install packages
         run: yarn install
 
+      - name: run linter
+        run: yarn lint
+
+      - name: run tests
+        run: yarn test
+
       - name: build dist package
         run: yarn build
+
+      - name: cleanup and move dist contents to root
+        run: rm ./*.* && cp -r ./src/dist/** ./ && rm -rf .github && rm -rf node_modules && rm -rf src
 
       - name: read "publish" tag
         run: |

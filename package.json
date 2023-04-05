@@ -1,16 +1,19 @@
 {
   "name": "lighterjs",
   "version": "1.0.1",
-  "description": "Light weight JS UI framework",
+  "description": "Light weight and class based vanilla JS UI framework",
   "main": "src/Lighter/index.js",
   "repository": "https://github.com/JarSeal/lighterjs.git",
   "author": "JarSeal",
   "license": "MIT",
   "private": false,
+  "type": "module",
   "scripts": {
     "dev": "vite serve --port 8080",
-    "build": "vite build && mkdir -p ./src/dist/demo/examples && cp ./src/index.js ./src/dist/demo && cp ./src/index.html ./src/dist/demo && cp -a ./src/examples ./src/dist/demo/examples",
-    "test": "jest --verbose --runInBand --detectOpenHandles"
+    "lint": "eslint .",
+    "test": "jest --verbose --runInBand --detectOpenHandles",
+    "build": "vite build && mkdir -p ./src/dist/demo/examples && cp ./src/index.js ./src/dist/demo && cp ./src/index.html ./src/dist/demo && cp -a ./src/examples ./src/dist/demo/examples && yarn buildPackageJson",
+    "buildPackageJson": "node buildPackageJson"
   },
   "dependencies": {
     "uuid": "9.0.0"
