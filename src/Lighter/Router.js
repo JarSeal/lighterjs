@@ -7,7 +7,7 @@ class Router {
   constructor(routesData, attachId, rcCallback, componentData) {
     // routesData = {
     //   routes: [], (= see below [Array] [required])
-    //   basePath: '', (= basepath of the whole app [String] [optional])
+    //   basePath: '', (= basepath of the whole app [String] [optional], eg. '/basepath')
     //   titlePrefix: '', (= page and document title prefix [String] [optional])
     //   titleSuffix: '', (= page and document title suffix [String] [optional])
     //   langFn: function() {}, (= language strings getter function [Function] [optional])
@@ -35,27 +35,43 @@ class Router {
       logger.error(errorMsg);
       throw new Error(errorMsg);
     }
+    const REQUIRED_PARAMS_MSG = 'Required params: new Route(routesData, attachId, rcCallback);';
     if (!routesData || !routesData.routes || !routesData.routes.length) {
       const errorMsg =
-        'Missing routesData parameter, routesData.routes, or routesData.routes is empty.\nRequired params: new Route(routesData, attachId, rcCallback);';
+        'Missing routesData parameter, routesData.routes, or routesData.routes is empty. ' +
+        REQUIRED_PARAMS_MSG;
       logger.error(errorMsg);
       throw new Error(errorMsg);
     }
     if (!attachId) {
-      logger.error(
-        'Missing attachId parameter.\nRequired params: new Route(routesData, attachId, rcCallback);'
-      );
-      throw new Error('Call stack');
+      const errorMsg = 'Missing attachId parameter. ' + REQUIRED_PARAMS_MSG;
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
     }
     if (!rcCallback) {
       const errorMsg =
-        'Missing rcCallback (route change callback) parameter / function.\nRequired params: new Route(routesData, attachId, rcCallback);';
+        'Missing rcCallback (route change callback) parameter / function. ' + REQUIRED_PARAMS_MSG;
       logger.error(errorMsg);
       throw new Error(errorMsg);
     }
     let fourOFourFound = false;
     for (let i = 0; i < routesData.routes.length; i++) {
       if (routesData.routes[i].is404) fourOFourFound = true;
+      if (!routesData.routes[i].id) {
+        const errorMsg = `Route is missing the 'id' prop.`;
+        logger.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+      if (!routesData.routes[i].route) {
+        const errorMsg = `Route '${routesData.routes[i].id}' is missing the 'route' prop.`;
+        logger.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+      if (!routesData.routes[i].source) {
+        const errorMsg = `Route '${routesData.routes[i].id}' is missing the 'source' prop.`;
+        logger.error(errorMsg);
+        throw new Error(errorMsg);
+      }
     }
     if (!fourOFourFound) {
       const errorMsg = 'Could not find 404 template.';
@@ -99,11 +115,6 @@ class Router {
     }
     for (let i = 0; i < routes.length; i++) {
       // First loop check a redirect against curRoute
-      if (!routes[i].route) {
-        const errorMsg = `Route '${routes[i].id}' is missing the route attribute.`;
-        logger.error(errorMsg);
-        throw new Error(errorMsg);
-      }
       routes[i].route = this.basePath + routes[i].route;
       if (routes[i].redirect) {
         routes[i].redirect = this.basePath + routes[i].redirect;
@@ -139,11 +150,6 @@ class Router {
       if (routes[i].redirect) {
         this.routes.push(routes[i]);
         continue;
-      }
-      if (!routes[i].id) {
-        const errorMsg = 'Route is missing the id attribute.';
-        logger.error(errorMsg);
-        throw new Error(errorMsg);
       }
       if (this.langFn) {
         if (routes[i].titleKey) {
