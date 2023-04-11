@@ -6,6 +6,9 @@ class FirstPage extends Component {
   }
 
   paint = () => {
+    if (this.props.introduction) {
+      this.add({ _id: 'introduction-1', text: this.props.introduction }).draw();
+    }
     this.add({ _id: 'first-page', text: 'First page' }).draw();
   };
 }

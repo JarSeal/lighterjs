@@ -6,6 +6,9 @@ class HomePage extends Component {
   }
 
   paint = () => {
+    if (this.props.introduction) {
+      this.add({ _id: 'introduction-0', text: this.props.introduction }).draw();
+    }
     this.add({ _id: 'home-page', text: 'Home page' }).draw();
   };
 }

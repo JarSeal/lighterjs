@@ -1,6 +1,8 @@
 import HomePage from './Pages/HomePage';
 import FirstPage from './Pages/FirstPage';
 import FourOFourPage from './Pages/FourOFourPage';
+import SubPageOne from './Pages/SubPageOne';
+import SubPageTwo from './Pages/SubPageTwo';
 
 export const isUUID = (text) => {
   const regexExp =
@@ -16,4 +18,6 @@ export const Pages = {
   HomePage,
   FirstPage,
   FourOFourPage,
+  SubPageOne,
+  SubPageTwo,
 };

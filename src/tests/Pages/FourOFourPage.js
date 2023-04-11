@@ -6,6 +6,9 @@ class FourOFourPage extends Component {
   }
 
   paint = () => {
+    if (this.props.introduction) {
+      this.add({ _id: 'introduction-2', text: this.props.introduction }).draw();
+    }
     this.add({ _id: 'fourofour-page', text: '404' }).draw();
   };
 }

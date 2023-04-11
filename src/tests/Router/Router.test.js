@@ -393,6 +393,7 @@ describe('Router class tests', () => {
     document.querySelector('#main-menu-item-2 button').click();
     expect(document.title).toEqual(langFn('404: Page not found'));
 
+    // Reset TWO_ROUTES data
     delete TWO_ROUTES.routes[0].titleKey;
     delete TWO_ROUTES.routes[1].titleKey;
     delete TWO_ROUTES.routes[2].titleKey;
@@ -401,9 +402,240 @@ describe('Router class tests', () => {
     appRoot.discard(true);
   });
 
-  // componentData test
+  // changeRoute and history (backbutton on default and with changeRoute options) tests
+  it("should changeRoute and history data (and with changeRoute options), and also work with back and forward history API's", async () => {
+    const mainMenuData = [
+      { text: 'Home', path: '/' },
+      { text: 'First page', path: '/first-page' },
+      { text: 'Link to nowhere', path: '/page-that-doesnt-exist' },
+    ];
+
+    const appRoot = new Component({ _id: 'appRoot', attachId: 'root' });
+    appRoot.draw();
+
+    const paintPage = () => {
+      mainMenu.draw();
+      router.draw();
+    };
+
+    const basePath = '/basepath';
+    const routesData = { ...TWO_ROUTES, basePath };
+    const router = new Router(routesData, 'appRoot', paintPage);
+    const mainMenu = appRoot.add(new MainMenu({ menuData: mainMenuData }));
+
+    paintPage();
+
+    const baseUrl = 'http://localhost' + basePath;
+
+    document.querySelector('#main-menu-item-0 button').click();
+    expect(location.href).toEqual(baseUrl + '/');
+    expect(document.title).toEqual('Home');
+    expect(document.getElementById('home-page').textContent).toEqual('Home page');
+
+    router.changeRoute('/first-page');
+    expect(location.href).toEqual(baseUrl + '/first-page');
+    expect(document.title).toEqual('First page');
+    expect(document.getElementById('first-page').textContent).toEqual('First page');
+
+    router.changeRoute('/page-that-doesnt-exist');
+    expect(location.href).toEqual(baseUrl + '/page-that-doesnt-exist');
+    expect(document.title).toEqual('404: Page Not Found');
+    expect(document.getElementById('fourofour-page').textContent).toEqual('404');
+
+    history.back();
+    await new Promise((r) => setTimeout(r, 200)); // history.back is asynchronous, so we need to wait a bit
+
+    expect(location.href).toEqual(baseUrl + '/first-page');
+    expect(document.title).toEqual('First page');
+    expect(document.getElementById('first-page').textContent).toEqual('First page');
+
+    history.back();
+    await new Promise((r) => setTimeout(r, 200)); // history.back is asynchronous, so we need to wait a bit
+
+    expect(location.href).toEqual(baseUrl + '/');
+    expect(document.title).toEqual('Home');
+    expect(document.getElementById('home-page').textContent).toEqual('Home page');
+
+    history.forward();
+    await new Promise((r) => setTimeout(r, 200)); // history.back is asynchronous, so we need to wait a bit
+
+    expect(location.href).toEqual(baseUrl + '/first-page');
+    expect(document.title).toEqual('First page');
+    expect(document.getElementById('first-page').textContent).toEqual('First page');
+
+    // Replace state test (replaces the previous state so next back button is the page on before this)
+    router.changeRoute('/page-that-doesnt-exist', { replaceState: true });
+
+    expect(location.href).toEqual(baseUrl + '/page-that-doesnt-exist');
+    expect(document.title).toEqual('404: Page Not Found');
+    expect(document.getElementById('fourofour-page').textContent).toEqual('404');
+
+    history.back();
+    await new Promise((r) => setTimeout(r, 200)); // history.back is asynchronous, so we need to wait a bit
+
+    expect(location.href).toEqual(baseUrl + '/');
+    expect(document.title).toEqual('Home');
+    expect(document.getElementById('home-page').textContent).toEqual('Home page');
+
+    let historyLength = history.length;
+    // This shouldn't add a history entry, because we are already in that path
+    router.changeRoute('/');
+
+    expect(history.length).toEqual(historyLength);
+
+    // This should force a refresh and add a history entry
+    router.changeRoute('/', { forceUpdate: true });
+
+    // We have now pressed the back button three times and the forward button once, so we are at -2 from the latest entry,
+    // and now we added one more entry to history so we are at -1, because the entries after the current position are lost
+    expect(history.length).toEqual(historyLength - 1);
+
+    // This should force a refresh but not add a history entry, so it should be -1
+    router.changeRoute('/', { forceUpdate: true, doNotSetState: true });
+
+    expect(history.length).toEqual(historyLength - 1);
+
+    // ignoreBasePath test
+    router.changeRoute('/first-page', { ignoreBasePath: true });
+
+    expect(location.href).toEqual('http://localhost/first-page');
+    expect(document.title).toEqual('404: Page Not Found');
+    expect(document.getElementById('fourofour-page').textContent).toEqual('404');
+
+    // Fix the TWO_ROUTES, because their routes are now including the basePath
+    for (let i = 0; i < TWO_ROUTES.routes.length; i++) {
+      TWO_ROUTES.routes[i].route = TWO_ROUTES.routes[i].route.replace(basePath, '');
+    }
+
+    router.remove();
+    appRoot.discard(true);
+  });
+
+  // page component props test
+  it('should pass general props to all router page components', () => {
+    const mainMenuData = [
+      { text: 'Home', path: '/' },
+      { text: 'First page', path: '/first-page' },
+      { text: 'Link to nowhere', path: '/page-that-doesnt-exist' },
+    ];
+
+    const appRoot = new Component({ _id: 'appRoot', attachId: 'root' });
+    appRoot.draw();
+
+    const paintPage = () => {
+      mainMenu.draw();
+      router.draw();
+    };
+
+    const introduction = 'My introduction text.';
+    const router = new Router({ ...TWO_ROUTES }, 'appRoot', paintPage, {
+      introduction,
+    });
+    const mainMenu = appRoot.add(new MainMenu({ menuData: mainMenuData }));
+
+    paintPage();
+
+    document.querySelector('#main-menu-item-0 button').click();
+    expect(location.href).toEqual('http://localhost/');
+    expect(document.title).toEqual('Home');
+    expect(document.getElementById('home-page').textContent).toEqual('Home page');
+    expect(document.getElementById('introduction-0').textContent).toEqual(introduction);
+
+    document.querySelector('#main-menu-item-1 button').click();
+    expect(location.href).toEqual('http://localhost/first-page');
+    expect(document.title).toEqual('First page');
+    expect(document.getElementById('first-page').textContent).toEqual('First page');
+    expect(document.getElementById('introduction-1').textContent).toEqual(introduction);
+
+    document.querySelector('#main-menu-item-2 button').click();
+    expect(location.href).toEqual('http://localhost/page-that-doesnt-exist');
+    expect(document.title).toEqual('404: Page Not Found');
+    expect(document.getElementById('fourofour-page').textContent).toEqual('404');
+    expect(document.getElementById('introduction-2').textContent).toEqual(introduction);
+
+    expect(router.routes[0].component.props.introduction).toEqual(introduction);
+    expect(router.routes[1].component.props.introduction).toEqual(introduction);
+    expect(router.routes[2].component.props.introduction).toEqual(introduction);
+
+    router.remove();
+    appRoot.discard(true);
+  });
+
+  // route and query params, and redirect tests
+  it('should get route and query params, and redirect a route', () => {
+    const appRoot = new Component({ _id: 'appRoot', attachId: 'root' });
+    appRoot.draw();
+
+    const paintPage = () => {
+      router.draw();
+    };
+
+    const routes = [
+      {
+        route: '/',
+        id: 'route-home',
+        source: Pages.HomePage,
+        title: 'Home',
+      },
+      {
+        route: '/first-page',
+        id: 'route-first-page',
+        source: Pages.FirstPage,
+        title: 'First Page',
+      },
+      {
+        route: '/first-page/sub-page/:someId',
+        id: 'route-sub-page-1',
+        source: Pages.SubPageOne,
+        title: 'Sub Page One',
+      },
+      {
+        route: '/first-page/sub-page',
+        redirect: '/first-page',
+      },
+      {
+        route: '/first-page/sub-page/:someId/more-page',
+        id: 'route-sub-page-2',
+        source: Pages.SubPageTwo,
+        title: 'Sub Page Two',
+      },
+      {
+        route: '/404',
+        id: 'route-four-o-four',
+        source: Pages.FourOFourPage,
+        is404: true,
+        title: '404: Page Not Found',
+      },
+    ];
+    const router = new Router({ routes }, 'appRoot', paintPage);
+
+    paintPage();
+
+    router.changeRoute('/first-page/sub-page/myParamId');
+    expect(router.curRouteData.params.someId).toEqual('myParamId');
+    expect(document.getElementById('sub-page-one').textContent).toEqual('Route param: myParamId');
+
+    router.changeRoute('/first-page/sub-page/someOtherId');
+    expect(router.curRouteData.params.someId).toEqual('someOtherId');
+    expect(document.getElementById('sub-page-one').textContent).toEqual('Route param: someOtherId');
+
+    router.changeRoute('/first-page/sub-page/someThirdId/more-page?myQueryParam=amazing');
+    expect(router.curRouteData.params.someId).toEqual('someThirdId');
+    expect(document.getElementById('sub-page-two').textContent).toEqual('More page');
+    const queryParams = new Proxy(new URLSearchParams(location.search), {
+      get: (searchParams, prop) => searchParams.get(prop),
+    });
+    expect(queryParams.myQueryParam).toEqual('amazing');
+
+    // Redirect
+    router.changeRoute('/first-page/sub-page');
+    expect(location.href).toEqual('http://localhost/first-page');
+    expect(document.title).toEqual('First Page');
+    expect(document.getElementById('first-page').textContent).toEqual('First page');
+
+    router.remove();
+    appRoot.discard(true);
+  });
 
   // beforeDraw test
-
-  // changeRoute and history (backbutton on regular and forced changeRoute) tests
 });
