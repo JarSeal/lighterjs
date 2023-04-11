@@ -286,7 +286,7 @@ describe('Router class tests', () => {
   });
 
   // titlePrefix and titleSuffix tests
-  it('should create a base path for all the routes', () => {
+  it('should create a prefix and suffix for each document title', () => {
     const mainMenuData = [
       { text: 'Home', path: '/' },
       { text: 'First page', path: '/first-page' },
@@ -333,6 +333,63 @@ describe('Router class tests', () => {
   });
 
   // langFn test
+  it('should use the titleId for a translated text asset as the document title', () => {
+    const mainMenuData = [
+      { text: 'Home', path: '/' },
+      { text: 'First page', path: '/first-page' },
+      { text: 'Link to nowhere', path: '/page-that-doesnt-exist' },
+    ];
+
+    const appRoot = new Component({ _id: 'appRoot', attachId: 'root' });
+    appRoot.draw();
+
+    const paintPage = () => {
+      mainMenu.draw();
+      router.draw();
+    };
+
+    let LANGUAGE = 'eng';
+    const langFn = (key) => {
+      const translations = {
+        eng: {
+          'Home page': 'Home page',
+          'First page': 'First page',
+        },
+        swe: {
+          'Home page': 'Hemsida',
+          'First page': 'Förstä sidan',
+        },
+      };
+      return translations[LANGUAGE][key];
+    };
+    TWO_ROUTES.routes[0].titleKey = 'Home page';
+    TWO_ROUTES.routes[1].titleKey = 'First page';
+    const routesData = { ...TWO_ROUTES, langFn };
+    const router = new Router(routesData, 'appRoot', paintPage);
+    const mainMenu = appRoot.add(new MainMenu({ menuData: mainMenuData }));
+
+    paintPage();
+
+    document.querySelector('#main-menu-item-0 button').click();
+    expect(document.title).toEqual(langFn('Home page'));
+
+    document.querySelector('#main-menu-item-1 button').click();
+    expect(document.title).toEqual(langFn('First page'));
+
+    LANGUAGE = 'swe';
+
+    document.querySelector('#main-menu-item-0 button').click();
+    expect(document.title).toEqual(langFn('Home page'));
+
+    document.querySelector('#main-menu-item-1 button').click();
+    expect(document.title).toEqual(langFn('First page'));
+
+    delete TWO_ROUTES.routes[0].titleKey;
+    delete TWO_ROUTES.routes[1].titleKey;
+
+    router.remove();
+    appRoot.discard(true);
+  });
 
   // componentData test
 
