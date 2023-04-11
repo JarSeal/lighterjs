@@ -4,7 +4,7 @@ let routerInitiated = false;
 const logger = new Logger('LIGHTER.js ROUTER *****');
 
 class Router {
-  constructor(routesData, attachId, rcCallback, componentData) {
+  constructor(routesData, attachId, rcCallback, componentProps) {
     // routesData = {
     //   routes: [], (= see below [Array] [required])
     //   basePath: '', (= basepath of the whole app [String] [optional], eg. '/basepath')
@@ -14,11 +14,11 @@ class Router {
     // } [Object] [required]
     // attachId = id of the element that the Router is attached to [String] [required]
     // rcCallback = after the route has changed callback function [Function] [required]
-    // componentData = additional component data to be added to all view components [Object] [optional]
+    // componentProps = additional component props to be added to all page components [Object] [optional]
     // *****************
     // routesData.routes = [{
     //   route: '', (= route path [String] [required])
-    //   id: '', (= view's component id [String] [required])
+    //   id: '', (= view's component id [String] [required if not a redirect])
     //   source: Component class reference, (= component's class [Component] [required])
     //   title: '', (= page and document title without translation [String] [optional])
     //   titleKey: '', (= page and document title translation id [requires langFn], overwrites title attribute if set [String] [optional])
@@ -57,7 +57,8 @@ class Router {
     let fourOFourFound = false;
     for (let i = 0; i < routesData.routes.length; i++) {
       if (routesData.routes[i].is404) fourOFourFound = true;
-      if (!routesData.routes[i].id) {
+      if (!routesData.routes[i].id && !routesData.routes[i].redirect) {
+        // @TODO: Create an UUID if missing
         const errorMsg = `Route is missing the 'id' property.`;
         logger.error(errorMsg);
         throw new Error(errorMsg);
@@ -67,7 +68,7 @@ class Router {
         logger.error(errorMsg);
         throw new Error(errorMsg);
       }
-      if (!routesData.routes[i].source) {
+      if (!routesData.routes[i].source && !routesData.routes[i].redirect) {
         const errorMsg = `Route '${routesData.routes[i].id}' is missing the 'source' property.`;
         logger.error(errorMsg);
         throw new Error(errorMsg);
@@ -97,8 +98,8 @@ class Router {
     };
     this.prevRoute = null;
     this.prevRouteData = null;
-    if (!componentData) componentData = {};
-    this.commonData = componentData;
+    if (!componentProps) componentProps = {};
+    this.componentProps = componentProps;
     this.initRouter(routesData.routes, attachId);
   }
 
@@ -134,7 +135,7 @@ class Router {
           curRouteData: this.curRouteData,
           curRoute: this.curRoute,
           basePath: this.basePath,
-          commonData: this.commonData,
+          componentProps: this.componentProps,
           prevRouteData: null,
           prevRoute: null,
         });
@@ -261,7 +262,7 @@ class Router {
           curRouteData: this.curRouteData,
           curRoute: this.curRoute,
           basePath: this.basePath,
-          commonData: this.commonData,
+          componentProps: this.componentProps,
           prevRouteData: this.prevRouteData,
           prevRoute: this.prevRouteData,
         });
@@ -379,6 +380,7 @@ class Router {
     for (let i = 0; i < this.routes.length; i++) {
       if (this.routes[i].is404) {
         template = this.routes[i];
+        break;
       }
     }
     if (!template) {
@@ -420,13 +422,13 @@ class Router {
     this.curRouteData = undefined;
     this.prevRoute = undefined;
     this.prevRouteData = undefined;
-    this.commonData = undefined;
+    this.componentProps = undefined;
     routerInitiated = false;
   };
 
   _createNewView = (routeData) => {
     routeData.component = new routeData.source({
-      ...this.commonData,
+      ...this.componentProps,
       id: routeData.id,
       attachId: routeData.attachId,
       title: routeData.title,
