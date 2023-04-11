@@ -151,19 +151,6 @@ class Router {
         this.routes.push(routes[i]);
         continue;
       }
-      if (this.langFn) {
-        if (routes[i].titleKey) {
-          routes[i].title = this.langFn(routes[i].titleKey);
-        } else {
-          logger.warn(
-            `Router has a langFn defined, but route '${routes[i].id}' is missing the titleKey.`
-          );
-        }
-      }
-      if (!routes[i].title) {
-        logger.warn(`Route '${routes[i].id}' is missing the title. Setting id as title.`);
-        routes[i].title = routes[i].id;
-      }
       routes[i].attachId = attachId;
       this.routes.push(routes[i]);
       if (this._compareRoutes(routes[i].route, this.curRoute) && !this.curRoute.includes(':')) {
@@ -171,7 +158,7 @@ class Router {
         this._createNewView(routes[i]);
         routeFound = true;
         this.curRouteData = routes[i];
-        document.title = this._createPageTitle(routes[i].title);
+        document.title = this._createPageTitle(routes[i]);
       }
       if (!routeFound) {
         const params = this._getRouteParams(this.routes[i].route, this.curRoute);
@@ -181,7 +168,7 @@ class Router {
           routeFound = true;
           this.curRouteData = routes[i];
           this.curRouteData.params = params;
-          document.title = this._createPageTitle(routes[i].title);
+          document.title = this._createPageTitle(routes[i]);
         }
       }
     }
@@ -207,7 +194,23 @@ class Router {
     this.curHistoryState = e.state || {};
   };
 
-  _createPageTitle = (title) => this.titlePrefix + title + this.titleSuffix;
+  _createPageTitle = (route) => {
+    let title = route.title;
+    if (this.langFn) {
+      if (route.titleKey) {
+        title = this.langFn(route.titleKey);
+      } else {
+        logger.warn(
+          `Router has a langFn defined, but route '${route.id}' is missing the titleKey.`
+        );
+      }
+    }
+    if (!route.title && !route.titleKey) {
+      logger.warn(`Route '${route.id}' is missing the title. Setting id as title.`);
+      title = route.id;
+    }
+    return this.titlePrefix + title + this.titleSuffix;
+  };
 
   _createRouteState = () => {
     const newState = Object.assign({}, this.nextHistoryState);
@@ -294,7 +297,7 @@ class Router {
         routeFound = true;
         this.prevRouteData = Object.assign({}, this.curRouteData);
         this.curRouteData = this.routes[i];
-        document.title = this._createPageTitle(this.routes[i].title);
+        document.title = this._createPageTitle(this.routes[i]);
         this._createNewView(this.routes[i]);
         break;
       }
@@ -304,7 +307,7 @@ class Router {
         this.prevRouteData = Object.assign({}, this.curRouteData);
         this.curRouteData = this.routes[i];
         this.curRouteData.params = params;
-        document.title = this._createPageTitle(this.routes[i].title);
+        document.title = this._createPageTitle(this.routes[i]);
         this._createNewView(this.routes[i]);
         break;
       }
@@ -385,7 +388,7 @@ class Router {
     }
     this.prevRouteData = Object.assign({}, this.curRouteData);
     this.curRouteData = template;
-    document.title = this._createPageTitle(template.title);
+    document.title = this._createPageTitle(template);
     this._createNewView(template);
   };
 
@@ -427,6 +430,7 @@ class Router {
       id: routeData.id,
       attachId: routeData.attachId,
       title: routeData.title,
+      titleKey: routeData.titleKey,
       template: routeData.template,
       extraRouteData: routeData.extraRouteData,
     });
