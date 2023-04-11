@@ -38,7 +38,7 @@ class Router {
     const REQUIRED_PARAMS_MSG = 'Required params: new Route(routesData, attachId, rcCallback);';
     if (!routesData || !routesData.routes || !routesData.routes.length) {
       const errorMsg =
-        'Missing routesData parameter, routesData.routes, or routesData.routes is empty. ' +
+        'Missing routesData parameter, routesData.routes, or it is an empty array. ' +
         REQUIRED_PARAMS_MSG;
       logger.error(errorMsg);
       throw new Error(errorMsg);
@@ -58,17 +58,17 @@ class Router {
     for (let i = 0; i < routesData.routes.length; i++) {
       if (routesData.routes[i].is404) fourOFourFound = true;
       if (!routesData.routes[i].id) {
-        const errorMsg = `Route is missing the 'id' prop.`;
+        const errorMsg = `Route is missing the 'id' property.`;
         logger.error(errorMsg);
         throw new Error(errorMsg);
       }
       if (!routesData.routes[i].route) {
-        const errorMsg = `Route '${routesData.routes[i].id}' is missing the 'route' prop.`;
+        const errorMsg = `Route '${routesData.routes[i].id}' is missing the 'route' property.`;
         logger.error(errorMsg);
         throw new Error(errorMsg);
       }
       if (!routesData.routes[i].source) {
-        const errorMsg = `Route '${routesData.routes[i].id}' is missing the 'source' prop.`;
+        const errorMsg = `Route '${routesData.routes[i].id}' is missing the 'source' property.`;
         logger.error(errorMsg);
         throw new Error(errorMsg);
       }
@@ -405,6 +405,19 @@ class Router {
       this.curRouteData.component.discard(true);
     }
     RouterRef = null;
+    this.routes = [];
+    this.nextHistoryState = {};
+    this.curHistoryState = {};
+    this.basePath = undefined;
+    this.titlePrefix = undefined;
+    this.titleSuffix = undefined;
+    this.langFn = undefined;
+    this.rcCallback = undefined;
+    this.redirectRoute = undefined;
+    this.curRouteData = undefined;
+    this.prevRoute = undefined;
+    this.prevRouteData = undefined;
+    this.commonData = undefined;
     routerInitiated = false;
   };
 
