@@ -354,16 +354,19 @@ describe('Router class tests', () => {
         eng: {
           'Home page': 'Home page',
           'First page': 'First page',
+          '404: Page not found': '404: Page not found',
         },
         swe: {
           'Home page': 'Hemsida',
           'First page': 'Förstä sidan',
+          '404: Page not found': '404: Sidan hittas inte',
         },
       };
       return translations[LANGUAGE][key];
     };
     TWO_ROUTES.routes[0].titleKey = 'Home page';
     TWO_ROUTES.routes[1].titleKey = 'First page';
+    TWO_ROUTES.routes[2].titleKey = '404: Page not found';
     const routesData = { ...TWO_ROUTES, langFn };
     const router = new Router(routesData, 'appRoot', paintPage);
     const mainMenu = appRoot.add(new MainMenu({ menuData: mainMenuData }));
@@ -376,6 +379,9 @@ describe('Router class tests', () => {
     document.querySelector('#main-menu-item-1 button').click();
     expect(document.title).toEqual(langFn('First page'));
 
+    document.querySelector('#main-menu-item-2 button').click();
+    expect(document.title).toEqual(langFn('404: Page not found'));
+
     LANGUAGE = 'swe';
 
     document.querySelector('#main-menu-item-0 button').click();
@@ -384,8 +390,12 @@ describe('Router class tests', () => {
     document.querySelector('#main-menu-item-1 button').click();
     expect(document.title).toEqual(langFn('First page'));
 
+    document.querySelector('#main-menu-item-2 button').click();
+    expect(document.title).toEqual(langFn('404: Page not found'));
+
     delete TWO_ROUTES.routes[0].titleKey;
     delete TWO_ROUTES.routes[1].titleKey;
+    delete TWO_ROUTES.routes[2].titleKey;
 
     router.remove();
     appRoot.discard(true);
