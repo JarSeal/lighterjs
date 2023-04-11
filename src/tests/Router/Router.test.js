@@ -179,7 +179,7 @@ describe('Router class tests', () => {
     } catch (err) {
       error = err.message;
     }
-    expect(error).toEqual(`Route 'route-home' is missing the 'route' prop.`);
+    expect(error).toEqual(`Route 'route-home' is missing the 'route' property.`);
 
     try {
       const routesData = {
@@ -194,7 +194,7 @@ describe('Router class tests', () => {
     } catch (err) {
       error = err.message;
     }
-    expect(error).toEqual(`Route is missing the 'id' prop.`);
+    expect(error).toEqual(`Route is missing the 'id' property.`);
 
     try {
       const routesData = {
@@ -209,7 +209,7 @@ describe('Router class tests', () => {
     } catch (err) {
       error = err.message;
     }
-    expect(error).toEqual(`Route 'route-home' is missing the 'source' prop.`);
+    expect(error).toEqual(`Route 'route-home' is missing the 'source' property.`);
 
     appRoot.discard(true);
   });
@@ -276,11 +276,61 @@ describe('Router class tests', () => {
 
     document.querySelector('#main-menu-item-0 button').click();
 
+    // Fix the TWO_ROUTES, because their routes are now including the basePath
+    for (let i = 0; i < TWO_ROUTES.routes.length; i++) {
+      TWO_ROUTES.routes[i].route = TWO_ROUTES.routes[i].route.replace(basePath, '');
+    }
+
     router.remove();
     appRoot.discard(true);
   });
 
   // titlePrefix and titleSuffix tests
+  it('should create a base path for all the routes', () => {
+    const mainMenuData = [
+      { text: 'Home', path: '/' },
+      { text: 'First page', path: '/first-page' },
+      { text: 'Link to nowhere', path: '/page-that-doesnt-exist' },
+    ];
+
+    const appRoot = new Component({ _id: 'appRoot', attachId: 'root' });
+    appRoot.draw();
+
+    const paintPage = () => {
+      mainMenu.draw();
+      router.draw();
+    };
+
+    const titlePrefix = 'MYSITE: ';
+    let routesData = { ...TWO_ROUTES, titlePrefix };
+    let router = new Router(routesData, 'appRoot', paintPage);
+    const mainMenu = appRoot.add(new MainMenu({ menuData: mainMenuData }));
+
+    paintPage();
+
+    document.querySelector('#main-menu-item-0 button').click();
+    expect(document.title).toEqual(titlePrefix + TWO_ROUTES.routes[0].title);
+
+    document.querySelector('#main-menu-item-1 button').click();
+    expect(document.title).toEqual(titlePrefix + TWO_ROUTES.routes[1].title);
+
+    router.remove();
+
+    const titleSuffix = ' - MYSITE';
+    routesData = { ...TWO_ROUTES, titleSuffix };
+    router = new Router(routesData, 'appRoot', paintPage);
+
+    paintPage();
+
+    document.querySelector('#main-menu-item-0 button').click();
+    expect(document.title).toEqual(TWO_ROUTES.routes[0].title + titleSuffix);
+
+    document.querySelector('#main-menu-item-1 button').click();
+    expect(document.title).toEqual(TWO_ROUTES.routes[1].title + titleSuffix);
+
+    router.remove();
+    appRoot.discard(true);
+  });
 
   // langFn test
 
