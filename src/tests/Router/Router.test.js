@@ -638,4 +638,43 @@ describe('Router class tests', () => {
   });
 
   // beforeDraw test
+  it('should run beforeDraw before the actual draw of the router page', async () => {
+    const appRoot = new Component({ _id: 'appRoot', attachId: 'root' });
+    appRoot.draw();
+
+    const paintPage = () => {
+      router.draw();
+    };
+
+    const routesData = {
+      routes: [
+        { ...TWO_ROUTES.routes[0] },
+        { ...TWO_ROUTES.routes[1] },
+        {
+          id: 'route-before-draw',
+          route: '/beforedraw',
+          title: 'Before draw',
+          source: Pages.FirstPage,
+          beforeDraw: async () => {
+            await new Promise((r) => setTimeout(r, 400)); // wait a bit
+            return '/'; // Redirect to home
+          },
+        },
+        { ...TWO_ROUTES.routes[2] },
+      ],
+    };
+
+    const router = new Router(routesData, 'appRoot', paintPage);
+
+    router.changeRoute('/beforedraw');
+
+    await new Promise((r) => setTimeout(r, 500)); // wait a bit
+
+    expect(location.href).toEqual('http://localhost/');
+    expect(document.title).toEqual('Home');
+    expect(router.curRoute).toEqual('/');
+
+    router.remove();
+    appRoot.discard(true);
+  });
 });
