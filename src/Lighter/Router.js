@@ -165,7 +165,7 @@ class Router {
         const params = this._getRouteParams(this.routes[i].route, this.curRoute);
         if (params) {
           routes[i].attachId = attachId;
-          this._createNewView(routes[i]);
+          this._createNewView(routes[i], params);
           routeFound = true;
           this.curRouteData = routes[i];
           this.curRouteData.params = params;
@@ -308,7 +308,7 @@ class Router {
         this.curRouteData = this.routes[i];
         this.curRouteData.params = params;
         document.title = this._createPageTitle(this.routes[i]);
-        this._createNewView(this.routes[i]);
+        this._createNewView(this.routes[i], params);
         break;
       }
     }
@@ -425,7 +425,7 @@ class Router {
     routerInitiated = false;
   };
 
-  _createNewView = (routeData) => {
+  _createNewView = (routeData, params) => {
     routeData.component = new routeData.source({
       ...this.componentProps,
       id: routeData.id,
@@ -433,7 +433,7 @@ class Router {
       title: routeData.title,
       titleKey: routeData.titleKey,
       template: routeData.template,
-      extraRouteData: routeData.extraRouteData,
+      routeParams: params || {},
     });
     if (!routeData.component?.parent?.elem) {
       routeData.component.parent = routeData.component.getComponentById(routeData.attachId);
@@ -441,7 +441,7 @@ class Router {
   };
 
   _getRouteParams = (model, route) => {
-    if (!model.includes(':')) return false;
+    if (!model.includes(':')) return null;
     const modelParts = model.split('/');
     route = route.split('?')[0];
     const routeParts = route.split('/');
@@ -450,7 +450,7 @@ class Router {
     let params = {};
     for (let i = 0; i < length; i++) {
       if (modelParts[i] && modelParts[i].includes(':')) {
-        if (!routeParts[i]) return false;
+        if (!routeParts[i]) return null;
         const paramName = modelParts[i].replace(':', '');
         params[paramName] = routeParts[i];
       } else {
@@ -459,7 +459,7 @@ class Router {
           !routeParts[i] === undefined ||
           modelParts[i] !== routeParts[i]
         ) {
-          return false;
+          return null;
         }
       }
     }
