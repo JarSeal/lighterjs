@@ -253,11 +253,10 @@ class Router {
     let basePath = this.basePath;
     if (ignoreBasePath) basePath = '';
     route = basePath + route;
-    let newRoute;
     for (let i = 0; i < this.routes.length; i++) {
       // Before draw check
       if (this._compareRoutes(this.routes[i].route, route, true) && this.routes[i].beforeDraw) {
-        newRoute = await this.routes[i].beforeDraw({
+        const newRoute = await this.routes[i].beforeDraw({
           route: this.routes[i],
           curRouteData: this.curRouteData,
           curRoute: this.curRoute,
