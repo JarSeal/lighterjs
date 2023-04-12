@@ -6,7 +6,7 @@ class BasicComponentsPage extends Component {
   }
 
   paint = () => {
-    this.add({ id: 'home-page', text: 'Basic Components page' }).draw();
+    this.add({ id: 'basic-components', text: 'Basic Components page' }).draw();
   };
 }
 

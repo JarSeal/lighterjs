@@ -2,6 +2,7 @@ import Component from '../../Lighter/Component';
 import Router from '../../Lighter/Router';
 import MainMenu from './Menus/MainMenu';
 import BasicComponentsPage from './Pages/BasicComponentsPage';
+import BasicComponentPage from './Pages/BasicComponentPage';
 import FourOFourPage from './Pages/FourOFourPage';
 import HomePage from './Pages/HomePage';
 
@@ -26,6 +27,12 @@ class AppRoot extends Component {
           id: 'route-basic-components',
           source: BasicComponentsPage,
           title: 'Basic Components',
+        },
+        {
+          route: '/basic-components/:componentId',
+          id: 'route-basic-component',
+          source: BasicComponentPage,
+          title: 'Basic Component',
         },
         {
           route: '/404',
