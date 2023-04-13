@@ -1,7 +1,7 @@
 import { Component } from '../../../Lighter';
 
 // Custom props:
-// - icon: string/template (the click area of the ToolTip)
+// - icon: string/template (the click area of the ToolTip, text prop, if used, will override icon)
 // - content: string/template (the ToolTip content)
 // - width: number (width of the ToolTip area)
 // - horiAlign: 'left', 'center', 'right' (should the box be aligned horisontally left, center, or right, default left)
@@ -70,7 +70,7 @@ class ToolTip extends Component {
 
   _createParentRelativeStyle = () => {
     if (!this.props.basicPopupStyles) return '';
-    return ' style="display: inline-block; position: relative;"';
+    return ' style="display: inline-block; position: relative; cursor: pointer;"';
   };
 
   _createBasicPopupStyles = () => {
