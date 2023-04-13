@@ -1,5 +1,5 @@
 import Component from '../../../Lighter/Component';
-import Button from '../Button';
+import Button from '../BasicComponents/Button';
 
 class MainMenu extends Component {
   constructor(props) {
