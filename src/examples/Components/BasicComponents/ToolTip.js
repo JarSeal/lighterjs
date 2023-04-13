@@ -26,7 +26,7 @@ class ToolTip extends Component {
     this.toolTipOpen = false;
     this.props.template = `<div class="toolTip"${this._createParentRelativeStyle()}>
       <span class="toolTip-icon">${this.props.icon}</span>
-      <div class="tooltip-content" ${this._createBasicPopupStyles()}>
+      <div class="tooltip-content"${this._createBasicPopupStyles()}>
         ${this.props.content || ''}
       </div>
     </div>`;
@@ -39,7 +39,6 @@ class ToolTip extends Component {
       target,
       type: 'click',
       fn: (e) => {
-        console.log('CLICK', e.target);
         this.openToolTip();
         this.addListener({
           id: 'tooltip-outside-click',
@@ -57,13 +56,15 @@ class ToolTip extends Component {
 
   openToolTip = () => {
     const toolTipElem = this.elem.querySelector('.tooltip-content');
-    toolTipElem.style.display = 'block';
+    if (this.props.basicPopupStyles) toolTipElem.style.display = 'block';
+    toolTipElem.classList.add('show-tooltip');
     this.toolTipOpen = true;
   };
 
   closeToolTip = () => {
     const toolTipElem = this.elem.querySelector('.tooltip-content');
-    toolTipElem.style.display = 'none';
+    if (this.props.basicPopupStyles) toolTipElem.style.display = 'none';
+    toolTipElem.classList.remove('show-tooltip');
     this.toolTipOpen = false;
   };
 
