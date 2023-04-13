@@ -454,6 +454,7 @@ class Router {
         const paramName = modelParts[i].replace(':', '');
         params[paramName] = routeParts[i];
       } else {
+        // Route not found
         if (
           !modelParts[i] === undefined ||
           !routeParts[i] === undefined ||
