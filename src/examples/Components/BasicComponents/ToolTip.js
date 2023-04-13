@@ -76,22 +76,22 @@ class ToolTip extends Component {
   _createBasicPopupStyles = () => {
     if (!this.props.basicPopupStyles) return '';
     const styles = [
-      'display: none',
-      'position: absolute',
-      'z-index: 200',
-      'background: #fff',
-      'padding: 4px',
-      'border-radius: 3px',
-      'border: 1px solid rgba(0,0,0,0.2)',
-      'width: ' + this.width + 'px',
-      this.horiAlign === 'left' ? 'left: 0' : '',
-      this.horiAlign === 'right' ? 'right: 0' : '',
-      this.horiAlign === 'center' ? 'left: 50%' : '',
-      this.horiAlign === 'center' ? 'transform: translateX(-50%)' : '',
-      this.vertAlign === 'top' ? 'bottom: 100%' : '',
-      this.vertAlign === 'bottom' ? 'top: 100%' : '',
+      'display: none;',
+      'position: absolute;',
+      'z-index: 200;',
+      'background: #fff;',
+      'padding: 4px;',
+      'border-radius: 3px;',
+      'border: 1px solid rgba(0,0,0,0.2);',
+      'width: ' + this.width + 'px;',
+      this.horiAlign === 'left' ? 'left: 0;' : '',
+      this.horiAlign === 'right' ? 'right: 0;' : '',
+      this.horiAlign === 'center' ? 'left: 50%;' : '',
+      this.horiAlign === 'center' ? 'transform: translateX(-50%);' : '',
+      this.vertAlign === 'top' ? 'bottom: 100%;' : '',
+      this.vertAlign === 'bottom' ? 'top: 100%;' : '',
     ];
-    return ` style="${styles.join(';')};"`;
+    return ` style="${styles.join('')}"`;
   };
 }
 
