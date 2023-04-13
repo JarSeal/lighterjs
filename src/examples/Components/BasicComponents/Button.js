@@ -1,5 +1,7 @@
 import Component from '../../../Lighter/Component';
 
+// Custom props:
+// - onClick: function(event) (The click function with the event property)
 class Button extends Component {
   constructor(props) {
     super(props);
@@ -10,11 +12,7 @@ class Button extends Component {
     this.addListener({
       id: 'btn-click-listen',
       type: 'click',
-      fn: (e) => {
-        if (this.props.onClick) {
-          this.props.onClick(e);
-        }
-      },
+      fn: (e) => this.props.onClick(e),
     });
   };
 }

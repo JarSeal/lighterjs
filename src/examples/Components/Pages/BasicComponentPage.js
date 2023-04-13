@@ -12,7 +12,7 @@ class BasicComponentPage extends Component {
       <h1>${this.componentInfo.name}</h1>
       <hr />
       <h3>Examples:</h3>
-      <div id="examples"></div>
+      <div id="examples" style="padding-bottom: 30px;"></div>
       <hr />
       <h3>Code:</h3>
       <div id="code">${this.showCode(this.componentInfo.code)}</div>
