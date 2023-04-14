@@ -10,6 +10,9 @@ import InputTextExample from './examples/InputTextExample';
 import InputCheckbox from './InputCheckbox';
 import InputCheckboxCode from './InputCheckbox?raw';
 import InputCheckboxExample from './examples/InputCheckboxExample';
+import InputDropdown from './InputDropdown';
+import InputDropdownCode from './InputDropdown?raw';
+import InputDropdownExample from './examples/InputDropdownExamples';
 
 export const componentsList = [
   {
@@ -33,7 +36,6 @@ export const componentsList = [
     code: InputTextCode,
     examples: InputTextExample,
   },
-  // input-checkbox
   {
     id: 'input-checkbox',
     name: 'InputCheckbox',
@@ -41,8 +43,14 @@ export const componentsList = [
     code: InputCheckboxCode,
     examples: InputCheckboxExample,
   },
+  {
+    id: 'input-dropdown',
+    name: 'InputDropdown',
+    component: InputDropdown,
+    code: InputDropdownCode,
+    examples: InputDropdownExample,
+  },
   // input-number
-  // input-dropdown
   // input-radiogroup
   // input-draggable-list
   // table
