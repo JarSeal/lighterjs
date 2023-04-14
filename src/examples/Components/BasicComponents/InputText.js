@@ -59,7 +59,7 @@ class InputText extends Component {
   // msg: string (error message to show with the component)
   showError = (msg) => {
     if (!msg) {
-      this.noErrors();
+      this.clearErrors();
       return;
     }
     const errorElem = this.elem.querySelector('.inputErrorMsg');
@@ -67,7 +67,7 @@ class InputText extends Component {
     this.elem.classList.add('error');
   };
 
-  noErrors = () => {
+  clearErrors = () => {
     const errorElem = this.elem.querySelector('.inputErrorMsg');
     errorElem.textContent = '';
     this.elem.classList.remove('error');

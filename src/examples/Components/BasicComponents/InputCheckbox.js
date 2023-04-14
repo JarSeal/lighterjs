@@ -43,12 +43,15 @@ class InputCheckbox extends Component {
       this.value = Boolean(toValue);
       this.props.value = this.value;
     }
+    console.log(toValue, this.value);
     if (this.value) {
       this.elem.classList.add('checked');
+      this.getInputElem().checked = true;
       this.getInputElem().setAttribute('checked', 'true');
       return;
     }
     this.elem.classList.remove('checked');
+    this.getInputElem().checked = false;
     this.getInputElem().removeAttribute('checked');
   };
 
@@ -83,7 +86,6 @@ class InputCheckbox extends Component {
       type: 'change',
       fn: (e) => {
         const value = e.target.checked;
-        console.log(value);
         if (this.value === value) return;
         this.changeHappened = true;
         this.value = value;

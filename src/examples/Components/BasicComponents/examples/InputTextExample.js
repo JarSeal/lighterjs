@@ -14,7 +14,7 @@ const InputTextExample = (parent, InputText) => {
         focusOnFirstDraw: true,
         onChange: (_, value) => {
           if (value) {
-            inputElem1.noErrors();
+            inputElem1.clearErrors();
             return;
           }
           inputElem1.showError('Required');
