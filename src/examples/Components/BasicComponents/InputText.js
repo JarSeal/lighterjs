@@ -10,6 +10,7 @@ import { Component } from '../../../Lighter';
 // - onFocus: function(event, value, this) (input field's on focus listener callback)
 // - onBlur: function(event, value, this) (input field's on blur listener callback)
 // - focusOnFirstDraw = boolean (whether the input is focused after the first drawing or not, default false)
+// - multiline = boolean (whether the input field is a textarea or input type=text/password, default false)
 class InputText extends Component {
   constructor(props) {
     super(props);
@@ -19,28 +20,39 @@ class InputText extends Component {
     this.password = props.password || false;
     this.focusOnFirstDraw = props.focusOnFirstDraw || false;
     this.changeHappened = false;
-    this.props.template = `<div class="inputText formElem${this.label ? '' : ' noLabel'}">
-      <label class="inputTextInner inputInner" for="${this.id}">
-        <span class="inputTextLabel inputLabel">${this.label}</span>
-        <input class="input" type="${this.password ? 'password' : 'text'}"
-          value="${this.value}" id="${this.id}"
-          ${this.maxlength ? `maxlength=${this.maxlength}` : ''}
-        />
-      </label>
-      <div class="inputErrorMsg"></div>
-    </div>`;
+    this.multiline = props.multiline || false;
+    if (props.multiline) {
+      this.props.template = `<div
+        class="inputText inputTextMulti formElem${this.label ? '' : ' noLabel'}"
+      >
+        <label class="inputInner" for="${this.id}">
+          <span class="inputLabel">${this.label}</span>
+          <textarea class="inputElem" id="${this.id}"
+            ${this.maxlength ? `maxlength=${this.maxlength}` : ''}
+          >${this.value}</textarea>
+        </label>
+        <div class="inputErrorMsg"></div>
+      </div>`;
+    } else {
+      this.props.template = `<div
+        class="inputText inputTextSingle formElem${this.label ? '' : ' noLabel'}"
+      >
+        <label class="inputInner" for="${this.id}">
+          <span class="inputLabel">${this.label}</span>
+          <input class="inputElem" type="${this.password ? 'password' : 'text'}"
+            value="${this.value}" id="${this.id}"
+            ${this.maxlength ? `maxlength=${this.maxlength}` : ''}
+          />
+        </label>
+        <div class="inputErrorMsg"></div>
+      </div>`;
+    }
   }
 
   paint = () => {
-    if (this.props.disabled) {
-      this.disabled = true;
-      this.getInputElem().disabled = true;
-      this.elem.classList.add('disabled');
-    } else {
-      this.disabled = false;
-      this.getInputElem().disabled = false;
-      this.elem.classList.remove('disabled');
-    }
+    this.disabled = this.props.disabled;
+    this.getInputElem().disabled = this.disabled;
+    this.disabled ? this.elem.classList.add('disabled') : this.elem.classList.remove('disabled');
     if (this.focusOnFirstDraw) this.getInputElem().focus();
   };
 
@@ -63,7 +75,7 @@ class InputText extends Component {
 
   getInputElem = () => {
     if (this.inputElem) return this.inputElem;
-    this.inputElem = this.elem.querySelector('.input');
+    this.inputElem = this.elem.querySelector('.inputElem');
     return this.inputElem;
   };
 

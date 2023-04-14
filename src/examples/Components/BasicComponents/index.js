@@ -7,6 +7,9 @@ import ToolTipExample from './examples/ToolTipExample';
 import InputText from './InputText';
 import InputTextCode from './InputText?raw';
 import InputTextExample from './examples/InputTextExample';
+import InputCheckbox from './InputCheckbox';
+import InputCheckboxCode from './InputCheckbox?raw';
+import InputCheckboxExample from './examples/InputCheckboxExample';
 
 export const componentsList = [
   {
@@ -30,10 +33,16 @@ export const componentsList = [
     code: InputTextCode,
     examples: InputTextExample,
   },
-  // input-number
-  // input-textarea
-  // input-dropdown
   // input-checkbox
+  {
+    id: 'input-checkbox',
+    name: 'InputCheckbox',
+    component: InputCheckbox,
+    code: InputCheckboxCode,
+    examples: InputCheckboxExample,
+  },
+  // input-number
+  // input-dropdown
   // input-radiogroup
   // input-draggable-list
   // table
