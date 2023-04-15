@@ -12,7 +12,10 @@ import InputCheckboxCode from './InputCheckbox?raw';
 import InputCheckboxExample from './examples/InputCheckboxExample';
 import InputDropdown from './InputDropdown';
 import InputDropdownCode from './InputDropdown?raw';
-import InputDropdownExample from './examples/InputDropdownExamples';
+import InputDropdownExample from './examples/InputDropdownExample';
+import Table from './Table';
+import TableCode from './Table?raw';
+import TableExample from './examples/TableExample';
 
 export const componentsList = [
   {
@@ -49,6 +52,13 @@ export const componentsList = [
     component: InputDropdown,
     code: InputDropdownCode,
     examples: InputDropdownExample,
+  },
+  {
+    id: 'table',
+    name: 'Table',
+    component: Table,
+    code: TableCode,
+    examples: TableExample,
   },
   // input-number
   // input-radiogroup
