@@ -6,7 +6,7 @@ import { Component } from '../../../Lighter';
 // - width: number (width of the ToolTip area)
 // - horiAlign: 'left', 'center', 'right' (should the box be aligned horisontally left, center, or right, default left)
 // - vertAlign: 'top', 'bottom' (should the box be aligned on top or bottom of the icon, default bottom)
-// - basicPopupStyles: boolean (whether the icon has basic inline CSS applied to it or not, default false)
+// - basicPopupStyles: boolean (whether the icon has basic CSS applied to it or not, default false)
 class ToolTip extends Component {
   constructor(props) {
     super(props);
