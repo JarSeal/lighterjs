@@ -5,10 +5,10 @@ import { Component } from '../../../Lighter';
 // - rows: array of objects
 // - footers?: array of objects
 // For headings, rows, and footers, the data can be in two different formats (headings has always th cell tags):
-// A (simple): [
-//   { cell: string/template, classes?: string[], id?: string, isTh?: boolean }
+// A (simple one row): [
+//   { cell: string/template, classes?: string[], colSpan?: number, rowSpan?: number, id?: string, isTh?: boolean }
 // ]
-// B (for giving the row properties): [
+// B (for multiple rows and row properties): [
 //   { classes?: string[], id?: string, row: [
 //      { cell: string/template, classes?: string[], colSpan?: number, rowSpan?: number, id?: string, isTh?: boolean }
 //   ]}
