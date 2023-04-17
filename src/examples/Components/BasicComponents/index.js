@@ -4,6 +4,8 @@ import ButtonExample from './examples/ButtonExample';
 import ToolTip from './ToolTip';
 import ToolTipCode from './ToolTip?raw';
 import ToolTipExample from './examples/ToolTipExample';
+import InputBase from './InputBase';
+import InputBaseCode from './InputBase?raw';
 import InputText from './InputText';
 import InputTextCode from './InputText?raw';
 import InputTextExample from './examples/InputTextExample';
@@ -31,6 +33,15 @@ export const componentsList = [
     component: ToolTip,
     code: ToolTipCode,
     examples: ToolTipExample,
+  },
+  {
+    id: 'input-base',
+    name: 'InputBase',
+    component: InputBase,
+    code: InputBaseCode,
+    examples: (parent) => {
+      parent.add({ attachId: 'examples', text: '[No examples...]' }).draw();
+    },
   },
   {
     id: 'input-text',

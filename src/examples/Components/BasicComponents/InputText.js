@@ -1,25 +1,26 @@
-import { Component } from '../../../Lighter';
+import InputBase from './InputBase';
 
-// Common props:
-// - label: string/template (input field's label string)
-// - value: string (input field's value)
+// props:
+// - multiline = boolean (whether the input field is a textarea or input type=text/password, default false)
 // - maxlength: number (input field's max length of characters)
 // - password: boolean (whether the input elem's type is password or not, default false = type="text")
+
+// InputBase props:
+// - label: string/template (input field's label string)
+// - value: string (input field's value)
 // - disabled: boolean (whether the input elem is disabled or not)
 // - onChange: function(e, value, this) (input field's on change listener callback)
 // - onFocus: function(event, value, this) (input field's on focus listener callback)
 // - onBlur: function(event, value, this) (input field's on blur listener callback)
+// - noChangeListener: boolean (will not create an onChange listener)
+// - noFocusListener: boolean (will not create an onFocus listener)
+// - noBlurListener: boolean (will not create an onBlur listener)
 // - focusOnFirstDraw = boolean (whether the input is focused after the first drawing or not, default false)
-// - multiline = boolean (whether the input field is a textarea or input type=text/password, default false)
-class InputText extends Component {
+class InputText extends InputBase {
   constructor(props) {
     super(props);
-    this.label = props.label || '';
-    this.value = props.value || '';
     this.maxlength = props.maxlength || null;
     this.password = props.password || false;
-    this.focusOnFirstDraw = props.focusOnFirstDraw || false;
-    this.changeHappened = false;
     this.multiline = props.multiline || false;
     if (props.multiline) {
       this.props.template = `<div
@@ -49,37 +50,7 @@ class InputText extends Component {
     }
   }
 
-  paint = () => {
-    this.disabled = this.props.disabled;
-    this.getInputElem().disabled = this.disabled;
-    this.disabled ? this.elem.classList.add('disabled') : this.elem.classList.remove('disabled');
-    if (this.focusOnFirstDraw) this.getInputElem().focus();
-  };
-
-  // msg: string (error message to show with the component)
-  showError = (msg) => {
-    if (!msg) {
-      this.clearErrors();
-      return;
-    }
-    const errorElem = this.elem.querySelector('.inputErrorMsg');
-    errorElem.textContent = msg;
-    this.elem.classList.add('error');
-  };
-
-  clearErrors = () => {
-    const errorElem = this.elem.querySelector('.inputErrorMsg');
-    errorElem.textContent = '';
-    this.elem.classList.remove('error');
-  };
-
-  getInputElem = () => {
-    if (this.inputElem) return this.inputElem;
-    this.inputElem = this.elem.querySelector('.inputElem');
-    return this.inputElem;
-  };
-
-  addListeners = () => {
+  _createOnChangeListener = () => {
     const inputElem = this.getInputElem();
     this.addListener({
       id: 'onchange',
@@ -90,29 +61,7 @@ class InputText extends Component {
         if (this.value === value) return;
         this.changeHappened = true;
         this.value = value;
-        this.props.onChange(e, value, this);
-      },
-    });
-    this.addListener({
-      id: 'focus',
-      target: inputElem,
-      type: 'focus',
-      fn: (e) => {
-        this.elem.classList.add('focus');
-        if (this.props.onFocus) {
-          this.props.onFocus(e, this.value, this);
-        }
-      },
-    });
-    this.addListener({
-      id: 'blur',
-      target: inputElem,
-      type: 'blur',
-      fn: (e) => {
-        this.elem.classList.remove('focus');
-        if (this.props.onBlur) {
-          this.props.onBlur(e, this.value, this);
-        }
+        if (this.props.onChange) this.props.onChange(e, value, this);
       },
     });
   };

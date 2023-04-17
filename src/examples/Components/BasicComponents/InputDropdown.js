@@ -1,8 +1,6 @@
-import { Component } from '../../../Lighter';
+import InputBase from './InputBase';
 
-// Common props:
-// - label: string/template (input field's label string)
-// - value: string (input field's value)
+// props:
 // - options: array of objects (required) [
 //     { value: any, text: string/number, disabled: boolean },
 //     or grouped:
@@ -12,23 +10,26 @@ import { Component } from '../../../Lighter';
 //       ]
 //     }
 //   ]
+
+// InputBase props:
+// - label: string/template (input field's label string)
+// - value: string (input field's value)
 // - disabled: boolean (whether the input elem is disabled or not)
 // - onChange: function(e, value, this) (input field's on change listener callback)
 // - onFocus: function(event, value, this) (input field's on focus listener callback)
 // - onBlur: function(event, value, this) (input field's on blur listener callback)
+// - noChangeListener: boolean (will not create an onChange listener)
+// - noFocusListener: boolean (will not create an onFocus listener)
+// - noBlurListener: boolean (will not create an onBlur listener)
 // - focusOnFirstDraw = boolean (whether the input is focused after the first drawing or not, default false)
-class InputDropdown extends Component {
+class InputDropdown extends InputBase {
   constructor(props) {
     super(props);
-    this.label = props.label || '';
-    this.value = props.value || '';
     this.options = props.options;
     if (!props.options?.length) {
       console.warn('options prop missing for id: ' + this.id);
       this.options = this.props.options = {};
     }
-    this.focusOnFirstDraw = props.focusOnFirstDraw || false;
-    this.changeHappened = false;
     this.props.template = `<div
       class="inputText inputDropdown formElem${this.label ? '' : ' noLabel'}"
     >
@@ -42,37 +43,7 @@ class InputDropdown extends Component {
     </div>`;
   }
 
-  paint = () => {
-    this.disabled = this.props.disabled;
-    this.getInputElem().disabled = this.disabled;
-    this.disabled ? this.elem.classList.add('disabled') : this.elem.classList.remove('disabled');
-    if (this.focusOnFirstDraw) this.getInputElem().focus();
-  };
-
-  // msg: string (error message to show with the component)
-  showError = (msg) => {
-    if (!msg) {
-      this.clearErrors();
-      return;
-    }
-    const errorElem = this.elem.querySelector('.inputErrorMsg');
-    errorElem.textContent = msg;
-    this.elem.classList.add('error');
-  };
-
-  clearErrors = () => {
-    const errorElem = this.elem.querySelector('.inputErrorMsg');
-    errorElem.textContent = '';
-    this.elem.classList.remove('error');
-  };
-
-  getInputElem = () => {
-    if (this.inputElem) return this.inputElem;
-    this.inputElem = this.elem.querySelector('.inputElem');
-    return this.inputElem;
-  };
-
-  addListeners = () => {
+  _createOnChangeListener = () => {
     const inputElem = this.getInputElem();
     this.addListener({
       id: 'onchange',
@@ -85,28 +56,6 @@ class InputDropdown extends Component {
         this.changeHappened = true;
         this.value = value;
         if (this.props.onChange) this.props.onChange(e, value, this);
-      },
-    });
-    this.addListener({
-      id: 'focus',
-      target: inputElem,
-      type: 'focus',
-      fn: (e) => {
-        this.elem.classList.add('focus');
-        if (this.props.onFocus) {
-          this.props.onFocus(e, this.value, this);
-        }
-      },
-    });
-    this.addListener({
-      id: 'blur',
-      target: inputElem,
-      type: 'blur',
-      fn: (e) => {
-        this.elem.classList.remove('focus');
-        if (this.props.onBlur) {
-          this.props.onBlur(e, this.value, this);
-        }
       },
     });
   };
