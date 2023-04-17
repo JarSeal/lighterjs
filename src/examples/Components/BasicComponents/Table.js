@@ -1,6 +1,7 @@
 import { Component } from '../../../Lighter';
 
 // Common props:
+// - isDivsTable: boolean (whether the table is a table or divs element, default false)
 // - rows: array of objects (<tbody>)
 // - headings?: array of objects (<thead>)
 // - footers?: array of objects (<tfoot>)
@@ -16,19 +17,22 @@ import { Component } from '../../../Lighter';
 class Table extends Component {
   constructor(props) {
     super(props);
-    this.headings = props.headings || null;
+    this.isDivsTable = props.isDivsTable || false;
     this.rows = props.rows || null;
+    this.headings = props.headings || null;
     this.footers = props.footers || null;
     this.headingsRowsFound = false;
     this.rowsRowsFound = false;
     this.footersRowsFound = false;
     this.columnCount = this._getMaxColumn();
-    this.props.template = `<div class="tableOuter">
-      <table${props.alignTextLeft ? ' style="text-align: left;"' : ''}>
+    this.props.template = `<div class="tableOuter${this.isDivsTable ? ' isDivsTable' : ''}">
+      <${this.isDivsTable ? 'div' : 'table'}
+        ${props.alignTextLeft ? ' style="text-align: left;"' : ''}
+      >
         ${this._createSection('headings')}
         ${this._createSection('rows')}
         ${this._createSection('footers')}
-      </table>
+      </${this.isDivsTable ? 'div' : 'table'}>
     </div>`;
   }
 
@@ -40,20 +44,20 @@ class Table extends Component {
     switch (section) {
       case 'headings':
         data = this.headings;
-        sectionTagStart = '<thead>';
-        sectionTagEnd = '</thead>';
+        sectionTagStart = this.isDivsTable ? '<div class="thead">' : '<thead>';
+        sectionTagEnd = this.isDivsTable ? '</div>' : '</thead>';
         rowsFound = this.headingsRowsFound;
         break;
       case 'rows':
         data = this.rows;
-        sectionTagStart = '<tbody>';
-        sectionTagEnd = '</tbody>';
+        sectionTagStart = this.isDivsTable ? '<div class="tbody">' : '<tbody>';
+        sectionTagEnd = this.isDivsTable ? '</div>' : '</tbody>';
         rowsFound = this.rowsRowsFound;
         break;
       case 'footers':
         data = this.footers;
-        sectionTagStart = '<tfoot>';
-        sectionTagEnd = '</tfoot>';
+        sectionTagStart = this.isDivsTable ? '<div class="tfoot">' : '<tfoot>';
+        sectionTagEnd = this.isDivsTable ? '</div>' : '</tfoot>';
         rowsFound = this.footersRowsFound;
         break;
       default:
@@ -65,19 +69,20 @@ class Table extends Component {
     if (rowsFound) {
       for (let i = 0; i < data.length; i++) {
         const row = data[i].row;
-        const classes = data[i].classes;
+        const classes = data[i].classes || (this.isDivsTable ? [] : undefined);
+        this.isDivsTable ? classes.push('tr') : null;
         const id = data[i].id;
-        template += `<tr
+        template += `<${this.isDivsTable ? 'div' : 'tr'}
           ${classes ? ` class="${classes.join(' ')}"` : ''}
           ${id ? ` id="${id}"` : ''}
         >`;
         template += this._getCells(row, isHeading);
-        template += '</tr>';
+        template += this.isDivsTable ? '</div>' : '</tr>';
       }
     } else {
-      template += '<tr>';
+      template += this.isDivsTable ? '<div class="tr row">' : '<tr>';
       template += this._getCells(data, isHeading);
-      template += '</tr>';
+      template += this.isDivsTable ? '</div>' : '</tr>';
     }
     template += sectionTagEnd;
     return template;
@@ -86,12 +91,22 @@ class Table extends Component {
   _getCells = (data, isTh) => {
     let cells = '';
     for (let i = 0; i < this.columnCount; i++) {
-      const classes = data[i]?.classes;
+      let classes = data[i]?.classes;
       const id = data[i]?.id;
       const colSpan = data[i]?.colSpan;
       const rowSpan = data[i]?.rowSpan;
       const headers = data[i]?.headers;
-      const startTag = `<${isTh || data[i]?.isTh ? 'th' : 'td'}
+      let tag = isTh || data[i]?.isTh ? 'th' : 'td';
+      if (this.isDivsTable) {
+        tag = 'div';
+        if (classes) {
+          classes.push('cell');
+          classes.push(isTh || data[i]?.isTh ? 'th' : 'td');
+        } else {
+          classes = ['cell', isTh || data[i]?.isTh ? 'th' : 'td'];
+        }
+      }
+      const startTag = `<${tag}
         ${classes ? ` class="${classes.join(' ')}"` : ''}
         ${id ? ` id="${id}"` : ''}
         ${colSpan ? ` colspan="${colSpan}"` : ''}
