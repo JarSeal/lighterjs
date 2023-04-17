@@ -68,6 +68,7 @@ export const componentsList = [
   // tabs
   // dialog
   // toaster
+  // menu-tree
 ];
 
 export default { Button };
