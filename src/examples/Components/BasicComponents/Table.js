@@ -113,7 +113,8 @@ class Table extends Component {
         ${rowSpan ? ` rowspan="${rowSpan}"` : ''}
         ${headers ? ` headers="${headers}"` : ''}
       >`;
-      const closeTag = isTh || data[i]?.isTh ? '</th>' : '</td>';
+      let closeTag = isTh || data[i]?.isTh ? '</th>' : '</td>';
+      if (this.isDivsTable) closeTag = '</div>';
       cells += startTag + (data[i]?.cell || '') + closeTag;
     }
     return cells;
