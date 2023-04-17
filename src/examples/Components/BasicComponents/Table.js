@@ -1,9 +1,9 @@
 import { Component } from '../../../Lighter';
 
 // Common props:
-// - headings?: array of objects
-// - rows: array of objects
-// - footers?: array of objects
+// - rows: array of objects (<tbody>)
+// - headings?: array of objects (<thead>)
+// - footers?: array of objects (<tfoot>)
 // For headings, rows, and footers, the data can be in two different formats (headings has always th cell tags):
 // A (simple one row): [
 //   { cell: string/template, classes?: string[], colSpan?: number, rowSpan?: number, id?: string, isTh?: boolean }
