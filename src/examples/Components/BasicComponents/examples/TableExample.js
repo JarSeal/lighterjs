@@ -44,6 +44,18 @@ const TableExample = (parent, Table) => {
       new Table({ ...commonProps, headings: table2Headings, rows: table2, footers: table2Footers })
     )
     .draw();
+  parent.add({ ...breakProps }).draw();
+  parent
+    .add(
+      new Table({
+        ...commonProps,
+        isDivsTable: true,
+        headings: table2Headings,
+        rows: table2,
+        footers: table2Footers,
+      })
+    )
+    .draw();
 };
 
 export default TableExample;

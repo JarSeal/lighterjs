@@ -26,7 +26,7 @@ class Table extends Component {
     this.footersRowsFound = false;
     this.columnCount = this._getMaxColumn();
     this.props.template = `<div class="tableOuter${this.isDivsTable ? ' isDivsTable' : ''}">
-      <${this.isDivsTable ? 'div' : 'table'}
+      <${this.isDivsTable ? 'div class="table"' : 'table'}
         ${props.alignTextLeft ? ' style="text-align: left;"' : ''}
       >
         ${this._createSection('headings')}
@@ -35,6 +35,35 @@ class Table extends Component {
       </${this.isDivsTable ? 'div' : 'table'}>
     </div>`;
   }
+
+  paint = () => {
+    if (this.isDivsTable) {
+      const gap = '5px';
+      const cellWidth = 100 / this.columnCount + '%';
+      const tableElem = this.elem.querySelector('.table');
+      tableElem.style.width = 'auto';
+      tableElem.style.display = 'inline-flex';
+      tableElem.style.flexDirection = 'column';
+      tableElem.style.gap = gap;
+      const tableSectionElems = this.elem.querySelectorAll('.table > div');
+      for (let i = 0; i < tableSectionElems.length; i++) {
+        tableSectionElems[i].style.display = 'flex';
+        tableSectionElems[i].style.flexDirection = 'column';
+        tableSectionElems[i].style.gap = gap;
+        tableSectionElems[i].style.width = '100%';
+      }
+      const tableRowElems = this.elem.querySelectorAll('.table .row');
+      for (let i = 0; i < tableRowElems.length; i++) {
+        tableRowElems[i].style.display = 'flex';
+        tableRowElems[i].style.gap = gap;
+        tableRowElems[i].style.width = '100%';
+      }
+      const tableCellElems = this.elem.querySelectorAll('.table .cell');
+      for (let i = 0; i < tableCellElems.length; i++) {
+        tableCellElems[i].style.width = cellWidth;
+      }
+    }
+  };
 
   _createSection = (section) => {
     let data = null,
@@ -70,7 +99,7 @@ class Table extends Component {
       for (let i = 0; i < data.length; i++) {
         const row = data[i].row;
         const classes = data[i].classes || (this.isDivsTable ? [] : undefined);
-        this.isDivsTable ? classes.push('tr') : null;
+        this.isDivsTable ? (classes.push('tr'), classes.push('row')) : null;
         const id = data[i].id;
         template += `<${this.isDivsTable ? 'div' : 'tr'}
           ${classes ? ` class="${classes.join(' ')}"` : ''}
