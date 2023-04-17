@@ -24,7 +24,7 @@ class InputBase extends Component {
     this.noBlurListener = props.noBlurListener || false;
   }
 
-  paint = () => {
+  painter = () => {
     this.disabled = this.props.disabled;
     this.getInputElem().disabled = this.disabled;
     this.disabled ? this.elem.classList.add('disabled') : this.elem.classList.remove('disabled');
@@ -32,6 +32,7 @@ class InputBase extends Component {
       this.elem.classList.add('focus');
       this.getInputElem().focus();
     }
+    if (this.afterPaint) this.afterPaint();
   };
 
   // msg: string (error message to show with the component)
@@ -90,6 +91,7 @@ class InputBase extends Component {
         },
       });
     }
+    this.painter();
   };
 }
 
