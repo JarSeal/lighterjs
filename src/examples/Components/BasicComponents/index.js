@@ -18,6 +18,9 @@ import InputDropdownExample from './examples/InputDropdownExample';
 import Table from './Table';
 import TableCode from './Table?raw';
 import TableExample from './examples/TableExample';
+import Dialog from './Dialog';
+import DialogCode from './Dialog?raw';
+import DialogExample from './examples/DialogExample';
 
 export const componentsList = [
   {
@@ -71,13 +74,17 @@ export const componentsList = [
     code: TableCode,
     examples: TableExample,
   },
+  {
+    id: 'dialog',
+    name: 'Dialog',
+    component: Dialog,
+    code: DialogCode,
+    examples: DialogExample,
+  },
   // input-number
   // input-radiogroup
   // input-draggable-list
-  // table
-  // table-divs
   // tabs
-  // dialog
   // toaster
   // menu-tree
 ];
