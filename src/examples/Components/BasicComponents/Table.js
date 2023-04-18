@@ -1,10 +1,12 @@
 import { Component } from '../../../Lighter';
 
 // Common props:
-// - isDivsTable: boolean (whether the table is a table or divs element, default false)
 // - rows: array of objects (<tbody>)
 // - headings?: array of objects (<thead>)
 // - footers?: array of objects (<tfoot>)
+// - columnWidths: array of strings (eg. '20%', '50px', '5rem')
+// - isDivsTable?: boolean (whether the table is a table or divs element, default false)
+// - basicStyles?: boolean (whether the table has basic CSS applied to it or not, default false)
 // For headings, rows, and footers, the data can be in two different formats (headings has always th cell tags):
 // A (simple one row): [
 //   { cell: string/template, classes?: string[], colSpan?: number, rowSpan?: number, id?: string, isTh?: boolean }
@@ -17,18 +19,18 @@ import { Component } from '../../../Lighter';
 class Table extends Component {
   constructor(props) {
     super(props);
-    this.isDivsTable = props.isDivsTable || false;
     this.rows = props.rows || null;
     this.headings = props.headings || null;
     this.footers = props.footers || null;
+    this.columnWidths = props.columnWidths || null;
+    this.isDivsTable = props.isDivsTable || false;
+    this.basicStyles = props.basicStyles || false;
     this.headingsRowsFound = false;
     this.rowsRowsFound = false;
     this.footersRowsFound = false;
     this.columnCount = this._getMaxColumn();
     this.props.template = `<div class="tableOuter${this.isDivsTable ? ' isDivsTable' : ''}">
-      <${this.isDivsTable ? 'div class="table"' : 'table'}
-        ${props.alignTextLeft ? ' style="text-align: left;"' : ''}
-      >
+      <${this.isDivsTable ? 'div class="table"' : 'table class="table"'}>
         ${this._createSection('headings')}
         ${this._createSection('rows')}
         ${this._createSection('footers')}
@@ -37,32 +39,7 @@ class Table extends Component {
   }
 
   paint = () => {
-    if (this.isDivsTable) {
-      const gap = '5px';
-      const cellWidth = 100 / this.columnCount + '%';
-      const tableElem = this.elem.querySelector('.table');
-      tableElem.style.width = 'auto';
-      tableElem.style.display = 'inline-flex';
-      tableElem.style.flexDirection = 'column';
-      tableElem.style.gap = gap;
-      const tableSectionElems = this.elem.querySelectorAll('.table > div');
-      for (let i = 0; i < tableSectionElems.length; i++) {
-        tableSectionElems[i].style.display = 'flex';
-        tableSectionElems[i].style.flexDirection = 'column';
-        tableSectionElems[i].style.gap = gap;
-        tableSectionElems[i].style.width = '100%';
-      }
-      const tableRowElems = this.elem.querySelectorAll('.table .row');
-      for (let i = 0; i < tableRowElems.length; i++) {
-        tableRowElems[i].style.display = 'flex';
-        tableRowElems[i].style.gap = gap;
-        tableRowElems[i].style.width = '100%';
-      }
-      const tableCellElems = this.elem.querySelectorAll('.table .cell');
-      for (let i = 0; i < tableCellElems.length; i++) {
-        tableCellElems[i].style.width = cellWidth;
-      }
-    }
+    this._createInlineStyles();
   };
 
   _createSection = (section) => {
@@ -119,12 +96,19 @@ class Table extends Component {
 
   _getCells = (data, isTh) => {
     let cells = '';
+    let skipNextCells = 0; // For colSpan
     for (let i = 0; i < this.columnCount; i++) {
+      if (skipNextCells) {
+        skipNextCells--;
+        continue; // Do not render the next cell because there is a colSpan
+      }
       let classes = data[i]?.classes;
       const id = data[i]?.id;
-      const colSpan = data[i]?.colSpan;
+      const dataColSpan = data[i]?.colSpan || 0;
+      const colSpan = dataColSpan + i > this.columnCount ? this.columnCount - i : dataColSpan;
       const rowSpan = data[i]?.rowSpan;
       const headers = data[i]?.headers;
+      const width = this.columnWidths ? this.columnWidths[i] : null;
       let tag = isTh || data[i]?.isTh ? 'th' : 'td';
       if (this.isDivsTable) {
         tag = 'div';
@@ -141,10 +125,14 @@ class Table extends Component {
         ${colSpan ? ` colspan="${colSpan}"` : ''}
         ${rowSpan ? ` rowspan="${rowSpan}"` : ''}
         ${headers ? ` headers="${headers}"` : ''}
+        ${width ? ` style="width: ${width};"` : ''}
       >`;
       let closeTag = isTh || data[i]?.isTh ? '</th>' : '</td>';
       if (this.isDivsTable) closeTag = '</div>';
       cells += startTag + (data[i]?.cell || '') + closeTag;
+      if (colSpan) {
+        skipNextCells = colSpan - 1; // Minus 1 because the current cell counts as 1 for the colSpan
+      }
     }
     return cells;
   };
@@ -187,6 +175,75 @@ class Table extends Component {
       if (footers.length > maxCount) maxCount = footers.length;
     }
     return maxCount;
+  };
+
+  _createInlineStyles = () => {
+    if (!this.basicStyles) return;
+    this.elem.style.boxSizing = 'border-box';
+    const border = '1px solid #ccc';
+    const backgroundColor = '#fff';
+    const cellPadding = '6px 8px 4px';
+    if (this.isDivsTable) {
+      const cellWidth = 1;
+      const flexBasis = (1 / this.columnCount) * 100;
+      const tableElem = this.elem.querySelector('.table');
+      tableElem.style.borderLeft = border;
+      tableElem.style.borderTop = border;
+      tableElem.style.backgroundColor = backgroundColor;
+      tableElem.style.width = 'auto';
+      tableElem.style.display = 'inline-flex';
+      tableElem.style.flexDirection = 'column';
+      const tableSectionElems = this.elem.querySelectorAll('.table > div');
+      for (let i = 0; i < tableSectionElems.length; i++) {
+        tableSectionElems[i].style.display = 'flex';
+        tableSectionElems[i].style.flexDirection = 'column';
+        tableSectionElems[i].style.width = '100%';
+      }
+      const tableRowElems = this.elem.querySelectorAll('.table .row');
+      for (let i = 0; i < tableRowElems.length; i++) {
+        tableRowElems[i].style.display = 'flex';
+        tableRowElems[i].style.width = '100%';
+      }
+      const tableCellElems = this.elem.querySelectorAll('.table .cell');
+      for (let i = 0; i < tableCellElems.length; i++) {
+        const colSpan = tableCellElems[i].getAttribute('colspan');
+        const colIndex = i % 5;
+        if (colSpan) {
+          const width = this.columnWidths ? this.columnWidths[colIndex] : flexBasis * colSpan + '%';
+          tableCellElems[i].style.flexGrow = colSpan;
+          tableCellElems[i].style.flexBasis = width;
+        } else {
+          const width = this.columnWidths ? this.columnWidths[colIndex] : flexBasis + '%';
+          tableCellElems[i].style.flexGrow = cellWidth;
+          tableCellElems[i].style.flexBasis = width;
+        }
+        tableCellElems[i].style.padding = cellPadding;
+        tableCellElems[i].style.borderRight = border;
+        tableCellElems[i].style.borderBottom = border;
+      }
+      const tableThElems = this.elem.querySelectorAll('.table .th');
+      for (let i = 0; i < tableThElems.length; i++) {
+        tableThElems[i].style.fontWeight = 700;
+      }
+    } else {
+      const tableElem = this.elem.querySelector('.table');
+      tableElem.style.textAlign = 'left';
+      tableElem.style.border = border;
+      tableElem.style.padding = '0';
+      tableElem.style.backgroundColor = backgroundColor;
+      tableElem.style.borderSpacing = '0';
+      tableElem.style.borderCollapse = 'collapse';
+      const tableTdElems = this.elem.querySelectorAll('.table td');
+      const tableThElems = this.elem.querySelectorAll('.table th');
+      const tableCellElems = [...tableTdElems, ...tableThElems];
+      for (let i = 0; i < tableCellElems.length; i++) {
+        tableCellElems[i].style.padding = cellPadding;
+        tableCellElems[i].style.border = border;
+      }
+      for (let i = 0; i < tableThElems.length; i++) {
+        tableThElems[i].style.fontWeight = 700;
+      }
+    }
   };
 }
 
