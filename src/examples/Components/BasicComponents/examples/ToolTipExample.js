@@ -1,7 +1,7 @@
 const ToolTipExample = (parent, ToolTip) => {
   const commonProps = {
     attachId: 'examples',
-    basicPopupStyles: true,
+    inlineStyles: true,
   };
   parent
     .add(

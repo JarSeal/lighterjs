@@ -1,12 +1,12 @@
 import { Component } from '../../../Lighter';
 
 // Custom props:
-// - icon: string/template (the click area of the ToolTip, text prop, if used, will override icon)
+// - icon/text: string/template or string (the click area of the ToolTip, text prop, if used, will override icon)
 // - content: string/template (the ToolTip content)
-// - width: number (width of the ToolTip area)
-// - horiAlign: 'left', 'center', 'right' (should the box be aligned horisontally left, center, or right, default left)
-// - vertAlign: 'top', 'bottom' (should the box be aligned on top or bottom of the icon, default bottom)
-// - basicPopupStyles: boolean (whether the icon has basic CSS applied to it or not, default false)
+// - width?: number (width of the ToolTip area)
+// - horiAlign?: 'left', 'center', 'right' (should the box be aligned horisontally left, center, or right, default left)
+// - vertAlign?: 'top', 'bottom' (should the box be aligned on top or bottom of the icon, default bottom)
+// - inlineStyles?: boolean (whether the icon and popup has basic CSS applied to it or not, default false)
 class ToolTip extends Component {
   constructor(props) {
     super(props);
@@ -26,7 +26,7 @@ class ToolTip extends Component {
     this.toolTipOpen = false;
     this.props.template = `<div class="toolTip"${this._createParentRelativeStyle()}>
       <span class="toolTip-icon">${this.props.icon}</span>
-      <div class="tooltip-content"${this._createBasicPopupStyles()}>
+      <div class="tooltip-content"${this._createinlineStyles()}>
         ${this.props.content || ''}
       </div>
     </div>`;
@@ -56,25 +56,25 @@ class ToolTip extends Component {
 
   openToolTip = () => {
     const toolTipElem = this.elem.querySelector('.tooltip-content');
-    if (this.props.basicPopupStyles) toolTipElem.style.display = 'block';
+    if (this.props.inlineStyles) toolTipElem.style.display = 'block';
     toolTipElem.classList.add('show-tooltip');
     this.toolTipOpen = true;
   };
 
   closeToolTip = () => {
     const toolTipElem = this.elem.querySelector('.tooltip-content');
-    if (this.props.basicPopupStyles) toolTipElem.style.display = 'none';
+    if (this.props.inlineStyles) toolTipElem.style.display = 'none';
     toolTipElem.classList.remove('show-tooltip');
     this.toolTipOpen = false;
   };
 
   _createParentRelativeStyle = () => {
-    if (!this.props.basicPopupStyles) return '';
+    if (!this.props.inlineStyles) return '';
     return ' style="display: inline-block; position: relative; cursor: pointer;"';
   };
 
-  _createBasicPopupStyles = () => {
-    if (!this.props.basicPopupStyles) return '';
+  _createinlineStyles = () => {
+    if (!this.props.inlineStyles) return '';
     const styles = [
       'display: none;',
       'position: absolute;',
