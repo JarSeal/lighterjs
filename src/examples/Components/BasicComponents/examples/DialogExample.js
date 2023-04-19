@@ -17,9 +17,49 @@ const DialogExample = (parent, Dialog) => {
         attachId,
         onClick: () =>
           useDialog().show({
-            component: Component,
-            props: { text: 'This is a dialog with just text and a title.' },
+            props: { text: 'This is a dialog with text, a title, and two buttons.' },
             title: 'My title',
+            buttons: [
+              {
+                text: 'Cancel',
+              },
+              {
+                text: 'OK',
+                onClick: (e, dialog) => {
+                  console.log('OK pressed', dialog);
+                  dialog.close();
+                },
+              },
+            ],
+          }),
+      })
+    )
+    .draw();
+  parent.add(breakProps).draw();
+
+  parent
+    .add(
+      new Button({
+        text: 'Dialog with sticky buttons',
+        attachId,
+        onClick: () =>
+          useDialog().show({
+            props: { text: 'This is a dialog with text, a title, and two sticky buttons.' },
+            title: 'Sticky buttons',
+            hideCloseButton: true,
+            outsideClickEnabled: false,
+            stickyButtons: [
+              {
+                text: 'Cancel',
+              },
+              {
+                text: 'OK',
+                onClick: (e, dialog) => {
+                  console.log('OK pressed', dialog);
+                  dialog.close();
+                },
+              },
+            ],
           }),
       })
     )
