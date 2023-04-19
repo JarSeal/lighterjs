@@ -87,6 +87,7 @@ export const componentsList = [
   // tabs
   // toaster
   // menu-tree
+  // collapsable-section
 ];
 
 export default { Button };
