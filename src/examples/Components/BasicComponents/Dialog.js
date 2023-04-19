@@ -49,7 +49,7 @@ class Dialog extends Component {
   // - component?: Component (the Component to display, if not provided the base Component is used)
   // - props?: object (Component props to use)
   // - title?: string (Dialog title)
-  // - @TODO: outerClasses?: [] (.dialogOuter extra classes)
+  // - outerClasses?: [] (.dialogOuter extra classes)
   // - hideCloseButton?: boolean (whether to hide close button, default false)
   // - outsideClickEnabled?: boolean (whether the outside click is enabled or not, default true)
   // - promptOnClose?: boolean (whether the user is prompted for leaving the dialog with hasChanges = true, default false)
