@@ -1,6 +1,6 @@
 const TableExample = (parent, Table) => {
   const attachId = 'examples';
-  const commonProps = { attachId, basicStyles: true };
+  const commonProps = { attachId, inlineStyles: true };
   const breakProps = { ...commonProps, attributes: { style: 'height: 30px;' } };
 
   // Two col HTML table

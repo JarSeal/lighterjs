@@ -6,7 +6,7 @@ import { Component } from '../../../Lighter';
 // - footers?: array of objects (<tfoot>)
 // - columnWidths: array of strings (eg. '20%', '50px', '5rem')
 // - isDivsTable?: boolean (whether the table is a table or divs element, default false)
-// - basicStyles?: boolean (whether the table has basic CSS applied to it or not, default false)
+// - inlineStyles?: boolean (whether the table has basic CSS applied to it or not, default false)
 // For headings, rows, and footers, the data can be in two different formats (headings has always th cell tags):
 // A (simple one row): [
 //   { cell: string/template, classes?: string[], colSpan?: number, rowSpan?: number, id?: string, isTh?: boolean }
@@ -24,7 +24,7 @@ class Table extends Component {
     this.footers = props.footers || null;
     this.columnWidths = props.columnWidths || null;
     this.isDivsTable = props.isDivsTable || false;
-    this.basicStyles = props.basicStyles || false;
+    this.inlineStyles = props.inlineStyles || false;
     this.headingsRowsFound = false;
     this.rowsRowsFound = false;
     this.footersRowsFound = false;
@@ -178,7 +178,7 @@ class Table extends Component {
   };
 
   _createInlineStyles = () => {
-    if (!this.basicStyles) return;
+    if (!this.inlineStyles) return;
     this.elem.style.boxSizing = 'border-box';
     const border = '1px solid #ccc';
     const backgroundColor = '#fff';
