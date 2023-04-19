@@ -63,6 +63,8 @@ class Dialog extends Component {
     if (!dialogData.component) dialogData.component = Component;
     clearTimeout(this.afterAnimOut);
 
+    // @TODO: make .dialogContent scrollable
+
     // set possible document.body class
     if (dialogData.addDocumentBodyClass !== undefined) {
       this.addDocumentBodyClass = dialogData.addDocumentBodyClass;
