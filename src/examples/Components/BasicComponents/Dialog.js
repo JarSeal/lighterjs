@@ -53,7 +53,7 @@ class Dialog extends Component {
   // - hideCloseButton?: boolean (whether to hide close button, default false)
   // - outsideClickEnabled?: boolean (whether the outside click is enabled or not, default true)
   // - promptOnClose?: boolean (whether the user is prompted for leaving the dialog with hasChanges = true, default false)
-  // - buttons?: array [ (the buttons to show at the bottom of the dialog, default no buttons)
+  // - buttons?: array [ (the buttons to show at the bottom of the dialog inside the .dialogContent, default no buttons)
   //   - { ...ComponentProps, onClick?: function(e, dialog) } (if onClick is not provided, a click will only close the dialog)
   //   ]
   // - stickyButtons?: same as buttons but they will be rendered outside the .dialogContent
