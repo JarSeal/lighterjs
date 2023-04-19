@@ -14,6 +14,7 @@ class Dialog extends Component {
     this.animTime = props.animTime || this.defaultAnimTime;
     this.inlineStyles = props.inlineStyles || false;
     this.basePadding = props.basePadding || '14px';
+    this.contentMaxHeight = 400;
     this.closeButton = null;
     this.outerClasses = [];
     this.buttonComponents = [];
@@ -63,8 +64,6 @@ class Dialog extends Component {
     if (!dialogData.component) dialogData.component = Component;
     clearTimeout(this.afterAnimOut);
 
-    // @TODO: make .dialogContent scrollable
-
     // set possible document.body class
     if (dialogData.addDocumentBodyClass !== undefined) {
       this.addDocumentBodyClass = dialogData.addDocumentBodyClass;
@@ -98,7 +97,9 @@ class Dialog extends Component {
     this.dialogContent = new Component({
       classes: ['dialogContent'],
       attachId: this.id + '-dialog',
-      style: this.inlineStyles ? { padding: this.basePadding } : null,
+      style: this.inlineStyles
+        ? { padding: this.basePadding, overflow: 'auto', maxHeight: '60vh' }
+        : null,
     });
     this.dialogContent.draw();
     this.dialogContent.add(new dialogData.component({ ...(dialogData.props || {}) })).draw();

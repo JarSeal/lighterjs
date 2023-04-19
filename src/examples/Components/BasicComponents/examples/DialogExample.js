@@ -75,6 +75,36 @@ const DialogExample = (parent, Dialog) => {
       })
     )
     .draw();
+  parent.add(breakProps).draw();
+
+  parent
+    .add(
+      new Button({
+        text: 'Dialog with long content',
+        attachId,
+        onClick: () =>
+          useDialog().show({
+            props: {
+              template:
+                '<div style="height: 900px; position: relative;"><div>A really long content that starts here...</div><div style="position: absolute; left: 0; bottom: 0;">...and ends here.</div></div>',
+            },
+            title: 'My title',
+            buttons: [
+              {
+                text: 'Cancel',
+              },
+              {
+                text: 'OK',
+                onClick: (e, dialog) => {
+                  console.log('OK pressed', dialog);
+                  dialog.close();
+                },
+              },
+            ],
+          }),
+      })
+    )
+    .draw();
 };
 
 class ExampleDialog extends Component {
