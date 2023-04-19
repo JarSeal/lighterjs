@@ -71,7 +71,8 @@ class Dialog extends Component {
     this.addDocumentBodyClass = this.props.addDocumentBodyClass || true;
 
     // set possible outer div classes
-    this.elem.setAttribute('class', 'dialogOuter');
+    const extraDialogClasses = this.props.classes ? ' ' + this.props.classes.join(' ') : '';
+    this.elem.setAttribute('class', 'dialogOuter' + extraDialogClasses);
     if (dialogData.outerClasses?.length) this.outerClasses = dialogData.outerClasses;
 
     // set possible outside click listener
@@ -199,7 +200,8 @@ class Dialog extends Component {
       this.buttonComponents = [];
       this.buttons = [];
       this.stickyButtons = [];
-      this.elem.setAttribute('class', 'dialogOuter');
+      const extraDialogClasses = this.props.classes ? ' ' + this.props.classes.join(' ') : '';
+      this.elem.setAttribute('class', 'dialogOuter' + extraDialogClasses);
       document.body.classList.remove('dialogOpen');
     }, this.animTime[1]);
     this.outsideClickEnabled = true;
