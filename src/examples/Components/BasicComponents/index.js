@@ -21,6 +21,9 @@ import TableExample from './examples/TableExample';
 import Dialog from './Dialog';
 import DialogCode from './Dialog?raw';
 import DialogExample from './examples/DialogExample';
+import CollapsableSection from './CollapsableSection';
+import CollapsableSectionCode from './CollapsableSection?raw';
+import CollapsableSectionExample from './examples/CollapsableSectionExample';
 
 export const componentsList = [
   {
@@ -81,13 +84,19 @@ export const componentsList = [
     code: DialogCode,
     examples: DialogExample,
   },
+  // collapsable-section
+  {
+    id: 'collapsapleSection',
+    name: 'CollapsableSection',
+    component: CollapsableSection,
+    code: CollapsableSectionCode,
+    examples: CollapsableSectionExample,
+  },
   // input-number
   // input-radiogroup
   // input-draggable-list
-  // tabs
   // toaster
   // menu-tree
-  // collapsable-section
 ];
 
 export default { Button };
