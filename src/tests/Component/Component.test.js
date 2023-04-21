@@ -71,9 +71,9 @@ describe('Component class tests', () => {
     const comp = new Component({ text: testText });
     expect(typeof comp.draw).toBe('function');
     expect(typeof comp.add).toBe('function');
+    expect(typeof comp.addDraw).toBe('function');
     expect(typeof comp.addListener).toBe('function');
     expect(typeof comp.removeListener).toBe('function');
-    expect(typeof comp.discard).toBe('function');
     expect(typeof comp.discard).toBe('function');
     expect(typeof comp.getComponentById).toBe('function');
     expect(typeof comp.getComponentElemById).toBe('function');
@@ -86,6 +86,7 @@ describe('Component class tests', () => {
     expect(comp.listenersToAdd).toEqual([]);
     expect(comp.drawing).toBeFalsy();
     expect(comp.discarding).toBeFalsy();
+    expect(comp.isDrawn).toBeFalsy();
     expect(comp.router).toEqual(null);
     expect(isUUID(comp.id)).toBeTruthy();
     expect(isUUID(comp.props.id)).toBeTruthy();
@@ -226,6 +227,71 @@ describe('Component class tests', () => {
     const appRootElem = getComponentElemById('appRoot');
 
     expect(appRootElem).toEqual(appRoot.elem);
+
+    appRoot.discard(true);
+  });
+
+  // Test addDraw
+  it('should add and draw with one addDraw call', () => {
+    const appRoot = new Component({
+      _id: 'appRoot',
+      attachId: 'root',
+      text: 'test',
+    });
+    appRoot.draw();
+
+    const div = appRoot.addDraw({ _id: 'my-div', text: 'My text' });
+    const divElem = document.getElementById('my-div');
+
+    expect(div.id).toEqual('my-div');
+    expect(div.props.text).toEqual('My text');
+    expect(divElem.textContent).toEqual('My text');
+
+    appRoot.discard(true);
+  });
+
+  // Test "redraw"
+  it('should "redraw" itself in the DOM and keep its position as a child', () => {
+    const appRoot = new Component({
+      _id: 'appRoot',
+      attachId: 'root',
+      text: 'test',
+    });
+    appRoot.draw();
+
+    const components = [];
+
+    for (let i = 0; i < 10; i++) {
+      components.push(appRoot.addDraw({ _id: 'div-' + i, text: 'DIV ' + i }));
+    }
+
+    for (let i = 0; i < 10; i++) {
+      const divElem = document.getElementById('div-' + i);
+      expect(components[i].id).toEqual('div-' + i);
+      expect(divElem.textContent).toEqual('DIV ' + i);
+    }
+
+    components[3].draw({ template: '<button>My button</button>' });
+    components[6].draw({ text: 'Changed text' });
+    components[9].draw({ tag: 'h3' });
+
+    const elem3 = document.getElementById('div-3');
+    const elem6 = document.getElementById('div-6');
+    const elem9 = document.getElementById('div-9');
+
+    expect(elem3.nodeName).toEqual('BUTTON');
+    expect(elem3.textContent).toEqual('My button');
+    expect(elem6.nodeName).toEqual('DIV');
+    expect(elem6.textContent).toEqual('Changed text');
+    expect(elem9.nodeName).toEqual('H3');
+    expect(elem9.textContent).toEqual('DIV 9');
+
+    expect(appRoot.elem.children[3]).toEqual(elem3);
+    expect(appRoot.children['div-3'].elem).toEqual(elem3);
+    expect(appRoot.elem.children[6]).toEqual(elem6);
+    expect(appRoot.children['div-6'].elem).toEqual(elem6);
+    expect(appRoot.elem.children[9]).toEqual(elem9);
+    expect(appRoot.children['div-9'].elem).toEqual(elem9);
 
     appRoot.discard(true);
   });
