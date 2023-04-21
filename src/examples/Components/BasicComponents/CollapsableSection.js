@@ -1,42 +1,68 @@
 import { Component } from '../../../Lighter';
 
 // props:
-// - component?: Component (panel content that is toggled hidden/visible from the header)
-// - props?: Component props (panel content component props)
-// - title?: string/template (panel header title or template)
+// - contentComponent?: Component (panel content that is toggled hidden/visible from the header)
+// - contentProps?: Component props (panel content component props)
+// - title?: string/template (panel header title)
 // - isOpen?: boolean (whether the content is visible at initiatation or not, default true)
-// - afterToggle?: function(isOpen) (the callback after the section is toggled hidden/visible)
+// - beforeToggle?: function(this) (the callback before the section is toggled hidden/visible)
+// - afterToggle?: function(this) (the callback after the section is toggled hidden/visible)
+// - opensUp?: boolean (whether the section should open upwards or not, default false)
 // - animTime?: number[showTime, hideTime] (the transition times for show/hide)
 // - inlineStyles?: boolean (whether basic inline CSS styles are applied or not, default false)
 class CollapsableSection extends Component {
   constructor(props) {
     super(props);
-    this.content = props.content || '';
-    this.componentProps = props.props || {};
+    this.contentComponent = props.contentComponent || null;
+    this.contentProps = props.contentProps || {};
+    this.content = null;
     this.title = props.title || '';
-    this.isOpen = props.isOpen || true;
+    this.isOpen = props.isOpen === false ? false : true;
+    this.beforeToggle = props.beforeToggle || (() => {});
     this.afterToggle = props.afterToggle || (() => {});
+    this.opensUp = props.opensUp || false;
     this.animTime = props.animTime || defaultAnimTime;
-    this.inlineStyles = props.inlineStyles || false;
+    this.inlineStyles = props.inlineStyles || defaultInlineStyles;
     this.animShow = null;
     this.animHide = null;
-    this.props.template = `<div class="collapsableSection${this.isOpen ? ' show' : ''}">
-      <button class="collapsableSectionHeader">${this.title}</button>
-      <div class="collapsableSectionContent">Content</div>
-    </div>`;
+    this.contentAreaId = this.id + '-content-area';
+    this.props.template = this._createTemplate(this.title);
+    addStylesToHead(this.inlineStyles);
   }
+
+  _createButton = (title) => `<button class="collapsableSectionButton">${title}</button>`;
+
+  _createTemplate = (title) => {
+    const template = `<div class="collapsableSection${this.isOpen ? ' show' : ''}">
+      ${!this.opensUp ? this._createButton(title) : ''}
+      <div class="collapsableSectionContent" id="${this.contentAreaId}"></div>
+      ${this.opensUp ? this._createButton(title) : ''}
+    </div>`;
+    return template;
+  };
 
   addListeners = () => {
     this.addListener({
       id: 'header-click',
-      target: this.elem.querySelector('.collapsableSectionHeader'),
+      target: this.elem.querySelector('.collapsableSectionButton'),
       type: 'click',
       fn: () => this.toggleSection(),
     });
   };
 
-  toggleSection = (isOpen) => {
-    isOpen === undefined ? (this.isOpen = !this.isOpen) : (this.isOpen = isOpen);
+  paint = () => {
+    if (this.isOpen) {
+      this._createContent();
+    }
+  };
+
+  updateTitle = (newTitle) => {
+    this.draw({ template: this._createTemplate(newTitle) });
+  };
+
+  toggleSection = (changeIsOpenTo) => {
+    this.beforeToggle(this, changeIsOpenTo);
+    changeIsOpenTo === undefined ? (this.isOpen = !this.isOpen) : (this.isOpen = changeIsOpenTo);
     if (this.isOpen) {
       this._showSection();
       return;
@@ -45,35 +71,94 @@ class CollapsableSection extends Component {
   };
 
   _showSection = () => {
-    this.elem.querySelector('.collapsableSectionContent').style.transitionDuration =
-      this.animTime[0] + 'ms';
-    // @TODO: set content height here
+    this._createContent();
+    const contentElem = this.getContentElem();
     clearTimeout(this.animHide);
     this.elem.classList.remove('hiding');
+    contentElem.style.transitionDuration = `${this.animTime[0]}ms`;
+    let height = 0;
+    if (this.inlineStyles) {
+      contentElem.style.maxHeight = 'none';
+      contentElem.style.position = 'fixed';
+      contentElem.style.top = '-9999px';
+      contentElem.style.overflow = 'hidden';
+      height = contentElem.offsetHeight;
+      contentElem.style.removeProperty('max-height');
+      contentElem.style.removeProperty('position');
+      contentElem.style.removeProperty('top');
+      contentElem.style.removeProperty('overflow');
+      setTimeout(() => (contentElem.style.maxHeight = height + 'px'), 0);
+    }
     this.elem.classList.add('showing');
-    this.elem.classList.add('show');
     this.animShow = setTimeout(() => {
-      // @TODO: remove content height here
+      this.elem.classList.add('show');
       this.elem.classList.remove('showing');
+      contentElem.style.removeProperty('transition-duration');
+      if (this.inlineStyles) {
+        contentElem.style.removeProperty('max-height');
+      }
+      this.afterToggle(this);
     }, this.animTime[0]);
   };
 
   _hideSection = () => {
-    this.elem.querySelector('.collapsableSectionContent').style.transitionDuration =
-      this.animTime[0] + 'ms';
-    // @TODO: set content height here
+    const contentElem = this.getContentElem();
     clearTimeout(this.animShow);
+    contentElem.style.transitionDuration = this.animTime[1] + 'ms';
+    const height = contentElem.offsetHeight;
     this.elem.classList.remove('showing');
-    this.elem.classList.add('hiding');
+    this.elem.classList.remove('show');
+    contentElem.style.maxHeight = height + 'px';
+    setTimeout(() => this.elem.classList.add('hiding'), 0);
     this.animHide = setTimeout(() => {
-      this.elem.classList.remove('show');
+      contentElem.style.removeProperty('max-height');
+      contentElem.style.removeProperty('transition-duration');
       this.elem.classList.remove('hiding');
-    }, this.animTime[0]);
+      if (this.content?.isComponent) this.content.discard(true);
+      this.afterToggle(this);
+    }, this.animTime[1]);
   };
+
+  _createContent = () => {
+    const props = { ...this.contentProps, attachId: this.contentAreaId };
+    if (this.content?.isComponent) this.content.discard(true);
+    this.content = this.add(
+      this.contentComponent ? new this.contentComponent(props) : props
+    ).draw();
+  };
+
+  getContentElem = () => this.elem.querySelector('.collapsableSectionContent');
 
   updateContent = () => {};
 }
 
-export let defaultAnimTime = [2000, 2000];
+export let defaultAnimTime = [200, 200];
+export let defaultInlineStyles = false;
+let stylesAdded = false;
+export const addStylesToHead = (inlineStyles) => {
+  if (stylesAdded || !inlineStyles) return;
+  const css = `
+    .collapsableSection .collapsableSectionContent {
+      transition: max-height ease-in-out;
+      max-height: 0;
+      overflow: hidden;
+    }
+    .collapsableSection.show .collapsableSectionContent {
+      overflow: auto;
+      max-height: none;
+    }
+    .collapsableSection.showing .collapsableSectionContent {
+      overflow: hidden;
+    }
+    .collapsableSection.hiding .collapsableSectionContent {
+      max-height: 0 !important;
+      overflow: hidden;
+    }
+  `;
+  const style = document.createElement('style');
+  style.textContent = css;
+  document.head.appendChild(style);
+  stylesAdded = true;
+};
 
 export default CollapsableSection;
