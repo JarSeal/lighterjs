@@ -14,7 +14,7 @@ const InputDropdownExample = (parent, InputDropdown) => {
       label: 'Group 1',
       group: [
         { value: 1, text: 'First choice' },
-        { value: 2, text: 'Second choice' },
+        { value: 2, text: 'Second choice', disabled: true },
         { value: 3, text: 'Third choice' },
         { value: 4, text: 'Fourth choice' },
         { value: 5, text: 'Fifth choice' },
