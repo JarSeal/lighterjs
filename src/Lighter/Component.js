@@ -13,7 +13,7 @@ class Component {
     //   _id: string (same as 'id' but will also place the 'id' attribute to the element as well)
     //   template: string (HTML template of the component)
     //   attachId: string (id of the component that this component will be attached to in the DOM, if not set the parent elem will be the target, which is set in the add function)
-    //   text: string (text node to render in the element)
+    //   text: string (text node to render in the element, but if template is used, text is ignored)
     //   classes: string[] (array of strings to be added as the elements CSS classes)
     //   attributes: {
     //     key: value (the key and value pairs will be added as the element's HTML attributes, eg. <li key="value"><li>)
@@ -48,6 +48,7 @@ class Component {
     this.listenersToAdd = [];
     this.drawing = false;
     this.discarding = false;
+    this.isDrawn = false;
     this.isComponent = true;
     if (this.props.attachId) {
       if (this.parent) {
@@ -69,8 +70,8 @@ class Component {
     if (this.drawing || this.discarding) return this;
     this.drawing = true;
     const props = { ...this.props, ...newProps };
-    // Check errors
-    if (newProps?.id || newProps?._id) {
+    // Check if a new id is presented and throw an error if it is found
+    if ((newProps?.id && newProps.id !== this.id) || (newProps?._id && newProps.id !== this.id)) {
       this.drawing = false;
       logger.error(
         `ID of a component cannot be changed once it has been initialised. Old ID: "${
@@ -79,15 +80,22 @@ class Component {
       );
       throw new Error('ID cannot be changed');
     }
+    // Check if prepend is in newProps and warn
+    if (newProps?.prepend)
+      logger.warn(
+        `For redraws the prepend property is ignored, because the DOM element is replaced.`
+      );
     if (!components[props.id]) components[props.id] = this;
     this.props = props;
-    if (this.elem) this.discard();
+    if (this.elem) this.discard(false, this.isDrawn);
     this._checkParentAndAttachId();
     if (!this.template !== props.template) {
       this.template = props.template || this._createDefaultTemplate(props);
     }
-    this._createElement();
-    props.prepend ? this.parent.elem.prepend(this.elem) : this.parent.elem.append(this.elem);
+    this._createElement(this.isDrawn);
+    if (!this.isDrawn) {
+      props.prepend ? this.parent.elem.prepend(this.elem) : this.parent.elem.append(this.elem);
+    }
     this.paint(props);
     this.addListeners(props);
     for (let i = 0; i < this.listenersToAdd.length; i++) {
@@ -98,6 +106,7 @@ class Component {
     }
     this.listenersToAdd = [];
     this.drawing = false;
+    this.isDrawn = true;
     return this;
   };
 
@@ -108,6 +117,8 @@ class Component {
     if (!component.props.attachId) component.parent = this;
     return component;
   };
+
+  addDraw = (componentOrProps) => this.add(componentOrProps).draw();
 
   addListener = (listener) => {
     let { id, target, type, fn } = listener;
@@ -157,7 +168,7 @@ class Component {
     delete this.listeners[id];
   };
 
-  discard = (fullDiscard) => {
+  discard = (fullDiscard, doNotRemoveFromDom) => {
     if (this.discarding) return;
     this.discarding = true;
     // Remove listeners
@@ -172,9 +183,10 @@ class Component {
       if (fullDiscard) delete this.children[keys[i]];
     }
     // Remove element from DOM
-    if (this.elem) {
+    if (this.elem && (fullDiscard || !doNotRemoveFromDom)) {
       this.elem.remove();
       this.elem = null;
+      this.isDrawn = false;
     }
     if (fullDiscard) delete components[this.id];
     this.discarding = false;
@@ -197,7 +209,7 @@ class Component {
         elem.style[keys[i]] = props.style[keys[i]];
       }
     }
-    if (props.text) elem.textContent = props.text;
+    if (props.text && !props.template) elem.textContent = props.text;
     if (props._id && !elem.getAttribute('id')) {
       elem.setAttribute('id', props._id);
     }
@@ -211,10 +223,24 @@ class Component {
     }
   };
 
-  _createElement = () => {
+  _createElement = (redraw) => {
+    if (redraw && !this.elem) {
+      logger.error(`Element not found to redraw, ID: ${this.id}.`);
+      throw new Error('Cannot redraw');
+    }
     const elemTemplate = document.createElement('template');
     elemTemplate.innerHTML = this.template;
-    this.elem = elemTemplate.content.firstChild;
+    if (redraw) {
+      const idAttributeValue = elemTemplate.content.firstChild.getAttribute('id');
+      if (!idAttributeValue) {
+        elemTemplate.content.firstChild.setAttribute('id', this.id);
+      }
+      this.elem.replaceWith(elemTemplate.content.firstChild);
+      this.elem = document.getElementById(this.id);
+      if (!idAttributeValue) this.elem.removeAttribute('id');
+    } else {
+      this.elem = elemTemplate.content.firstChild;
+    }
     this._setElemData(this.elem, this.props);
   };
 
