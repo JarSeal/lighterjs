@@ -102,7 +102,7 @@ class Dialog extends Component {
         : null,
     });
     this.dialogContent.draw();
-    this.dialogContent.add(new dialogData.component({ ...(dialogData.props || {}) })).draw();
+    this.dialogContent.addDraw(new dialogData.component({ ...(dialogData.props || {}) }));
 
     // create possible title and close button
     if (this.title) this.setTitle(this.title);

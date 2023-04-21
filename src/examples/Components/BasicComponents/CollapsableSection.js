@@ -120,9 +120,7 @@ class CollapsableSection extends Component {
   _createContent = () => {
     const props = { ...this.contentProps, attachId: this.contentAreaId };
     if (this.content?.isComponent) this.content.discard(true);
-    this.content = this.add(
-      this.contentComponent ? new this.contentComponent(props) : props
-    ).draw();
+    this.content = this.addDraw(this.contentComponent ? new this.contentComponent(props) : props);
   };
 
   getContentElem = () => this.elem.querySelector('.collapsableSectionContent');
