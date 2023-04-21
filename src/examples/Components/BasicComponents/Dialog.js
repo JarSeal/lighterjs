@@ -10,8 +10,7 @@ import { Component } from '../../../Lighter';
 class Dialog extends Component {
   constructor(props) {
     super(props);
-    this.defaultAnimTime = [400, 200];
-    this.animTime = props.animTime || this.defaultAnimTime;
+    this.animTime = props.animTime || defaultAnimTime;
     this.inlineStyles = props.inlineStyles || false;
     this.basePadding = props.basePadding || '14px';
     this.contentMaxHeight = 400;
@@ -268,6 +267,8 @@ class Dialog extends Component {
     'width: 96%; max-width: 640px; min-height: 240px; max-height: 98%; position: absolute; left: 50%; top: 50%; transform: translate3d(-50%, -50%, 0); background: #fff;';
   _backgroundStyles = 'height: 100%; width: 100%; background: rgba(0,0,0,0.75);';
 }
+
+export const defaultAnimTime = [0, 0];
 
 const dialogRefs = {};
 export const useDialog = (id) => {

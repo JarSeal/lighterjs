@@ -129,6 +129,7 @@ class CollapsableSection extends Component {
 }
 
 export let defaultAnimTime = [200, 200];
+
 export let defaultInlineStyles = false;
 let stylesAdded = false;
 export const addStylesToHead = (inlineStyles) => {
