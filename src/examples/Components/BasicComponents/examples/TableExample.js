@@ -9,8 +9,8 @@ const TableExample = (parent, Table) => {
     { row: [{ cell: 'Speed', isTh: true }, { cell: 'Very fast' }] },
     { row: [{ cell: 'Age', isTh: true }, { cell: 'Oldish' }] },
   ];
-  parent.add(new Table({ ...commonProps, rows: table1 })).draw();
-  parent.add({ ...breakProps }).draw();
+  parent.addDraw(new Table({ ...commonProps, rows: table1 }));
+  parent.addDraw({ ...breakProps });
 
   // Five col HTML table
   const table2Headings = [
@@ -43,14 +43,12 @@ const TableExample = (parent, Table) => {
     },
   ];
   const table2Footers = [{ cell: 'Table footer spanning 5 columns', colSpan: 5, isTh: true }];
-  parent
-    .add(
-      new Table({ ...commonProps, headings: table2Headings, rows: table2, footers: table2Footers })
-    )
-    .draw();
-  parent.add({ ...breakProps }).draw();
+  parent.addDraw(
+    new Table({ ...commonProps, headings: table2Headings, rows: table2, footers: table2Footers })
+  );
 
   // Five col DIV table
+  parent.addDraw({ ...breakProps });
   const table3Headings = [
     { cell: 'This' },
     { cell: 'is', classes: ['JustAClass'] },
@@ -58,20 +56,18 @@ const TableExample = (parent, Table) => {
     { cell: 'DIV' },
     { cell: 'table' },
   ];
-  parent
-    .add(
-      new Table({
-        ...commonProps,
-        isDivsTable: true,
-        headings: table3Headings,
-        rows: table2,
-        footers: table2Footers,
-      })
-    )
-    .draw();
-  parent.add({ ...breakProps }).draw();
+  parent.addDraw(
+    new Table({
+      ...commonProps,
+      isDivsTable: true,
+      headings: table3Headings,
+      rows: table2,
+      footers: table2Footers,
+    })
+  );
 
   // Five col HTML table with different widths
+  parent.addDraw({ ...breakProps });
   const table4Headings = [
     { cell: 'Different' },
     { cell: 'widths', classes: ['JustAClass'] },
@@ -80,35 +76,31 @@ const TableExample = (parent, Table) => {
     { cell: 'HTML table columns' },
   ];
   const columnWidths = ['200px', '250px', '180px', '220px', '320px'];
-  parent
-    .add(
-      new Table({
-        ...commonProps,
-        headings: table4Headings,
-        rows: table2,
-        footers: table2Footers,
-        columnWidths,
-      })
-    )
-    .draw();
-  parent.add({ ...breakProps }).draw();
+  parent.addDraw(
+    new Table({
+      ...commonProps,
+      headings: table4Headings,
+      rows: table2,
+      footers: table2Footers,
+      columnWidths,
+    })
+  );
 
   // Five col DIV table with different widths
+  parent.addDraw({ ...breakProps });
   const table5Headings = table4Headings.map((h, i) =>
     i === 4 ? { cell: 'DIV table columns' } : h
   );
-  parent
-    .add(
-      new Table({
-        ...commonProps,
-        isDivsTable: true,
-        headings: table5Headings,
-        rows: table2,
-        footers: table2Footers,
-        columnWidths,
-      })
-    )
-    .draw();
+  parent.addDraw(
+    new Table({
+      ...commonProps,
+      isDivsTable: true,
+      headings: table5Headings,
+      rows: table2,
+      footers: table2Footers,
+      columnWidths,
+    })
+  );
 };
 
 export default TableExample;

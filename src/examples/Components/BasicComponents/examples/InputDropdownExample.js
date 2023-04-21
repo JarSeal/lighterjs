@@ -31,57 +31,53 @@ const InputDropdownExample = (parent, InputDropdown) => {
       ],
     },
   ];
-  parent
-    .add(new InputDropdown({ ...commonProps, options: options1, value: 3, label: 'Label' }))
-    .draw();
-  parent.add(breakProps).draw();
-  parent
-    .add(
-      new InputDropdown({
-        ...commonProps,
-        options: options1,
-        value: 3,
-        label: 'Disabled',
-        disabled: true,
-      })
-    )
-    .draw();
-  parent.add(breakProps).draw();
-  parent
-    .add(
-      new InputDropdown({
-        ...commonProps,
-        options: options2,
-        value: 7,
-        label: 'Grouped',
-      })
-    )
-    .draw();
-  parent.add(breakProps).draw();
-  const dropdown1 = parent
-    .add(
-      new InputDropdown({
-        ...commonProps,
-        options: options1,
-        value: 3,
-        label: 'When this one changes...',
-        onChange: (_, value) => {
-          dropdown2.setValue(value);
-        },
-      })
-    )
-    .draw();
-  parent.add(breakProps).draw();
-  const dropdown2 = parent
-    .add(
-      new InputDropdown({
-        ...commonProps,
-        options: options1,
-        value: dropdown1.value,
-        label: '...so does this',
-      })
-    )
-    .draw();
+  parent.addDraw(
+    new InputDropdown({ ...commonProps, options: options1, value: 3, label: 'Label' })
+  );
+
+  parent.addDraw(breakProps);
+  parent.addDraw(
+    new InputDropdown({
+      ...commonProps,
+      options: options1,
+      value: 3,
+      label: 'Disabled',
+      disabled: true,
+    })
+  );
+
+  parent.addDraw(breakProps);
+  parent.addDraw(
+    new InputDropdown({
+      ...commonProps,
+      options: options2,
+      value: 7,
+      label: 'Grouped',
+    })
+  );
+
+  parent.addDraw(breakProps);
+  const dropdown1 = parent.addDraw(
+    new InputDropdown({
+      ...commonProps,
+      options: options1,
+      value: 3,
+      label: 'When this one changes...',
+      onChange: (_, value) => {
+        dropdown2.setValue(value);
+      },
+    })
+  );
+
+  parent.addDraw(breakProps);
+  const dropdown2 = parent.addDraw(
+    new InputDropdown({
+      ...commonProps,
+      options: options1,
+      value: dropdown1.value,
+      label: '...so does this',
+    })
+  );
 };
 
 export default InputDropdownExample;
