@@ -209,7 +209,7 @@ class Component {
         elem.style[keys[i]] = props.style[keys[i]];
       }
     }
-    if (props.text && !props.template) elem.textContent = props.text;
+    if (props.text && !elem.textContent) elem.textContent = props.text;
     if (props._id && !elem.getAttribute('id')) {
       elem.setAttribute('id', props._id);
     }
