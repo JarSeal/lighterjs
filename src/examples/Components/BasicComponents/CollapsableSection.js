@@ -26,38 +26,36 @@ class CollapsableSection extends Component {
     this.animShow = null;
     this.animHide = null;
     this.contentAreaId = this.id + '-content-area';
-    this.props.template = this._createTemplate(this.title);
+    this.sectionTitle = null;
+    this.props.template = `<div class="collapsableSection${this.isOpen ? ' show' : ''}">
+      <div class="collapsableSectionContent" id="${this.contentAreaId}"></div>
+    </div>`;
     addStylesToHead(this.inlineStyles);
   }
 
-  _createButton = (title) => `<button class="collapsableSectionButton">${title}</button>`;
-
-  _createTemplate = (title) => {
-    const template = `<div class="collapsableSection${this.isOpen ? ' show' : ''}">
-      ${!this.opensUp ? this._createButton(title) : ''}
-      <div class="collapsableSectionContent" id="${this.contentAreaId}"></div>
-      ${this.opensUp ? this._createButton(title) : ''}
-    </div>`;
-    return template;
-  };
-
-  addListeners = () => {
-    this.addListener({
-      id: 'header-click',
-      target: this.elem.querySelector('.collapsableSectionButton'),
-      type: 'click',
-      fn: () => this.toggleSection(),
-    });
-  };
-
   paint = () => {
+    this._createSectionTitle();
     if (this.isOpen) {
       this._createContent();
     }
   };
 
+  _createSectionTitle = () => {
+    if (this.sectionTitle) this.sectionTitle.discard(true);
+    this.sectionTitle = this.addDraw({
+      template: `<button class="collapsableSectionButton">${this.title}</button>`,
+      prepend: !this.opensUp,
+    });
+    this.sectionTitle.addListener({
+      id: 'header-click',
+      type: 'click',
+      fn: () => this.toggleSection(),
+    });
+  };
+
   updateTitle = (newTitle) => {
-    this.draw({ template: this._createTemplate(newTitle) });
+    this.title = newTitle;
+    this._createSectionTitle();
   };
 
   toggleSection = (changeIsOpenTo) => {
