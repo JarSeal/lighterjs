@@ -1,4 +1,5 @@
 const InputDropdownExample = (parent, InputDropdown) => {
+  console.log('here');
   const attachId = 'examples';
   const commonProps = { attachId };
   const breakProps = { attachId, attributes: { style: 'height: 30px;' } };

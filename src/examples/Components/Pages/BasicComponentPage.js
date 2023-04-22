@@ -7,9 +7,10 @@ class BasicComponentPage extends Component {
   constructor(props) {
     super(props);
     this.componentId = props.routeParams.componentId;
-    this.componentInfo = componentsList.find((c) => c.id === this.componentId);
+    this.componentInfo = componentsList.find((c) => c.id === this.componentId) || [];
     this.props.template = `<div class="basicComponent">
       <h1>${this.componentInfo.name}</h1>
+      ${this.componentInfo.description ? `<p>${this.componentInfo.description}</p>` : ''}
       <hr />
       <h3>Examples:</h3>
       <div id="examples" style="padding-bottom: 30px;"></div>

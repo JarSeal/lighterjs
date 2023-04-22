@@ -24,6 +24,9 @@ import DialogExample from './examples/DialogExample';
 import CollapsableSection from './CollapsableSection';
 import CollapsableSectionCode from './CollapsableSection?raw';
 import CollapsableSectionExample from './examples/CollapsableSectionExample';
+import InputRadioGroup from './InputRadioGroup';
+import InputRadioGroupCode from './InputRadioGroup?raw';
+import InputRadioGroupExample from './examples/InputRadioGroupExample';
 
 export const componentsList = [
   {
@@ -43,11 +46,9 @@ export const componentsList = [
   {
     id: 'input-base',
     name: 'InputBase',
+    description: 'Base class for all input components. Needed for all Input* classes.',
     component: InputBase,
     code: InputBaseCode,
-    examples: (parent) => {
-      parent.add({ attachId: 'examples', text: '[No examples...]' }).draw();
-    },
   },
   {
     id: 'input-text',
@@ -62,6 +63,13 @@ export const componentsList = [
     component: InputCheckbox,
     code: InputCheckboxCode,
     examples: InputCheckboxExample,
+  },
+  {
+    id: 'input-radiogroup',
+    name: 'InputRadioGroup',
+    component: InputRadioGroup,
+    code: InputRadioGroupCode,
+    examples: InputRadioGroupExample,
   },
   {
     id: 'input-dropdown',
@@ -84,7 +92,6 @@ export const componentsList = [
     code: DialogCode,
     examples: DialogExample,
   },
-  // collapsable-section
   {
     id: 'collapsapleSection',
     name: 'CollapsableSection',
@@ -93,10 +100,7 @@ export const componentsList = [
     examples: CollapsableSectionExample,
   },
   // input-number
-  // input-radiogroup
   // input-draggable-list
   // toaster
   // menu-tree
 ];
-
-export default { Button };
