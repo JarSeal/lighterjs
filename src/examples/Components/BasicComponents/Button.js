@@ -6,8 +6,8 @@ import Component from '../../../Lighter/Component';
 class Button extends Component {
   constructor(props) {
     super(props);
-    this.props.template = '<button class="button"></button>';
     this.autoFocus = props.autoFocus || false;
+    this.props.template = '<button class="button"></button>';
   }
 
   paint = (props) => {
