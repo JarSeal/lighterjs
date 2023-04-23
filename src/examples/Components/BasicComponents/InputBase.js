@@ -18,10 +18,10 @@ class InputBase extends Component {
     this.label = props.label || '';
     this.value = props.value || '';
     this.focusOnFirstDraw = props.focusOnFirstDraw || false;
-    this.changeHappened = false;
     this.noChangeListener = props.noChangeListener || false;
     this.noFocusListener = props.noFocusListener || false;
     this.noBlurListener = props.noBlurListener || false;
+    this.changeHappened = false;
   }
 
   painter = () => {
