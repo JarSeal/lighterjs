@@ -11,13 +11,13 @@ import { Component } from '../../../Lighter';
 // - noChangeListener: boolean (will not create an onChange listener)
 // - noFocusListener: boolean (will not create an onFocus listener)
 // - noBlurListener: boolean (will not create an onBlur listener)
-// - focusOnFirstDraw = boolean (whether the input is focused after the first drawing or not, default false)
+// - autoFocus = boolean (whether the input is focused after the first drawing or not, default false)
 class InputBase extends Component {
   constructor(props) {
     super(props);
     this.label = props.label || '';
     this.value = props.value || '';
-    this.focusOnFirstDraw = props.focusOnFirstDraw || false;
+    this.autoFocus = props.autoFocus || false;
     this.noChangeListener = props.noChangeListener || false;
     this.noFocusListener = props.noFocusListener || false;
     this.noBlurListener = props.noBlurListener || false;
@@ -28,7 +28,7 @@ class InputBase extends Component {
     this.disabled = this.props.disabled;
     this.getInputElem().disabled = this.disabled;
     this.disabled ? this.elem.classList.add('disabled') : this.elem.classList.remove('disabled');
-    if (this.focusOnFirstDraw) {
+    if (this.autoFocus) {
       this.elem.classList.add('focus');
       this.getInputElem().focus();
     }

@@ -13,7 +13,7 @@ import { Component } from '../../../Lighter';
 // - noChangeListener: boolean (will not create an onChange listener)
 // - noFocusListener: boolean (will not create an onFocus listener)
 // - noBlurListener: boolean (will not create an onBlur listener)
-// - focusOnFirstDraw = boolean (whether the first radio input is focused after the first drawing or not, default false)
+// - autoFocus = boolean (whether the first radio input is focused after the first drawing or not, default false)
 class InputRadioGroup extends Component {
   constructor(props) {
     super(props);
@@ -42,7 +42,7 @@ class InputRadioGroup extends Component {
     this.onChange = props.onChange || null;
     this.onFocus = props.onFocus || null;
     this.onBlur = props.onBlur || null;
-    this.focusOnFirstDraw = props.focusOnFirstDraw || false;
+    this.autoFocus = props.autoFocus || false;
     this.noChangeListener = props.noChangeListener || false;
     this.noFocusListener = props.noFocusListener || false;
     this.noBlurListener = props.noBlurListener || false;
@@ -93,7 +93,7 @@ class InputRadioGroup extends Component {
     this._defineProps(props);
     this.getFieldsetElem().disabled = this.disabled;
     this.disabled ? this.elem.classList.add('disabled') : this.elem.classList.remove('disabled');
-    if (this.focusOnFirstDraw && !this.noFocusListener && !this.noBlurListener) {
+    if (this.autoFocus && !this.noFocusListener && !this.noBlurListener) {
       this.elem.classList.add('focus');
       if (this.getInputElems()?.length) this.getInputElems()[0].focus();
     }

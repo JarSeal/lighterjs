@@ -20,7 +20,7 @@ const InputRadioGroupExample = (parent, InputRadioGroup) => {
       label: 'Radio group 1 with autofocus on the first input',
       options: options1,
       value: 1,
-      focusOnFirstDraw: true,
+      autoFocus: true,
     })
   );
 

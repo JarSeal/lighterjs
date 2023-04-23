@@ -10,7 +10,7 @@ const InputTextExample = (parent, InputText) => {
       ...commonProps,
       label: 'Label',
       maxlength: 5,
-      focusOnFirstDraw: true,
+      autoFocus: true,
       onChange: (_, value) => {
         if (value) {
           inputElem1.clearErrors();
