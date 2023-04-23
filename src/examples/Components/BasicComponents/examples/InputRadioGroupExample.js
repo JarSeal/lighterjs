@@ -14,17 +14,21 @@ const InputRadioGroupExample = (parent, InputRadioGroup) => {
     { value: 2, label: 'Option 3' },
   ];
 
-  //parent.add({ attachId, text: 'THISIHFGSHIFHSI' }).draw();
-
   parent.addDraw(
-    new InputRadioGroup({ attachId, label: 'Radio group 1', options: options1, value: 0 })
+    new InputRadioGroup({
+      attachId,
+      label: 'Radio group 1 with autofocus on the first input',
+      options: options1,
+      value: 1,
+      focusOnFirstDraw: true,
+    })
   );
 
   parent.addDraw(breakProps);
   parent.addDraw(
     new InputRadioGroup({
       attachId,
-      label: 'Radio group 2',
+      label: 'Radio group 2 with the whole group disabled',
       options: options2,
       value: 0,
       disabled: true,
@@ -33,7 +37,13 @@ const InputRadioGroupExample = (parent, InputRadioGroup) => {
 
   parent.addDraw(breakProps);
   parent.addDraw(
-    new InputRadioGroup({ attachId, label: 'Radio group 3', options: options2, value: 0 })
+    new InputRadioGroup({
+      attachId,
+      label: 'Radio group 3 with one input disabled',
+      options: options2,
+      value: 0,
+      onChange: (e, compo, option) => console.log('Changed to value:', compo.value, e, option),
+    })
   );
 };
 
