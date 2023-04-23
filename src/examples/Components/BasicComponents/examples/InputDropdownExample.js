@@ -1,5 +1,4 @@
 const InputDropdownExample = (parent, InputDropdown) => {
-  console.log('here');
   const attachId = 'examples';
   const commonProps = { attachId };
   const breakProps = { attachId, attributes: { style: 'height: 30px;' } };
@@ -33,7 +32,13 @@ const InputDropdownExample = (parent, InputDropdown) => {
     },
   ];
   parent.addDraw(
-    new InputDropdown({ ...commonProps, options: options1, value: 3, label: 'Label' })
+    new InputDropdown({
+      ...commonProps,
+      options: options1,
+      value: 3,
+      label: 'Label',
+      autoFocus: true,
+    })
   );
 
   parent.addDraw(breakProps);

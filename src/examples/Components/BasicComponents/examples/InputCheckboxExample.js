@@ -2,7 +2,9 @@ const InputCheckboxExample = (parent, InputCheckbox) => {
   const attachId = 'examples';
   const commonProps = { attachId };
   const breakProps = { attachId, attributes: { style: 'height: 30px;' } };
-  parent.addDraw(new InputCheckbox({ ...commonProps, label: 'Checked', value: true }));
+  parent.addDraw(
+    new InputCheckbox({ ...commonProps, label: 'Checked', value: true, autoFocus: true })
+  );
 
   parent.addDraw(breakProps);
   parent.addDraw(new InputCheckbox({ ...commonProps, label: 'Unchecked' }));

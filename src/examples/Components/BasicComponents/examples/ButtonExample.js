@@ -5,6 +5,7 @@ const ButtonExample = (parent, Button) => {
     new Button({
       text: 'Button',
       attachId: 'examples',
+      autoFocus: true,
       onClick: (e) => {
         buttonClickCounter++;
         console.log('Button clicked: ' + buttonClickCounter, e);

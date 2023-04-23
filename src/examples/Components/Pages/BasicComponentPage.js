@@ -35,7 +35,8 @@ class BasicComponentPage extends Component {
         onClick: () => this.router.changeRoute('/basic-components'),
       })
     ).draw();
-    this.componentInfo.examples(this, this.componentInfo.component);
+    if (this.componentInfo.examples)
+      this.componentInfo.examples(this, this.componentInfo.component);
     if (this.componentInfo.code) {
       const copyCodeButton = this.add(
         new Button({
