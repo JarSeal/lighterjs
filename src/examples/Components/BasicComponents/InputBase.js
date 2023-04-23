@@ -15,16 +15,22 @@ import { Component } from '../../../Lighter';
 class InputBase extends Component {
   constructor(props) {
     super(props);
+    this._defineProps(props);
+    this.changeHappened = false;
+  }
+
+  _defineProps = (props) => {
     this.label = props.label || '';
     this.value = props.value || '';
     this.autoFocus = props.autoFocus || false;
     this.noChangeListener = props.noChangeListener || false;
     this.noFocusListener = props.noFocusListener || false;
     this.noBlurListener = props.noBlurListener || false;
-    this.changeHappened = false;
-  }
+    if (props.template) this.inputElem = null;
+  };
 
-  painter = () => {
+  painter = (props) => {
+    this._defineProps(props);
     this.disabled = this.props.disabled;
     this.getInputElem().disabled = this.disabled;
     this.disabled ? this.elem.classList.add('disabled') : this.elem.classList.remove('disabled');
@@ -60,10 +66,10 @@ class InputBase extends Component {
 
   _createOnChangeListener = () => {};
 
-  addListeners = () => {
+  addListeners = (props) => {
     const inputElem = this.getInputElem();
-    if (!this.noChangeListener) {
-      if (this._createOnChangeListener) this._createOnChangeListener();
+    if (!props.noChangeListener) {
+      this._createOnChangeListener();
     }
     if (!this.noFocusListener) {
       this.addListener({
@@ -72,26 +78,26 @@ class InputBase extends Component {
         type: 'focus',
         fn: (e) => {
           this.elem.classList.add('focus');
-          if (this.props.onFocus) {
-            this.props.onFocus(e, this.value, this);
+          if (props.onFocus) {
+            props.onFocus(e, props.value, this);
           }
         },
       });
     }
-    if (!this.noBlurListener) {
+    if (!props.noBlurListener) {
       this.addListener({
         id: 'blur',
         target: inputElem,
         type: 'blur',
         fn: (e) => {
           this.elem.classList.remove('focus');
-          if (this.props.onBlur) {
-            this.props.onBlur(e, this.value, this);
+          if (props.onBlur) {
+            props.onBlur(e, props.value, this);
           }
         },
       });
     }
-    this.painter();
+    this.painter(props);
   };
 }
 

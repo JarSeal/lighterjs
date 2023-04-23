@@ -19,6 +19,17 @@ import { Component } from '../../../Lighter';
 class Table extends Component {
   constructor(props) {
     super(props);
+    this._defineProps(props);
+    this.props.template = `<div class="tableOuter${this.isDivsTable ? ' isDivsTable' : ''}">
+      <${this.isDivsTable ? 'div class="table"' : 'table class="table"'}>
+        ${this._createSection('headings')}
+        ${this._createSection('rows')}
+        ${this._createSection('footers')}
+      </${this.isDivsTable ? 'div' : 'table'}>
+    </div>`;
+  }
+
+  _defineProps = (props) => {
     this.rows = props.rows || null;
     this.headings = props.headings || null;
     this.footers = props.footers || null;
@@ -29,16 +40,10 @@ class Table extends Component {
     this.rowsRowsFound = false;
     this.footersRowsFound = false;
     this.columnCount = this._getMaxColumn();
-    this.props.template = `<div class="tableOuter${this.isDivsTable ? ' isDivsTable' : ''}">
-      <${this.isDivsTable ? 'div class="table"' : 'table class="table"'}>
-        ${this._createSection('headings')}
-        ${this._createSection('rows')}
-        ${this._createSection('footers')}
-      </${this.isDivsTable ? 'div' : 'table'}>
-    </div>`;
-  }
+  };
 
-  paint = () => {
+  paint = (props) => {
+    this._defineProps(props);
     this._createInlineStyles();
   };
 

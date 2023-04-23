@@ -10,6 +10,17 @@ import { Component } from '../../../Lighter';
 class ToolTip extends Component {
   constructor(props) {
     super(props);
+    this._defineProps(props);
+    this.toolTipOpen = false;
+    this.props.template = `<div class="toolTip"${this._createParentRelativeStyle()}>
+      <span class="toolTip-icon">${this.props.icon}</span>
+      <div class="tooltip-content"${this._createinlineStyles()}>
+        ${this.props.content || ''}
+      </div>
+    </div>`;
+  }
+
+  _defineProps = (props) => {
     if (props.text) {
       this.props.icon = this.props.text;
       this.props.text = null;
@@ -23,14 +34,11 @@ class ToolTip extends Component {
     }
     this.horiAlign = props.horiAlign;
     this.vertAlign = props.vertAlign;
-    this.toolTipOpen = false;
-    this.props.template = `<div class="toolTip"${this._createParentRelativeStyle()}>
-      <span class="toolTip-icon">${this.props.icon}</span>
-      <div class="tooltip-content"${this._createinlineStyles()}>
-        ${this.props.content || ''}
-      </div>
-    </div>`;
-  }
+  };
+
+  paint = (props) => {
+    this._defineProps(props);
+  };
 
   addListeners = () => {
     const target = this.elem.querySelector('.tooltip-icon');

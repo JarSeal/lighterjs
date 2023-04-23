@@ -13,16 +13,8 @@ import { Component } from '../../../Lighter';
 class CollapsableSection extends Component {
   constructor(props) {
     super(props);
-    this.contentComponent = props.contentComponent || null;
-    this.contentProps = props.contentProps || {};
+    this._defineProps(props);
     this.content = null;
-    this.title = props.title || '';
-    this.isOpen = props.isOpen === false ? false : true;
-    this.beforeToggle = props.beforeToggle || (() => {});
-    this.afterToggle = props.afterToggle || (() => {});
-    this.opensUp = props.opensUp || false;
-    this.animTime = props.animTime || defaultAnimTime;
-    this.inlineStyles = props.inlineStyles || defaultInlineStyles;
     this.animShow = null;
     this.animHide = null;
     this.contentAreaId = this.id + '-content-area';
@@ -33,7 +25,20 @@ class CollapsableSection extends Component {
     addStylesToHead(this.inlineStyles);
   }
 
-  paint = () => {
+  _defineProps = (props) => {
+    this.contentComponent = props.contentComponent || null;
+    this.contentProps = props.contentProps || {};
+    this.isOpen = props.isOpen === false ? false : true;
+    this.title = props.title || '';
+    this.beforeToggle = props.beforeToggle || (() => {});
+    this.afterToggle = props.afterToggle || (() => {});
+    this.opensUp = props.opensUp || false;
+    this.animTime = props.animTime || defaultAnimTime;
+    this.inlineStyles = props.inlineStyles || defaultInlineStyles;
+  };
+
+  paint = (props) => {
+    this._defineProps(props);
     this._createSectionTitle();
     if (this.isOpen) {
       this._createContent();

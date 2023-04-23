@@ -16,8 +16,7 @@ import InputBase from './InputBase';
 class InputCheckbox extends InputBase {
   constructor(props) {
     super(props);
-    this.label = props.label || '';
-    this.value = props.value || false;
+    this._defineProps(props);
     this.props.template = `<div
       class="inputCheckbox formElem${this.label ? '' : ' noLabel'}${this.value ? ' checked' : ''}"
     >
@@ -32,6 +31,15 @@ class InputCheckbox extends InputBase {
     </div>`;
   }
 
+  _defineProps = (props) => {
+    this.label = props.label || '';
+    this.value = props.value || false;
+  };
+
+  paint = (props) => {
+    this._defineProps(props);
+  };
+
   // toValue: boolean/undefined (if undefined, the value is flipped = !value)
   toggle = (toValue) => {
     if (toValue === undefined) {
@@ -41,7 +49,6 @@ class InputCheckbox extends InputBase {
       this.value = Boolean(toValue);
       this.props.value = this.value;
     }
-    console.log(toValue, this.value);
     if (this.value) {
       this.elem.classList.add('checked');
       this.getInputElem().checked = true;

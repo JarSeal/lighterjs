@@ -25,11 +25,7 @@ import InputBase from './InputBase';
 class InputDropdown extends InputBase {
   constructor(props) {
     super(props);
-    this.options = props.options;
-    if (!props.options?.length) {
-      console.warn('options prop missing for id: ' + this.id);
-      this.options = this.props.options = {};
-    }
+    this._defineProps(props);
     this.props.template = `<div
       class="inputText inputDropdown formElem${this.label ? '' : ' noLabel'}"
     >
@@ -42,6 +38,18 @@ class InputDropdown extends InputBase {
       <div class="inputErrorMsg"></div>
     </div>`;
   }
+
+  _defineProps = (props) => {
+    if (!props.options?.length) {
+      console.warn('options prop missing for id: ' + this.id);
+      this.options = this.props.options = {};
+    }
+    this.options = props.options;
+  };
+
+  paint = (props) => {
+    this._defineProps(props);
+  };
 
   _createOnChangeListener = () => {
     const inputElem = this.getInputElem();

@@ -58,8 +58,10 @@ class InputRadioGroup extends Component {
           target: inputElems[i],
           type: 'change',
           fn: (e) => {
+            if (this.value === e.target.value) return;
             this.value = e.target.value;
             this.props.value = this.value;
+            this.changeHappened = true;
             if (this.props.onChange) this.props.onChange(e, this, option);
           },
         });

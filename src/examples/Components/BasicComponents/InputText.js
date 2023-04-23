@@ -19,9 +19,7 @@ import InputBase from './InputBase';
 class InputText extends InputBase {
   constructor(props) {
     super(props);
-    this.maxlength = props.maxlength || null;
-    this.password = props.password || false;
-    this.multiline = props.multiline || false;
+    this._defineProps(props);
     if (props.multiline) {
       this.props.template = `<div
         class="inputText inputTextMulti formElem${this.label ? '' : ' noLabel'}"
@@ -49,6 +47,16 @@ class InputText extends InputBase {
       </div>`;
     }
   }
+
+  _defineProps = (props) => {
+    this.maxlength = props.maxlength || null;
+    this.password = props.password || false;
+    this.multiline = props.multiline || false;
+  };
+
+  paint = (props) => {
+    this._defineProps(props);
+  };
 
   _createOnChangeListener = () => {
     const inputElem = this.getInputElem();
