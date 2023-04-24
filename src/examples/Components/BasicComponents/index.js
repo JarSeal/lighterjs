@@ -27,6 +27,9 @@ import CollapsableSectionExample from './examples/CollapsableSectionExample';
 import InputRadioGroup from './InputRadioGroup';
 import InputRadioGroupCode from './InputRadioGroup?raw';
 import InputRadioGroupExample from './examples/InputRadioGroupExample';
+import MenuTree from './MenuTree';
+import MenuTreeCode from './MenuTree?raw';
+import MenuTreeExample from './examples/MenuTreeExample';
 
 export const componentsList = [
   {
@@ -86,6 +89,13 @@ export const componentsList = [
     examples: InputTextExample,
   },
   {
+    id: 'menutree',
+    name: 'MenuTree',
+    component: MenuTree,
+    code: MenuTreeCode,
+    examples: MenuTreeExample,
+  },
+  {
     id: 'table',
     name: 'Table',
     component: Table,
@@ -102,5 +112,4 @@ export const componentsList = [
   // input-number
   // input-draggable-list
   // toaster
-  // menu-tree
 ];
