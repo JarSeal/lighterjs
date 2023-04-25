@@ -14,7 +14,6 @@ import { Component } from '../../../Lighter';
 //   }
 // ]
 // - disabled?: boolean (whether the whole menu tree is disabled or not, default false)
-// - inlineStyles?: boolean (whether basic inline CSS styles are applied or not, default false)
 // - forceUpdateRouteLinks?: boolean (whether to use forceUpdate for routeLinks or not, default true)
 class MenuTree extends Component {
   constructor(props) {
@@ -29,7 +28,6 @@ class MenuTree extends Component {
     }
     this.tree = props.tree;
     this.disabled = props.disabled || false;
-    this.inlineStyles = props.inlinestyles || false;
     this.forceUpdateRouteLinks = props.forceUpdateRouteLinks === false ? false : true;
     if (this.treeComponent?.idComponent) this.treeComponent.discard(true);
   };
