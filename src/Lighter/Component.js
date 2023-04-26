@@ -65,6 +65,10 @@ class Component {
 
   paint() {}
   addListeners() {}
+  // @TODO: add to tests
+  ignorePropChanges() {
+    return [];
+  }
 
   draw = (newProps) => {
     if (this.drawing || this.discarding) return this;
