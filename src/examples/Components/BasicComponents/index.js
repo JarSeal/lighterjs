@@ -30,6 +30,9 @@ import InputRadioGroupExample from './examples/InputRadioGroupExample';
 import MenuTree from './MenuTree';
 import MenuTreeCode from './MenuTree?raw';
 import MenuTreeExample from './examples/MenuTreeExample';
+import InputNumber from './InputNumber';
+import InputNumberCode from './InputNumber?raw';
+import InputNumberExample from './examples/InputNumberExample';
 
 export const componentsList = [
   {
@@ -75,6 +78,13 @@ export const componentsList = [
     examples: InputDropdownExample,
   },
   {
+    id: 'input-number',
+    name: 'InputNumber',
+    component: InputNumber,
+    code: InputNumberCode,
+    examples: InputNumberExample,
+  },
+  {
     id: 'input-radiogroup',
     name: 'InputRadioGroup',
     component: InputRadioGroup,
@@ -109,7 +119,6 @@ export const componentsList = [
     code: ToolTipCode,
     examples: ToolTipExample,
   },
-  // input-number
   // input-draggable-list
   // toaster
 ];
