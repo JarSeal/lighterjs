@@ -69,28 +69,37 @@ describe('Component class tests', () => {
   it('should create a basic text div and check the component class types and default values', () => {
     const testText = 'Test text';
     const comp = new Component({ text: testText });
-    expect(typeof comp.draw).toBe('function');
     expect(typeof comp.add).toBe('function');
     expect(typeof comp.addDraw).toBe('function');
     expect(typeof comp.addListener).toBe('function');
-    expect(typeof comp.removeListener).toBe('function');
+    expect(typeof comp.addListeners).toBe('function');
+    expect(comp.children).toEqual({});
     expect(typeof comp.discard).toBe('function');
+    expect(comp.discarding).toBeFalsy();
+    expect(typeof comp.draw).toBe('function');
+    expect(comp.drawing).toBeFalsy();
+    expect(comp.elem).toEqual(undefined);
     expect(typeof comp.getComponentById).toBe('function');
     expect(typeof comp.getComponentElemById).toBe('function');
-    expect(typeof comp._setElemData).toBe('function');
-    expect(typeof comp._createDefaultTemplate).toBe('function');
-    expect(typeof comp._checkParentAndAttachId).toBe('function');
-    expect(comp.isComponent).toBeTruthy();
-    expect(comp.children).toEqual({});
-    expect(comp.listeners).toEqual({});
-    expect(comp.listenersToAdd).toEqual([]);
-    expect(comp.drawing).toBeFalsy();
-    expect(comp.discarding).toBeFalsy();
-    expect(comp.isDrawn).toBeFalsy();
-    expect(comp.router).toEqual(null);
     expect(isUUID(comp.id)).toBeTruthy();
     expect(isUUID(comp.props.id)).toBeTruthy();
-    expect(comp.props.text).toEqual(testText);
+    expect(typeof comp.ignorePropChanges).toBe('function');
+    expect(comp.ignorePropChanges()).toEqual([]);
+    expect(comp.isComponent).toBeTruthy();
+    expect(comp.isDrawn).toBeFalsy();
+    expect(comp.listeners).toEqual({});
+    expect(comp.listenersToAdd).toEqual([]);
+    expect(typeof comp.paint).toBe('function');
+    expect(comp.parent).toEqual(undefined);
+    expect(comp.props).toEqual({ id: comp.id, text: testText });
+    expect(typeof comp.removeListener).toBe('function');
+    expect(comp.router).toEqual(null);
+    expect(comp.template).toEqual('<div></div>');
+    expect(typeof comp._checkParentAndAttachId).toBe('function');
+    expect(typeof comp._createDefaultTemplate).toBe('function');
+    expect(typeof comp._createElement).toBe('function');
+    expect(typeof comp._parseIgnoredProps).toBe('function');
+    expect(typeof comp._setElemData).toBe('function');
   });
 
   it('should fail when registering a listener without type or fn', () => {
@@ -292,6 +301,75 @@ describe('Component class tests', () => {
     expect(appRoot.children['div-6'].elem).toEqual(elem6);
     expect(appRoot.elem.children[9]).toEqual(elem9);
     expect(appRoot.children['div-9'].elem).toEqual(elem9);
+
+    appRoot.discard(true);
+  });
+
+  // Test _parseIgnoredProps
+  it('should parse out the ignored props', () => {
+    const comp = new Component();
+    expect(comp._parseIgnoredProps()).toEqual({});
+    expect(comp._parseIgnoredProps({})).toEqual({});
+
+    const newProps = { testProp1: true, testProp2: true };
+    expect(comp._parseIgnoredProps(newProps)).toEqual(newProps);
+    expect(comp._parseIgnoredProps({ ...newProps, id: 'newId' })).toEqual(newProps);
+    expect(comp._parseIgnoredProps({ ...newProps, _id: 'newId' })).toEqual(newProps);
+    expect(comp._parseIgnoredProps({ ...newProps, prepend: true })).toEqual(newProps);
+    expect(
+      comp._parseIgnoredProps({ ...newProps, id: 'newId', _id: 'newId', prepend: true })
+    ).toEqual(newProps);
+
+    comp.ignorePropChanges = () => ['template', 'someOtherProp'];
+    expect(comp._parseIgnoredProps({ ...newProps, template: '<span>New template</span>' })).toEqual(
+      newProps
+    );
+    expect(comp._parseIgnoredProps({ ...newProps, someOtherProp: false })).toEqual(newProps);
+    expect(
+      comp._parseIgnoredProps({
+        ...newProps,
+        someOtherProp: false,
+        template: '<span>New template</span>',
+      })
+    ).toEqual(newProps);
+    expect(
+      comp._parseIgnoredProps({
+        ...newProps,
+        someOtherProp: false,
+        someNotIgnoredProp: true,
+        template: '<span>New template</span>',
+      })
+    ).toEqual({ ...newProps, someNotIgnoredProp: true });
+
+    comp.ignorePropChanges = () => true;
+    expect(comp._parseIgnoredProps(newProps)).toEqual({});
+
+    comp.discard(true);
+  });
+
+  // Test ignorePropChanges
+  it('should parse out the ignored props and not change the template', () => {
+    const correctTemplate = '<span>My template</span>';
+    const ignoredTemplate = '<button>Changed template</button>';
+
+    const appRoot = new Component({
+      _id: 'appRoot',
+      attachId: 'root',
+      text: 'test',
+    });
+    appRoot.draw();
+
+    const comp = appRoot.addDraw(new Component({ template: correctTemplate }));
+
+    expect(comp.template).toEqual(correctTemplate);
+    comp.draw();
+    expect(comp.template).toEqual(correctTemplate);
+    comp.draw({ template: ignoredTemplate });
+    expect(comp.template).toEqual(ignoredTemplate);
+    comp.draw({ template: correctTemplate });
+    comp.ignorePropChanges = () => 'template';
+    comp.draw({ template: ignoredTemplate });
+    expect(comp.template).toEqual(correctTemplate);
 
     appRoot.discard(true);
   });

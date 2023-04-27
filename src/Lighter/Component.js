@@ -65,30 +65,15 @@ class Component {
 
   paint() {}
   addListeners() {}
-  // @TODO: add to tests
   ignorePropChanges() {
+    // return a string (single prop), an array of strings, or true (for all props)
     return [];
   }
 
   draw = (newProps) => {
     if (this.drawing || this.discarding) return this;
     this.drawing = true;
-    const props = { ...this.props, ...newProps };
-    // Check if a new id is presented and throw an error if it is found
-    if ((newProps?.id && newProps.id !== this.id) || (newProps?._id && newProps.id !== this.id)) {
-      this.drawing = false;
-      logger.error(
-        `ID of a component cannot be changed once it has been initialised. Old ID: "${
-          this.id
-        }", new ID: ${newProps.id || newProps._id}`
-      );
-      throw new Error('ID cannot be changed');
-    }
-    // Check if prepend is in newProps and warn
-    if (newProps?.prepend)
-      logger.warn(
-        `For redraws the prepend property is ignored, because the DOM element is replaced.`
-      );
+    const props = { ...this.props, ...this._parseIgnoredProps(newProps) };
     if (!components[props.id]) components[props.id] = this;
     this.props = props;
     if (this.elem) this.discard(false, this.isDrawn);
@@ -194,6 +179,29 @@ class Component {
     }
     if (fullDiscard) delete components[this.id];
     this.discarding = false;
+  };
+
+  _parseIgnoredProps = (newProps) => {
+    if (!newProps) return {};
+    const ignoreDefaults = ['id', '_id', 'prepend'];
+    let ignored = this.ignorePropChanges();
+    if (ignored === true) return {};
+    if (typeof ignored === 'string') {
+      ignored = [ignored];
+    } else if (!Array.isArray(ignored)) {
+      logger.warn(
+        `ignoredPropChanges should always return a string or an array, component ID: ${this.id}`
+      );
+      ignored = [];
+    }
+    ignored = [...ignored, ...ignoreDefaults];
+    const filteredNewProps = {};
+    const newPropsKeys = Object.keys(newProps);
+    for (let i = 0; i < newPropsKeys.length; i++) {
+      if (ignored.includes(newPropsKeys[i])) continue;
+      filteredNewProps[newPropsKeys[i]] = newProps[newPropsKeys[i]];
+    }
+    return filteredNewProps;
   };
 
   _setElemData = (elem, props) => {
