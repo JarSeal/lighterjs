@@ -1,17 +1,19 @@
 import { Component } from '../../../Lighter';
 
-// Input components' base class that they all extend
+// Input components' base class that most Input fields extend
 // Common props:
 // - label: string/template (input field's label string)
 // - value: string (input field's value)
-// - disabled: boolean (whether the input elem is disabled or not)
-// - onChange: function(e, value, this) (input field's on change listener callback)
-// - onFocus: function(event, value, this) (input field's on focus listener callback)
-// - onBlur: function(event, value, this) (input field's on blur listener callback)
-// - noChangeListener: boolean (will not create an onChange listener)
-// - noFocusListener: boolean (will not create an onFocus listener)
-// - noBlurListener: boolean (will not create an onBlur listener)
-// - autoFocus = boolean (whether the input is focused after a draw or not, default false)
+// - disabled?: boolean (whether the input elem is disabled or not)
+// - onChange?: function(e, value, this) (input field's on change listener callback)
+// - onFocus?: function(event, value, this) (input field's on focus listener callback)
+// - onBlur?: function(event, value, this) (input field's on blur listener callback)
+// - noChangeListener?: boolean (if true, will not create an onChange listener)
+// - noFocusListener?: boolean (if true, will not create an onFocus listener)
+// - noBlurListener?: boolean (if true, will not create an onBlur listener)
+// - autoFocus?: boolean (whether the input is focused after a draw or not, default false)
+// @TODO: - selectTextOnFocus?: (whether to select text on focus, only applies to InputText and InputNumber, default false)
+// @TODO: add selectTextOnFocus to every InputText and InputNumber
 class InputBase extends Component {
   constructor(props) {
     super(props);
@@ -41,7 +43,7 @@ class InputBase extends Component {
     if (this.afterPaint) this.afterPaint();
   };
 
-  // msg: string (error message to show with the component)
+  // msg: string (error message to show with the component, if no msg, the error is cleared)
   showError = (msg) => {
     if (!msg) {
       this.clearErrors();
