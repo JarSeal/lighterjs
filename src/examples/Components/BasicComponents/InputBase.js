@@ -12,33 +12,34 @@ import { Component } from '../../../Lighter';
 // - noFocusListener?: boolean (if true, will not create an onFocus listener)
 // - noBlurListener?: boolean (if true, will not create an onBlur listener)
 // - autoFocus?: boolean (whether the input is focused after a draw or not, default false)
-// @TODO: - selectTextOnFocus?: (whether to select text on focus, only applies to InputText and InputNumber, default false)
-// @TODO: add selectTextOnFocus to every InputText and InputNumber
+// - selectTextOnFocus?: (whether to select text on focus, only applies to InputText and InputNumber, default false)
 class InputBase extends Component {
   constructor(props) {
     super(props);
-    this._defineProps(props);
+    this._defineProperties(props);
     this.changeHappened = false;
   }
 
-  _defineProps = (props) => {
+  _defineProperties = (props) => {
     this.label = props.label || '';
     this.value = props.value || '';
     this.autoFocus = props.autoFocus || false;
     this.noChangeListener = props.noChangeListener || false;
     this.noFocusListener = props.noFocusListener || false;
     this.noBlurListener = props.noBlurListener || false;
+    this.selectTextOnFocus = props.selectTextOnFocus || false;
     if (props.template) this.inputElem = null;
   };
 
   painter = (props) => {
-    this._defineProps(props);
+    this._defineProperties(props);
     this.disabled = this.props.disabled;
     this.getInputElem().disabled = this.disabled;
     this.disabled ? this.elem.classList.add('disabled') : this.elem.classList.remove('disabled');
     if (this.autoFocus) {
       this.elem.classList.add('focus');
       this.getInputElem().focus();
+      if (this.selectTextOnFocus) this.getInputElem().select();
     }
     if (this.afterPaint) this.afterPaint();
   };
@@ -80,6 +81,7 @@ class InputBase extends Component {
         type: 'focus',
         fn: (e) => {
           this.elem.classList.add('focus');
+          if (this.selectTextOnFocus) this.getInputElem().select();
           if (props.onFocus) {
             props.onFocus(e, props.value, this);
           }

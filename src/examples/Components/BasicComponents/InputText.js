@@ -16,6 +16,7 @@ import InputBase from './InputBase';
 // - noFocusListener: boolean (will not create an onFocus listener)
 // - noBlurListener: boolean (will not create an onBlur listener)
 // - autoFocus = boolean (whether the input is focused after a draw or not, default false)
+// - selectTextOnFocus?: (whether to select text on focus, only applies to InputText and InputNumber, default false)
 class InputText extends InputBase {
   constructor(props) {
     super(props);
