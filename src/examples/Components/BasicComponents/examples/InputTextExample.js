@@ -23,7 +23,14 @@ const InputTextExample = (parent, InputText) => {
   inputElem1.showError('Required');
 
   parent.addDraw(breakProps);
-  parent.addDraw(new InputText({ ...commonProps, label: 'With value', value: 'some text' }));
+  parent.addDraw(
+    new InputText({
+      ...commonProps,
+      label: 'With value',
+      value: 'some text',
+      selectTextOnFocus: true,
+    })
+  );
 
   parent.addDraw(breakProps);
   parent.addDraw(
@@ -37,7 +44,13 @@ const InputTextExample = (parent, InputText) => {
 
   parent.addDraw(breakProps);
   parent.addDraw(
-    new InputText({ ...commonProps, label: 'Multiline', value: 'some text', multiline: true })
+    new InputText({
+      ...commonProps,
+      label: 'Multiline',
+      value: 'some text',
+      multiline: true,
+      selectTextOnFocus: true,
+    })
   );
 };
 

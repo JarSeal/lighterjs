@@ -6,6 +6,11 @@ import InputBase from './InputBase';
 //   - decimal: string (',' or '.', default ',')
 //   - thousand: string (default '')
 //   }
+// @TODO: - step?: number (the step that the number is increased/decreased with the control buttons or keys, default 1)
+// @TODO: - precision?: number (the decimal precision that number is presented, default 0 aka whole numbers)
+// @TODO: - allowExponents?: boolean (whether the input accepts exponential representation, eg. 3e12, default true)
+// @TODO: - min?: number (the minimum range value)
+// @TODO: - max?: number (the maximum range value)
 
 // InputBase props:
 // - label: string/template (input field's label string)
@@ -18,6 +23,7 @@ import InputBase from './InputBase';
 // - noFocusListener: boolean (will not create an onFocus listener)
 // - noBlurListener: boolean (will not create an onBlur listener)
 // - autoFocus = boolean (whether the input is focused after a draw or not, default false)
+// - selectTextOnFocus?: (whether to select text on focus, only applies to InputText and InputNumber, default false)
 class InputNumber extends InputBase {
   constructor(props) {
     super(props);
