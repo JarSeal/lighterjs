@@ -1,16 +1,17 @@
 import InputBase from './InputBase';
 
 // props:
-// - maxlength: number (input field's max length of characters)
 // - numberSeparators?: object { (defaults can be set at app initialisation)
 //   - decimal: string (',' or '.', default ',')
 //   - thousand: string (default '')
 //   }
-// @TODO: - step?: number (the step that the number is increased/decreased with the control buttons or keys, default 1)
+// - step?: number (the step that the number is increased/decreased with the control buttons or keys, default 1)
 // @TODO: - precision?: number (the decimal precision that number is presented, default 0 aka whole numbers)
+// @TODO: - roundingFn?: function(value) (the rounding function to perform the rounding for precision, eg. Math.floor)
 // @TODO: - allowExponents?: boolean (whether the input accepts exponential representation, eg. 3e12, default true)
 // @TODO: - min?: number (the minimum range value)
 // @TODO: - max?: number (the maximum range value)
+// @TODO: - useCustomButtons?: boolean (whether to use custom buttons for the up and down)
 
 // InputBase props:
 // - label: string/template (input field's label string)
@@ -35,7 +36,6 @@ class InputNumber extends InputBase {
         <span class="inputLabel">${props.label}</span>
         <input class="inputElem" type="number"
           value="${parseStringValueToNumber(props.value, this.numberSeparators)}" id="${this.id}"
-          ${props.maxlength ? `maxlength=${props.maxlength}` : ''}
         />
       </label>
       <div class="inputErrorMsg"></div>
@@ -46,8 +46,9 @@ class InputNumber extends InputBase {
 
   _defineProps = (props) => {
     this.value = parseStringValueToNumber(props.value) || 0;
-    this.maxlength = props.maxlength || null;
     this.numberSeparators = { ...numberSeparators, ...(props.numberSeparators || {}) };
+    this.step = props.step || 1;
+    this.getInputElem().setAttribute('step', this.step);
   };
 
   _validateSeparators = () => {
