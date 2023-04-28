@@ -6,12 +6,13 @@ import InputBase from './InputBase';
 //   - thousand: string (default '')
 //   }
 // - step?: number (the step that the number is increased/decreased with the control buttons or keys, default 1)
-// @TODO: - precision?: number (the decimal precision that number is presented, default 0 aka whole numbers)
-// @TODO: - roundingFn?: function(value) (the rounding function to perform the rounding for precision, eg. Math.floor)
-// @TODO: - allowExponents?: boolean (whether the input accepts exponential representation, eg. 3e12, default true)
+// - precision?: number (the decimal precision that number is presented, default 0 aka whole numbers)
+// - roundingFn?: function(value) (the rounding function to perform the rounding for precision, eg. Math.floor)
+// @TODO: - allowExponents?: boolean (whether the input accepts exponential representation, eg. 3e12 or 3e+12, default true)
 // @TODO: - min?: number (the minimum range value)
 // @TODO: - max?: number (the maximum range value)
 // @TODO: - useCustomButtons?: boolean (whether to use custom buttons for the up and down)
+// @TODO: - canBeNull? boolean (whether the value can be null or empty, default false)
 
 // InputBase props:
 // - label: string/template (input field's label string)
@@ -45,10 +46,20 @@ class InputNumber extends InputBase {
   ignorePropChanges = () => ['template'];
 
   _defineProps = (props) => {
+    this._validateSeparators();
     this.value = parseStringValueToNumber(props.value) || 0;
     this.numberSeparators = { ...numberSeparators, ...(props.numberSeparators || {}) };
     this.step = props.step || 1;
+    this.precision = props.precision ? props.precision : 0;
+    this.roundingFn = props.roundingFn || Math.round;
     this.getInputElem().setAttribute('step', this.step);
+    this.setValue(this.value);
+    this.onBlur = props.onBlur || null;
+    this.props.onBlur = (e, value) => {
+      this.setValue(value);
+      // @FIX: The onBlur does not work like this
+      if (this.onBblur) this.onBlur(e, this.value, this);
+    };
   };
 
   _validateSeparators = () => {
@@ -65,14 +76,31 @@ class InputNumber extends InputBase {
     this._defineProps(props);
   };
 
+  setValue = (value) => {
+    let rounder = 1,
+      roundedValue = 0;
+    const parsedValue = parseStringValueToNumber(value);
+    if (this.precision === 0) {
+      roundedValue = this.roundingFn(parsedValue);
+    } else {
+      rounder = Math.pow(10, this.precision);
+      roundedValue = this.roundingFn(parsedValue * rounder) / rounder;
+    }
+    this.value = roundedValue;
+    // @TRY: remove and reset the step attribute for the element after the rounding, because otherwise the step is calculated from the original value
+    this.getInputElem().value = this.precision
+      ? roundedValue.toFixed(this.precision)
+      : roundedValue;
+  };
+
   _onChangeFn = (e) => {
     const value = parseStringValueToNumber(e.target.value);
     if (this.value === value) return;
     this.changeHappened = true;
-    this.value = value;
-    console.log('VLAUE', value);
     if (this.props.onChange) this.props.onChange(e, value, this);
   };
+
+  _onBlurFn = () => this.setValue(this.value);
 
   _createOnChangeListener = () => {
     const inputElem = this.getInputElem();

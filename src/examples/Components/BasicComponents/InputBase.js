@@ -83,7 +83,7 @@ class InputBase extends Component {
           this.elem.classList.add('focus');
           if (this.selectTextOnFocus) this.getInputElem().select();
           if (props.onFocus) {
-            props.onFocus(e, props.value, this);
+            props.onFocus(e, e.target.value, this);
           }
         },
       });
@@ -96,7 +96,7 @@ class InputBase extends Component {
         fn: (e) => {
           this.elem.classList.remove('focus');
           if (props.onBlur) {
-            props.onBlur(e, props.value, this);
+            props.onBlur(e, e.target.value, this);
           }
         },
       });
