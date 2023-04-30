@@ -9,7 +9,6 @@ const InputNumberExample = (parent, InputNumber) => {
       value: 4,
       autoFocus: true,
       selectTextOnFocus: true,
-      onBlur: () => console.log('here'),
     })
   );
 
