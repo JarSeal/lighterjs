@@ -13,6 +13,7 @@ import InputBase from './InputBase';
 // @TODO: - max?: number (the maximum range value)
 // @TODO: - useCustomButtons?: boolean (whether to use custom buttons for the up and down)
 // @TODO: - canBeNull? boolean (whether the value can be null or empty, default false)
+// - onEnterKey?: - function(event, value, this) (input field's callback when 'Enter' key is pressed while in focus)
 
 // InputBase props:
 // - label: string/template (input field's label string)
@@ -54,12 +55,6 @@ class InputNumber extends InputBase {
     this.roundingFn = props.roundingFn || Math.round;
     this.getInputElem().setAttribute('step', this.step);
     this.setValue(this.value);
-    this.onBlur = props.onBlur || null;
-    this.props.onBlur = (e, value) => {
-      this.setValue(value);
-      // @FIX: The onBlur does not work like this
-      if (this.onBblur) this.onBlur(e, this.value, this);
-    };
   };
 
   _validateSeparators = () => {
@@ -87,10 +82,10 @@ class InputNumber extends InputBase {
       roundedValue = this.roundingFn(parsedValue * rounder) / rounder;
     }
     this.value = roundedValue;
-    // @TRY: remove and reset the step attribute for the element after the rounding, because otherwise the step is calculated from the original value
-    this.getInputElem().value = this.precision
-      ? roundedValue.toFixed(this.precision)
-      : roundedValue;
+    const inputElem = this.getInputElem();
+    const elemValue = this.precision ? roundedValue.toFixed(this.precision) : roundedValue;
+    inputElem.value = elemValue;
+    inputElem.setAttribute('value', elemValue); // This is needed because the step function is calculated from the attribute value, not inputElem.value
   };
 
   _onChangeFn = (e) => {
@@ -99,8 +94,6 @@ class InputNumber extends InputBase {
     this.changeHappened = true;
     if (this.props.onChange) this.props.onChange(e, value, this);
   };
-
-  _onBlurFn = () => this.setValue(this.value);
 
   _createOnChangeListener = () => {
     const inputElem = this.getInputElem();
@@ -115,6 +108,24 @@ class InputNumber extends InputBase {
       target: inputElem,
       type: 'change',
       fn: this._onChangeFn,
+    });
+  };
+
+  _onBlurFn = (_, value) => this.setValue(value);
+
+  _createOnEnterKeyListener = () => {
+    const inputElem = this.getInputElem();
+    this.addListener({
+      id: 'onenterkey',
+      target: inputElem,
+      type: 'keyup',
+      fn: (e) => {
+        const key = e.code;
+        if (key === 'Enter') {
+          inputElem.blur();
+          if (this.props.onEnterKey) this.props.onEnterKey(e, e.target.value, this);
+        }
+      },
     });
   };
 }

@@ -1,9 +1,10 @@
 import InputBase from './InputBase';
 
 // props:
-// - multiline = boolean (whether the input field is a textarea or input type=text/password, default false)
-// - maxlength: number (input field's max length of characters)
-// - password: boolean (whether the input elem's type is password or not, default false = type="text")
+// - multiline? = boolean (whether the input field is a textarea or input type=text/password, default false)
+// - maxlength?: number (input field's max length of characters)
+// - password?: boolean (whether the input elem's type is password or not, default false = type="text")
+// - onEnterKey?: - function(event, value, this) (input field's callback when 'Enter' key is pressed while in focus, does not affect multiline)
 
 // InputBase props:
 // - label: string/template (input field's label string)
@@ -55,6 +56,8 @@ class InputText extends InputBase {
     this.multiline = props.multiline || false;
   };
 
+  ignorePropChanges = () => ['template', 'multiline'];
+
   paint = (props) => {
     this._defineProps(props);
   };
@@ -71,6 +74,23 @@ class InputText extends InputBase {
         this.changeHappened = true;
         this.value = value;
         if (this.props.onChange) this.props.onChange(e, value, this);
+      },
+    });
+  };
+
+  _createOnEnterKeyListener = () => {
+    if (this.props.multiline) return;
+    const inputElem = this.getInputElem();
+    this.addListener({
+      id: 'onenterkey',
+      target: inputElem,
+      type: 'keyup',
+      fn: (e) => {
+        const key = e.code;
+        if (key === 'Enter') {
+          inputElem.blur();
+          if (this.props.onEnterKey) this.props.onEnterKey(e, e.target.value, this);
+        }
       },
     });
   };

@@ -1,7 +1,7 @@
 import { Component } from '../../../Lighter';
 
 // Input components' base class that most Input fields extend
-// Common props:
+// common props:
 // - label: string/template (input field's label string)
 // - value: string (input field's value)
 // - disabled?: boolean (whether the input elem is disabled or not)
@@ -68,6 +68,10 @@ class InputBase extends Component {
   };
 
   _createOnChangeListener = () => {};
+  _onFocusFn = () => {};
+  _onBlurFn = () => {};
+  _createBlurOnEnterListener = () => {};
+  _createOnEnterKeyListener = () => {};
 
   addListeners = (props) => {
     const inputElem = this.getInputElem();
@@ -82,6 +86,7 @@ class InputBase extends Component {
         fn: (e) => {
           this.elem.classList.add('focus');
           if (this.selectTextOnFocus) this.getInputElem().select();
+          if (this._onFocusFn) this._onFocusFn(e, e.target.value, this);
           if (props.onFocus) {
             props.onFocus(e, e.target.value, this);
           }
@@ -95,12 +100,15 @@ class InputBase extends Component {
         type: 'blur',
         fn: (e) => {
           this.elem.classList.remove('focus');
+          if (this._onBlurFn) this._onBlurFn(e, e.target.value, this);
           if (props.onBlur) {
             props.onBlur(e, e.target.value, this);
           }
         },
       });
     }
+    this._createBlurOnEnterListener();
+    this._createOnEnterKeyListener();
     this.painter(props);
   };
 }
