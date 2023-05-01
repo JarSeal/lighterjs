@@ -1,3 +1,4 @@
+import { parseStringValueToNumber, getConfig } from '../../../Lighter/utils';
 import InputBase from './InputBase';
 
 // props:
@@ -35,7 +36,7 @@ import InputBase from './InputBase';
 class InputNumber extends InputBase {
   constructor(props) {
     super(props);
-    this.numberSeparators = { ...numberSeparators, ...(props.numberSeparators || {}) };
+    this.numberSeparators = { ...getConfig('numberSeparators'), ...(props.numberSeparators || {}) };
     this.props.template = `<div
       class="inputText inputNumber formElem${props.label ? '' : ' noLabel'}"
     >
@@ -63,7 +64,7 @@ class InputNumber extends InputBase {
     } else {
       this.value = parseStringValueToNumber(props.value) || 0;
     }
-    this.numberSeparators = { ...numberSeparators, ...(props.numberSeparators || {}) };
+    this.numberSeparators = { ...getConfig('numberSeparators'), ...(props.numberSeparators || {}) };
     this.step = props.step || 1;
     this.precision = props.precision ? props.precision : 0;
     this.roundingFn = props.roundingFn || Math.round;
@@ -205,46 +206,6 @@ class InputNumber extends InputBase {
     return upTemplate + downTemplate;
   };
 }
-
-// @CONSIDER: move this to LighterJS getConfig utils file (also make a setConfig)
-export const numberSeparators = {
-  decimal: ',',
-  thousand: ' ',
-};
-
-// @CONSIDER: move this to the LighterJs utils file
-export const parseStringValueToNumber = (string, seps) => {
-  let separators = numberSeparators;
-  if (!seps?.decimal || !seps?.thousand) separators = { ...numberSeparators, ...(seps || {}) };
-  return Number(
-    String(string).replace(separators.decimal, '.').replaceAll(separators.thousand, '')
-  );
-};
-
-// @CONSIDER: move this to the LighterJs utils file
-export const parseNumberValueToString = (value, seps) => {
-  if (isNaN(Number(value))) {
-    console.warn(`parseNumberValueToString: value "${value}" is not a number (NaN).`);
-    return NaN;
-  }
-  let separators = numberSeparators;
-  if (!seps?.decimal || !seps?.thousand) separators = { ...numberSeparators, ...(seps || {}) };
-
-  // this forces to use either one ',' or '.' and makes ',' the default
-  const decimalSeparatorReplace = separators.decimal === '.' ? '.' : ',';
-  const decimalSeparatorSearch = decimalSeparatorReplace === '.' ? ',' : '.';
-  let stringValue = String(value).replace(decimalSeparatorSearch, decimalSeparatorReplace);
-  if (separators.thousand) {
-    const splitValue = stringValue.split(decimalSeparatorReplace);
-    const thousandSeparatedValue = splitValue[0].replace(
-      /(\d)(?=(\d{3})+(?!\d))/g,
-      '$1' + separators.thousand
-    );
-    stringValue =
-      thousandSeparatedValue + (splitValue[1] ? decimalSeparatorReplace + splitValue[1] : '');
-  }
-  return stringValue;
-};
 
 let stylesAdded = false;
 export const addStylesToHead = () => {
