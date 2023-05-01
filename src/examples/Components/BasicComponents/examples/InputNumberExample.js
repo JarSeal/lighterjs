@@ -32,6 +32,29 @@ const InputNumberExample = (parent, InputNumber) => {
       precision: 2,
     })
   );
+
+  parent.addDraw(breakProps);
+  parent.addDraw(
+    new InputNumber({
+      attachId,
+      label: 'Precision 2 decimals, step by 0,003, can have no value',
+      step: 0.003,
+      precision: 2,
+      canBeNull: true,
+    })
+  );
+
+  parent.addDraw(breakProps);
+  parent.addDraw(
+    new InputNumber({
+      attachId,
+      label: 'Min is 2 and max is 4',
+      value: 3,
+      min: 2,
+      max: 4,
+      canBeNull: true,
+    })
+  );
 };
 
 export default InputNumberExample;

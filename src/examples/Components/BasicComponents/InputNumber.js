@@ -8,12 +8,12 @@ import InputBase from './InputBase';
 // - step?: number (the step that the number is increased/decreased with the control buttons or keys, default 1)
 // - precision?: number (the decimal precision that number is presented, default 0 aka whole numbers)
 // - roundingFn?: function(value) (the rounding function to perform the rounding for precision, eg. Math.floor)
-// @TODO: - allowExponents?: boolean (whether the input accepts exponential representation, eg. 3e12 or 3e+12, default true)
-// @TODO: - min?: number (the minimum range value)
-// @TODO: - max?: number (the maximum range value)
-// @TODO: - useCustomButtons?: boolean (whether to use custom buttons for the up and down)
-// @TODO: - canBeNull? boolean (whether the value can be null or empty, default false)
+// - min?: number (the minimum range value)
+// - max?: number (the maximum range value)
+// - canBeNull? boolean (whether the value can be null or empty, default false)
 // - onEnterKey?: - function(event, value, this) (input field's callback when 'Enter' key is pressed while in focus)
+// - noEnterKeyListener?: boolean (if true, will not create the onEnterKeyListener)
+// @TODO: - useCustomButtons?: boolean (whether to use custom buttons for the up and down)
 
 // InputBase props:
 // - label: string/template (input field's label string)
@@ -48,11 +48,20 @@ class InputNumber extends InputBase {
 
   _defineProps = (props) => {
     this._validateSeparators();
-    this.value = parseStringValueToNumber(props.value) || 0;
+    if (props.canBeNull && (props.value === null || props.value === undefined)) {
+      this.value = null;
+    } else {
+      this.value = parseStringValueToNumber(props.value) || 0;
+    }
     this.numberSeparators = { ...numberSeparators, ...(props.numberSeparators || {}) };
     this.step = props.step || 1;
     this.precision = props.precision ? props.precision : 0;
     this.roundingFn = props.roundingFn || Math.round;
+    this.min = props.min || null;
+    this.max = props.max || null;
+    this.canBeNull = props.canBeNull || false;
+    this.onEnterKey = props.onEnterKey || null;
+    this.noEnterKeyListener = props.noEnterKeyListener || false;
     this.getInputElem().setAttribute('step', this.step);
     this.setValue(this.value);
   };
@@ -73,23 +82,33 @@ class InputNumber extends InputBase {
 
   setValue = (value) => {
     let rounder = 1,
-      roundedValue = 0;
-    const parsedValue = parseStringValueToNumber(value);
-    if (this.precision === 0) {
-      roundedValue = this.roundingFn(parsedValue);
+      roundedValue = 0,
+      elemValue;
+    if (this.canBeNull && value === '') {
+      roundedValue = null;
+      elemValue = '';
     } else {
-      rounder = Math.pow(10, this.precision);
-      roundedValue = this.roundingFn(parsedValue * rounder) / rounder;
+      let parsedValue = parseStringValueToNumber(value);
+      if (this.min !== null && this.min > parsedValue) parsedValue = this.min;
+      if (this.max !== null && this.max < parsedValue) parsedValue = this.max;
+      if (this.precision === 0) {
+        roundedValue = this.roundingFn(parsedValue);
+      } else {
+        rounder = Math.pow(10, this.precision);
+        roundedValue = this.roundingFn(parsedValue * rounder) / rounder;
+      }
+      elemValue = this.precision ? roundedValue.toFixed(this.precision) : roundedValue;
     }
     this.value = roundedValue;
     const inputElem = this.getInputElem();
-    const elemValue = this.precision ? roundedValue.toFixed(this.precision) : roundedValue;
     inputElem.value = elemValue;
     inputElem.setAttribute('value', elemValue); // This is needed because the step function is calculated from the attribute value, not inputElem.value
   };
 
   _onChangeFn = (e) => {
-    const value = parseStringValueToNumber(e.target.value);
+    let value = parseStringValueToNumber(e.target.value);
+    if (this.min !== null && this.min > value) value = this.min;
+    if (this.max !== null && this.max < value) value = this.max;
     if (this.value === value) return;
     this.changeHappened = true;
     if (this.props.onChange) this.props.onChange(e, value, this);
@@ -114,6 +133,10 @@ class InputNumber extends InputBase {
   _onBlurFn = (_, value) => this.setValue(value);
 
   _createOnEnterKeyListener = () => {
+    if (this.noEnterKeyListener) {
+      this.removeListener('onenterkey');
+      return;
+    }
     const inputElem = this.getInputElem();
     this.addListener({
       id: 'onenterkey',
@@ -122,8 +145,11 @@ class InputNumber extends InputBase {
       fn: (e) => {
         const key = e.code;
         if (key === 'Enter') {
+          if (this.onEnterKey) {
+            this.onEnterKey(e, e.target.value, this);
+            return;
+          }
           inputElem.blur();
-          if (this.props.onEnterKey) this.props.onEnterKey(e, e.target.value, this);
         }
       },
     });
