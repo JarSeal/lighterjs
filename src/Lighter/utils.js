@@ -165,4 +165,43 @@ class Logger {
 
 const createUUID = () => uuidv4();
 
-export { LocalStorage, SessionStorage, Logger, createUUID };
+const parseStringValueToNumber = (string, seps) => {
+  let separators = numberSeparators;
+  if (!seps?.decimal || !seps?.thousand) separators = { ...numberSeparators, ...(seps || {}) };
+  return Number(
+    String(string).replace(separators.decimal, '.').replaceAll(separators.thousand, '')
+  );
+};
+
+const parseNumberValueToString = (value, seps) => {
+  if (isNaN(Number(value))) {
+    console.warn(`parseNumberValueToString: value "${value}" is not a number (NaN).`);
+    return NaN;
+  }
+  let separators = numberSeparators;
+  if (!seps?.decimal || !seps?.thousand) separators = { ...numberSeparators, ...(seps || {}) };
+
+  // this forces to use either one ',' or '.' and makes ',' the default
+  const decimalSeparatorReplace = separators.decimal === '.' ? '.' : ',';
+  const decimalSeparatorSearch = decimalSeparatorReplace === '.' ? ',' : '.';
+  let stringValue = String(value).replace(decimalSeparatorSearch, decimalSeparatorReplace);
+  if (separators.thousand) {
+    const splitValue = stringValue.split(decimalSeparatorReplace);
+    const thousandSeparatedValue = splitValue[0].replace(
+      /(\d)(?=(\d{3})+(?!\d))/g,
+      '$1' + separators.thousand
+    );
+    stringValue =
+      thousandSeparatedValue + (splitValue[1] ? decimalSeparatorReplace + splitValue[1] : '');
+  }
+  return stringValue;
+};
+
+export {
+  LocalStorage,
+  SessionStorage,
+  Logger,
+  createUUID,
+  parseStringValueToNumber,
+  parseNumberValueToString,
+};
