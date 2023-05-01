@@ -165,9 +165,20 @@ class Logger {
 
 const createUUID = () => uuidv4();
 
+const configs = {
+  numberSeparators: {
+    decimal: ',',
+    thousand: ' ',
+  },
+};
+const setConfig = (key, value) => (configs[key] = value);
+const getConfig = (key) => configs[key];
+const removeConfig = (key) => delete configs[key];
+
 const parseStringValueToNumber = (string, seps) => {
-  let separators = numberSeparators;
-  if (!seps?.decimal || !seps?.thousand) separators = { ...numberSeparators, ...(seps || {}) };
+  let separators = configs.numberSeparators;
+  if (!seps?.decimal || !seps?.thousand)
+    separators = { ...configs.numberSeparators, ...(seps || {}) };
   return Number(
     String(string).replace(separators.decimal, '.').replaceAll(separators.thousand, '')
   );
@@ -178,8 +189,9 @@ const parseNumberValueToString = (value, seps) => {
     console.warn(`parseNumberValueToString: value "${value}" is not a number (NaN).`);
     return NaN;
   }
-  let separators = numberSeparators;
-  if (!seps?.decimal || !seps?.thousand) separators = { ...numberSeparators, ...(seps || {}) };
+  let separators = configs.numberSeparators;
+  if (!seps?.decimal || !seps?.thousand)
+    separators = { ...configs.numberSeparators, ...(seps || {}) };
 
   // this forces to use either one ',' or '.' and makes ',' the default
   const decimalSeparatorReplace = separators.decimal === '.' ? '.' : ',';
@@ -204,4 +216,7 @@ export {
   createUUID,
   parseStringValueToNumber,
   parseNumberValueToString,
+  setConfig,
+  getConfig,
+  removeConfig,
 };
