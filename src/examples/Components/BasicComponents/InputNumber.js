@@ -13,7 +13,12 @@ import InputBase from './InputBase';
 // - canBeNull? boolean (whether the value can be null or empty, default false)
 // - onEnterKey?: - function(event, value, this) (input field's callback when 'Enter' key is pressed while in focus)
 // - noEnterKeyListener?: boolean (if true, will not create the onEnterKeyListener)
-// @TODO: - useCustomButtons?: boolean (whether to use custom buttons for the up and down)
+// - useCustomButtons?: boolean (whether to use custom buttons for the up and down)
+// - customButtonTemplates?: {
+//   - up: string/template (template for the custom up button, default <button>▲</button>)
+//   - down: string/template (template for the custom down button, default <button>▼</button>)
+// }
+// - noStylesToHead?: boolean (whether to disable adding styles to head, default true but requires useCustomButtons to be true)
 
 // InputBase props:
 // - label: string/template (input field's label string)
@@ -39,12 +44,17 @@ class InputNumber extends InputBase {
         <input class="inputElem" type="number"
           value="${parseStringValueToNumber(props.value, this.numberSeparators)}" id="${this.id}"
         />
+        ${
+          props.useCustomButtons
+            ? `<div class="inputNumberCustomButtons">${this._createCustomButtons(props)}</div>`
+            : ''
+        }
       </label>
       <div class="inputErrorMsg"></div>
     </div>`;
   }
 
-  ignorePropChanges = () => ['template'];
+  ignorePropChanges = () => ['template', 'useCustomButtons'];
 
   _defineProps = (props) => {
     this._validateSeparators();
@@ -62,6 +72,8 @@ class InputNumber extends InputBase {
     this.canBeNull = props.canBeNull || false;
     this.onEnterKey = props.onEnterKey || null;
     this.noEnterKeyListener = props.noEnterKeyListener || false;
+    this.useCustomButtons = props.useCustomButtons || false;
+    this.customButtonTemplates = props.customButtonTemplates || null;
     this.getInputElem().setAttribute('step', this.step);
     this.setValue(this.value);
   };
@@ -78,6 +90,33 @@ class InputNumber extends InputBase {
 
   paint = (props) => {
     this._defineProps(props);
+    if (this.useCustomButtons) {
+      const buttons = this.elem.querySelectorAll('.inputNumberCustomButtons > *');
+      this.addListener({
+        id: 'custombtnup',
+        target: buttons[0],
+        type: 'click',
+        fn: (e) => {
+          const newVal = isNaN(this.value) ? this.step : this.value + this.step;
+          if (this.value === newVal) return;
+          this.setValue(newVal);
+          this.changeHappened = true;
+          if (this.props.onChange) this.props.onChange(e, this.value, this);
+        },
+      });
+      this.addListener({
+        id: 'custombtndown',
+        target: buttons[1],
+        type: 'click',
+        fn: (e) => {
+          const newVal = isNaN(this.value) ? -this.step : this.value - this.step;
+          if (this.value === newVal) return;
+          this.setValue(newVal);
+          this.changeHappened = true;
+          if (this.props.onChange) this.props.onChange(e, this.value, this);
+        },
+      });
+    }
   };
 
   setValue = (value) => {
@@ -154,6 +193,17 @@ class InputNumber extends InputBase {
       },
     });
   };
+
+  _createCustomButtons = (props) => {
+    if (!props.noStylesToHead) addStylesToHead();
+    const upTemplate = props.customButtonTemplates?.up
+      ? this.customButtonTemplates.up
+      : '<button class="inputNumberChangeButton inputNumberChangeButtonUp">▲</button>';
+    const downTemplate = props.customButtonTemplates?.down
+      ? this.customButtonTemplates.down
+      : '<button class="inputNumberChangeButton inputNumberChangeButtonDown">▼</button>';
+    return upTemplate + downTemplate;
+  };
 }
 
 // @CONSIDER: move this to LighterJS getConfig utils file (also make a setConfig)
@@ -194,6 +244,47 @@ export const parseNumberValueToString = (value, seps) => {
       thousandSeparatedValue + (splitValue[1] ? decimalSeparatorReplace + splitValue[1] : '');
   }
   return stringValue;
+};
+
+let stylesAdded = false;
+export const addStylesToHead = () => {
+  if (stylesAdded) return;
+  const css = `
+    .inputNumber .inputInner {
+      position: relative;
+    }
+    .inputNumber .inputElem {
+      padding-right: 20px;
+    }
+    .inputNumber .inputElem::-webkit-outer-spin-button,
+    .inputNumber .inputElem::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .inputNumber .inputElem[type=number] {
+      -moz-appearance: textfield;
+    }
+    .inputNumber .inputNumberCustomButtons > * {
+      width: 20px;
+      height: 10px;
+      padding: 1px;
+      line-height: 0;
+      font-size: 8px;
+      cursor: pointer;
+      position: absolute;
+      right: 0;
+      top: 10px;
+      padding-top: 2px;
+    }
+    .inputNumber .inputNumberCustomButtons > *:first-child {
+      top: 0;
+      padding-top: 1px;
+    }
+  `;
+  const style = document.createElement('style');
+  style.textContent = css;
+  document.head.appendChild(style);
+  stylesAdded = true;
 };
 
 export default InputNumber;

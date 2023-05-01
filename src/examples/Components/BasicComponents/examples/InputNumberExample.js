@@ -55,6 +55,18 @@ const InputNumberExample = (parent, InputNumber) => {
       canBeNull: true,
     })
   );
+
+  parent.addDraw(breakProps);
+  parent.addDraw(
+    new InputNumber({
+      attachId,
+      label: 'Custom buttons',
+      value: 3,
+      min: -10,
+      max: 10,
+      useCustomButtons: true,
+    })
+  );
 };
 
 export default InputNumberExample;
