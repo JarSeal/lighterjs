@@ -37,7 +37,7 @@ class Toaster extends Component {
   // - title?: string (toast's title text)
   // - content?: string (toast's content text)
   // - visibleTime?: number (toast's visible time in ms, 0 = infinite, defaults at the bottom)
-  // - hasCloseButton?: boolean (whether to show the toast's close button or not, defaults at the bottom)
+  // - noCloseButton?: boolean (whether to hide the toast's close button or not, default false)
   show = (toast) => {
     const newToast = {
       type: 'success',
@@ -97,7 +97,10 @@ class Toaster extends Component {
 
   _createToastTemplate = (toast) => {
     const title = toast.title ? `<h4 class="toasterToastTitle">${toast.title}</h4>` : '';
-    const closeBtn = this.closeButtonTemplate || '<button class="toasterToastClose">x</button>';
+    const closeBtn =
+      this.closeButtonTemplate || toast.noCloseButton
+        ? ''
+        : '<button class="toasterToastClose">x</button>';
     const content = toast.content ? `<div class="toasterToastContent">${toast.content}</div>` : '';
     return `<div class="toasterToast">${title}${closeBtn}${content}</div>`;
   };
@@ -132,10 +135,10 @@ class Toaster extends Component {
 
 export const defaultAnimTime = [200, 200];
 export const defaultToastParams = {
-  success: { visibleTime: 4400, hasCloseButton: true },
-  warning: { visibleTime: 4400, hasCloseButton: true },
-  error: { visibleTime: 0, hasCloseButton: true, title: 'Error' },
-  info: { visibleTime: 0, hasCloseButton: true },
+  success: { visibleTime: 4400 },
+  warning: { visibleTime: 4400 },
+  error: { visibleTime: 0, title: 'Error' },
+  info: { visibleTime: 6000 },
 };
 
 const toasterRefs = {};

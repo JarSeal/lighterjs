@@ -44,7 +44,7 @@ const ToasterExample = (parent, Toaster) => {
         useToaster().show({
           type: 'error',
           title: '<span style="color: #E00;">Error</span>',
-          content: 'This is an error toast',
+          content: 'This is an error toast and it will not self close',
         }),
     })
   );
@@ -56,9 +56,25 @@ const ToasterExample = (parent, Toaster) => {
       attachId,
       onClick: () =>
         useToaster().show({
-          type: 'success',
+          type: 'info',
           title: '<span style="color: #099;">Info</span>',
           content: 'This is an info toast',
+        }),
+    })
+  );
+
+  parent.addDraw(breakProps);
+  parent.addDraw(
+    new Button({
+      text: 'Success (1s and no close button)',
+      attachId,
+      onClick: () =>
+        useToaster().show({
+          type: 'success',
+          title: '<span style="color: #090;">Success</span>',
+          content: 'Timeout is only 1 second',
+          visibleTime: 1000,
+          noCloseButton: true,
         }),
     })
   );
