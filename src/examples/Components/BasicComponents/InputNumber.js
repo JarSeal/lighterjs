@@ -38,8 +38,10 @@ class InputNumber extends InputBase {
     super(props);
     this.numberSeparators = { ...getConfig('numberSeparators'), ...(props.numberSeparators || {}) };
     this.props.template = `<div
-      class="inputText inputNumber formElem${props.label ? '' : ' noLabel'}"
-    >
+      class="inputText inputNumber formElem
+      ${props.label ? '' : 'noLabel'}
+      ${props.useCustomButtons ? 'inputNumberCustom' : ''}
+      ">
       <label class="inputInner" for="${this.id}">
         <span class="inputLabel">${props.label}</span>
         <input class="inputElem" type="number"
@@ -211,21 +213,21 @@ let stylesAdded = false;
 export const addStylesToHead = () => {
   if (stylesAdded) return;
   const css = `
-    .inputNumber .inputInner {
+    .inputNumberCustom .inputInner {
       position: relative;
     }
-    .inputNumber .inputElem {
+    .inputNumberCustom .inputElem {
       padding-right: 20px;
     }
-    .inputNumber .inputElem::-webkit-outer-spin-button,
-    .inputNumber .inputElem::-webkit-inner-spin-button {
+    .inputNumberCustom .inputElem::-webkit-outer-spin-button,
+    .inputNumberCustom .inputElem::-webkit-inner-spin-button {
       -webkit-appearance: none;
       margin: 0;
     }
-    .inputNumber .inputElem[type=number] {
+    .inputNumberCustom .inputElem[type=number] {
       -moz-appearance: textfield;
     }
-    .inputNumber .inputNumberCustomButtons > * {
+    .inputNumberCustomButtons > * {
       width: 20px;
       height: 10px;
       padding: 1px;
@@ -237,7 +239,7 @@ export const addStylesToHead = () => {
       top: 10px;
       padding-top: 2px;
     }
-    .inputNumber .inputNumberCustomButtons > *:first-child {
+    .inputNumberCustomButtons > *:first-child {
       top: 0;
       padding-top: 1px;
     }
