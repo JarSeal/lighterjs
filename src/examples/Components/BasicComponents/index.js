@@ -33,6 +33,9 @@ import MenuTreeExample from './examples/MenuTreeExample';
 import InputNumber from './InputNumber';
 import InputNumberCode from './InputNumber?raw';
 import InputNumberExample from './examples/InputNumberExample';
+import Toaster from './Toaster';
+import ToasterCode from './Toaster?raw';
+import ToasterExample from './examples/ToasterExample';
 
 export const componentsList = [
   {
@@ -111,6 +114,13 @@ export const componentsList = [
     component: Table,
     code: TableCode,
     examples: TableExample,
+  },
+  {
+    id: 'toaster',
+    name: 'Toaster',
+    component: Toaster,
+    code: ToasterCode,
+    examples: ToasterExample,
   },
   {
     id: 'tooltip',
