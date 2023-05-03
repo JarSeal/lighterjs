@@ -15,11 +15,11 @@ import InputBase from './InputBase';
 // - onEnterKey?: - function(event, value, this) (input field's callback when 'Enter' key is pressed while in focus)
 // - noEnterKeyListener?: boolean (if true, will not create the onEnterKeyListener)
 // - useCustomButtons?: boolean (whether to use custom buttons for the up and down)
+// - addStylesToHead?: boolean (whether to add basic CSS styles to document head, default true, but requires 'useCustomButtons': true)
 // - customButtonTemplates?: {
 //   - up: string/template (template for the custom up button, default <button>▲</button>)
 //   - down: string/template (template for the custom down button, default <button>▼</button>)
 // }
-// - noStylesToHead?: boolean (whether to disable adding styles to head, default true but requires useCustomButtons to be true)
 
 // InputBase props:
 // - label: string/template (input field's label string)
@@ -36,6 +36,7 @@ import InputBase from './InputBase';
 class InputNumber extends InputBase {
   constructor(props) {
     super(props);
+    if (props.addStylesToHead !== false && props.useCustomButtons) addStylesToHead();
     this.numberSeparators = { ...getConfig('numberSeparators'), ...(props.numberSeparators || {}) };
     this.props.template = `<div
       class="inputText inputNumber formElem
@@ -198,7 +199,6 @@ class InputNumber extends InputBase {
   };
 
   _createCustomButtons = (props) => {
-    if (!props.noStylesToHead) addStylesToHead();
     const upTemplate = props.customButtonTemplates?.up
       ? this.customButtonTemplates.up
       : '<button class="inputNumberChangeButton inputNumberChangeButtonUp">▲</button>';

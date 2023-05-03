@@ -4,13 +4,13 @@ import { Component } from '../../../Lighter';
 // - animTime?: number[showTime, hideTime] (number of milliseconds for the bg and dialog to appear/hide, default [400, 200])
 // - windowConfirmMessage?: string (window.confirm message when promptForLosingChanges is true)
 // - closeButtonTemplate?: string/template (close button string, template, or icon)
-// - addStylesToHead?: boolean (whether to use basic CSS styles for dialog, background, showing, and hiding, default true)
+// - addStylesToHead?: boolean (whether to add basic CSS styles to document head, default true)
 // - addDocumentBodyClass?: boolean (whether to add 'dialogOpen' class to document.body when the dialog is open, default true)
 class Dialog extends Component {
   constructor(props) {
     super(props);
+    if (props.addStylesToHead !== false) addStylesToHead();
     this.animTime = props.animTime || defaultAnimTime;
-    this.addStylesToHead = props.addStylesToHead === false ? false : true;
     this.contentMaxHeight = 400;
     this.closeButton = null;
     this.outerClasses = [];
@@ -26,7 +26,7 @@ class Dialog extends Component {
     this.hideCloseButton = false;
     this.promptOnClose = false;
     this.dialogDisabled = false;
-    this.closeButtonTemplate = props.closeButtonTemplate || 'x';
+    this.closeButtonTemplate = props.closeButtonTemplate || '✕';
     this.addDocumentBodyClass = props.addDocumentBodyClass || true;
     this.windowConfirmMessage =
       props.windowConfirmMessage ||
@@ -35,7 +35,6 @@ class Dialog extends Component {
       <div class="dialogBackground"></div>
       <div class="dialog" id="${this.id}-dialog"></div>
     </div>`;
-    if (this.addStylesToHead) addStylesToHead();
     dialogRefs[this.id] = this;
   }
 
@@ -280,18 +279,33 @@ export const addStylesToHead = () => {
     .dialogBackground { height: 100%; width: 100%; background: rgba(0,0,0,0); transition: background ease-in-out; }
     .dialogOuter.show .dialogBackground { background: rgba(0,0,0,0.75); }
     .dialogOuter.show.hiding .dialogBackground { background: rgba(0,0,0,0); }
-    .dialogOuter .dialog { width: 96%; max-width: 640px; min-height: 240px; max-height: 98%; position: absolute; left: 50%; top: 50%; transform: translate3d(-50%, -50%, 0); background: #fff; margin-top: -50px; opacity: 0; transition: margin-top ease-out, opacity ease-out; }
+    .dialogOuter .dialog {
+      width: 96%;
+      max-width: 640px;
+      min-height: 240px;
+      max-height: 98%;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate3d(-50%, -50%, 0);
+      background: #fff;
+      margin-top: -50px;
+      opacity: 0;
+      border-radius: 4px;
+      overflow: hidden;
+      transition: margin-top ease-out, opacity ease-out;
+    }
     .dialogOuter.show .dialog { margin-top: 0; opacity: 1; }
     .dialogOuter.show.hiding .dialog { margin-top: -50px; opacity: 0; }
 
-    .dialogTitle { margin: 16px 32px 16px 16px; }
-    .dialogCloseButton { position: absolute; top: 0; right: 0; }
+    .dialogTitle { margin: 32px 32px 16px; }
+    .dialogCloseButton { position: absolute; top: 0; right: 0; width: 32px; height: 32px; }
     .dialogOuter button { cursor: pointer; }
-    .dialogContent { padding: 16px; overflow: auto; max-height: 60vh; }
+    .dialogContent { padding: 16px 32px; overflow: auto; max-height: 60vh; }
     .dialogContent.hasStickyButtons { margin-bottom: 60px; }
-    .dialogStickyButtons { max-height: 60px; position: absolute; left: 0; bottom: 0; padding: 16px; width: 100%; box-sizing: border-box; text-align: center; background-color: #fff; }
-    .dialogStickyButtons button + button { margin-left: 16px; }
-    .dialogBasicButton { margin: 16px 0 16px 16px; }
+    .dialogStickyButtons { max-height: 60px; position: absolute; left: 0; bottom: 0; padding: 16px 32px; width: 100%; box-sizing: border-box; text-align: center; background-color: #fff; }
+    .dialogStickyButtons button + button { margin-left: 32px; }
+    .dialogBasicButton { margin: 16px 0 16px 32px; }
   `;
   const style = document.createElement('style');
   style.textContent = css;

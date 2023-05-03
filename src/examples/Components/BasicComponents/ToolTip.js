@@ -10,7 +10,7 @@ import { Component } from '../../../Lighter';
 class ToolTip extends Component {
   constructor(props) {
     super(props);
-    this.addStylesToHead = props.addStylesToHead === false ? false : true;
+    if (props.addStylesToHead !== false) addStylesToHead();
     this._defineProps(props);
     this.toolTipOpen = false;
     this.props.template = `<div class="toolTip ${this.horiAlign} ${this.vertAlign}">
@@ -19,7 +19,6 @@ class ToolTip extends Component {
         ${this.props.content || ''}
       </div>
     </div>`;
-    if (this.addStylesToHead) addStylesToHead();
   }
 
   ignorePropChanges = () => ['template'];

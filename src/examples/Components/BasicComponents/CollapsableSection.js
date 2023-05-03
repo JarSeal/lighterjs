@@ -9,10 +9,11 @@ import { Component } from '../../../Lighter';
 // - afterToggle?: function(this) (the callback after the section is toggled hidden/visible)
 // - opensUp?: boolean (whether the section should open upwards or not, default false)
 // - animTime?: number[showTime, hideTime] (the transition times for show/hide)
-// - inlineStyles?: boolean (whether basic inline CSS styles are applied or not, default false)
+// - addStylesToHead?: boolean (whether to add basic CSS styles to document head, default true)
 class CollapsableSection extends Component {
   constructor(props) {
     super(props);
+    if (props.addStylesToHead !== false) addStylesToHead();
     this._defineProps(props);
     this.content = null;
     this.animShow = null;
@@ -22,7 +23,6 @@ class CollapsableSection extends Component {
     this.props.template = `<div class="collapsableSection${this.isOpen ? ' show' : ''}">
       <div class="collapsableSectionContent" id="${this.contentAreaId}"></div>
     </div>`;
-    addStylesToHead(this.inlineStyles);
   }
 
   _defineProps = (props) => {
@@ -34,7 +34,6 @@ class CollapsableSection extends Component {
     this.afterToggle = props.afterToggle || (() => {});
     this.opensUp = props.opensUp || false;
     this.animTime = props.animTime || defaultAnimTime;
-    this.inlineStyles = props.inlineStyles || defaultInlineStyles;
   };
 
   paint = (props) => {
@@ -80,26 +79,22 @@ class CollapsableSection extends Component {
     this.elem.classList.remove('hiding');
     contentElem.style.transitionDuration = `${this.animTime[0]}ms`;
     let height = 0;
-    if (this.inlineStyles) {
-      contentElem.style.maxHeight = 'none';
-      contentElem.style.position = 'fixed';
-      contentElem.style.top = '-9999px';
-      contentElem.style.overflow = 'hidden';
-      height = contentElem.offsetHeight;
-      contentElem.style.removeProperty('max-height');
-      contentElem.style.removeProperty('position');
-      contentElem.style.removeProperty('top');
-      contentElem.style.removeProperty('overflow');
-      setTimeout(() => (contentElem.style.maxHeight = height + 'px'), 0);
-    }
+    contentElem.style.maxHeight = 'none';
+    contentElem.style.position = 'fixed';
+    contentElem.style.top = '-9999px';
+    contentElem.style.overflow = 'hidden';
+    height = contentElem.offsetHeight;
+    contentElem.style.removeProperty('max-height');
+    contentElem.style.removeProperty('position');
+    contentElem.style.removeProperty('top');
+    contentElem.style.removeProperty('overflow');
+    setTimeout(() => (contentElem.style.maxHeight = height + 'px'), 0);
     this.elem.classList.add('showing');
     this.animShow = setTimeout(() => {
       this.elem.classList.add('show');
       this.elem.classList.remove('showing');
       contentElem.style.removeProperty('transition-duration');
-      if (this.inlineStyles) {
-        contentElem.style.removeProperty('max-height');
-      }
+      contentElem.style.removeProperty('max-height');
       this.afterToggle(this);
     }, this.animTime[0]);
   };
@@ -130,15 +125,16 @@ class CollapsableSection extends Component {
 
   getContentElem = () => this.elem.querySelector('.collapsableSectionContent');
 
-  updateContent = () => {};
+  updateContent = () => {
+    // @TODO: implement content redraw
+  };
 }
 
 export let defaultAnimTime = [200, 200];
 
-export let defaultInlineStyles = false;
 let stylesAdded = false;
-export const addStylesToHead = (inlineStyles) => {
-  if (stylesAdded || !inlineStyles) return;
+export const addStylesToHead = () => {
+  if (stylesAdded) return;
   const css = `
     .collapsableSection .collapsableSectionContent {
       transition: max-height ease-in-out;

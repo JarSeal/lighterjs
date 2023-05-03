@@ -4,10 +4,11 @@ import { Component, createUUID } from '../../../Lighter';
 // - animTime?: number[showTime, hideTime] (number of milliseconds for the bg and dialog to appear/hide, default [400, 200])
 // - position?: string[] (position of the Toaster [horisontal, vertical], default ['right', 'bottom'])
 // - closeButtonTemplate?: string/template (close button string, template, or icon)
-// - inlineStyles?: boolean (whether to use basic inline CSS styles for dialog, background, showing, and hiding)
+// - addStylesToHead?: boolean (whether to add basic CSS styles to document head, default true)
 class Toaster extends Component {
   constructor(props) {
     super(props);
+    if (props.addStylesToHead !== false) addStylesToHead();
     this.animTime = props.animTime || defaultAnimTime;
     this.position =
       Array.isArray(props.position) && props.position.length === 2
@@ -15,18 +16,13 @@ class Toaster extends Component {
         : ['right', 'bottom'];
     this.showTimer = null;
     this.closeButtonTemplate = props.closeButtonTemplate;
-    this.inlineStyles = props.inlineStyles || true;
     this.props.style = { transitionDuration: this.animTime[0] + 'ms' };
     this.toasts = [];
     this.newToasts = [];
-    // @TODO: add close all button template
-    // this.closeAllButton = null;
-    // this.closeAllButtonTemplate = props.closeAllButtonTemplate || 'x';
     this.addDocumentBodyClass = props.addDocumentBodyClass || true;
     this.props.template = `<div class="toasterOuter${this._createPositionClasses()}">
       <div class="toasterFactory" id="${this.id}-tfactory"></div>
     </div>`;
-    if (this.inlineStyles) addStylesToHead();
     toasterRefs[this.id] = this;
   }
 
@@ -100,7 +96,7 @@ class Toaster extends Component {
     const closeBtn =
       this.closeButtonTemplate || toast.noCloseButton
         ? ''
-        : '<button class="toasterToastClose">x</button>';
+        : '<button class="toasterToastClose">✕</button>';
     const content = toast.content ? `<div class="toasterToastContent">${toast.content}</div>` : '';
     return `<div class="toasterToast">${title}${closeBtn}${content}</div>`;
   };
@@ -173,6 +169,7 @@ export const addStylesToHead = () => {
       margin: 4px;
       opacity: 1;
       transform: translate3d(0, 0, 0);
+      border-radius: 4px;
     }
 
     .toasterToast.preAppear { transform: translateX(-100%); opacity: 0; transition: transform ease-out, opacity ease-out; }
