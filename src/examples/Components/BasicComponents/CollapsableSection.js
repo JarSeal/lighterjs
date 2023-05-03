@@ -125,8 +125,8 @@ class CollapsableSection extends Component {
 
   getContentElem = () => this.elem.querySelector('.collapsableSectionContent');
 
-  updateContent = () => {
-    // @TODO: implement content redraw
+  updateContent = (newProps) => {
+    if (this.content?.isComponent && this.content.isDrawn) this.content.draw(newProps);
   };
 }
 
