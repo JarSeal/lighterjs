@@ -161,7 +161,7 @@ class Dialog extends Component {
 
     // set inline CSS transition-duration values, and show/showing classes
     this.elem.querySelector('.dialogBackground').style.transitionDuration =
-      Math.round(this.animTime[0] / 2) + 'ms';
+      Math.round(this.animTime[0] * 0.75) + 'ms';
     this.elem.querySelector('.dialog').style.transitionDuration = this.animTime[0] + 'ms';
     this.elem.classList.add('showing');
     this.elem.classList.add('show');
@@ -179,7 +179,7 @@ class Dialog extends Component {
     clearTimeout(this.afterAnimIn);
     this.removeListener('outside-click');
     this.elem.querySelector('.dialogBackground').style.transitionDuration =
-      Math.round(this.animTime[1] / 2) + 'ms';
+      Math.round(this.animTime[1] * 0.75) + 'ms';
     this.elem.querySelector('.dialog').style.transitionDuration = this.animTime[1] + 'ms';
     this.elem.classList.remove('showing');
     this.elem.classList.add('hiding');
