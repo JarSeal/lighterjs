@@ -2,9 +2,9 @@ import { Component } from '../../../Lighter';
 
 // props:
 // - options: array of objects (required) [
-//     { value: any, text: string/number, disabled: boolean },
+//     { value: any, label: string/template, disabled: boolean },
 //   ]
-// - label: string/template (the groups label text/template)
+// - label: string/template (the groups main label)
 // - value: string (selected radio button's value)
 // - disabled: boolean (whether the whole fieldset is disabled or not)
 // - onChange: function(event, this, option) (input field's on change listener callback)
