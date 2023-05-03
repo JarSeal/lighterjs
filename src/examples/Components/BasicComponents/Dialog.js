@@ -4,7 +4,7 @@ import { Component } from '../../../Lighter';
 // - animTime?: number[showTime, hideTime] (number of milliseconds for the bg and dialog to appear/hide, default [400, 200])
 // - windowConfirmMessage?: string (window.confirm message when promptForLosingChanges is true)
 // - closeButtonTemplate?: string/template (close button string, template, or icon)
-// - addStylesToHead?: boolean (whether to use basic inline CSS styles for dialog, background, showing, and hiding, default true)
+// - addStylesToHead?: boolean (whether to use basic CSS styles for dialog, background, showing, and hiding, default true)
 // - addDocumentBodyClass?: boolean (whether to add 'dialogOpen' class to document.body when the dialog is open, default true)
 class Dialog extends Component {
   constructor(props) {
