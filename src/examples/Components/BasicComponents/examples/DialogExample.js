@@ -8,7 +8,7 @@ const DialogExample = (parent, Dialog) => {
   const attachId = 'examples';
   const breakProps = { attachId, attributes: { style: 'height: 30px;' } };
 
-  parent.addDraw(new Dialog({ attachId: 'root', id: 'dialogId', inlineStyles: true }));
+  parent.addDraw(new Dialog({ attachId: 'root', id: 'dialogId' }));
 
   parent.addDraw(
     new Button({
@@ -82,7 +82,7 @@ const DialogExample = (parent, Dialog) => {
               '<div style="height: 900px; position: relative;"><div>A really long content that starts here...</div><div style="position: absolute; left: 0; bottom: 0;">...and ends here.</div></div>',
           },
           title: 'My title',
-          buttons: [
+          stickyButtons: [
             {
               text: 'Cancel',
             },
