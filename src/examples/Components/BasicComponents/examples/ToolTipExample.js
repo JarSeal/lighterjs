@@ -1,8 +1,5 @@
 const ToolTipExample = (parent, ToolTip) => {
-  const commonProps = {
-    attachId: 'examples',
-    inlineStyles: true,
-  };
+  const commonProps = { attachId: 'examples' };
   parent.addDraw(
     new ToolTip({
       ...commonProps,
@@ -67,7 +64,8 @@ const ToolTipExample = (parent, ToolTip) => {
     new ToolTip({
       ...commonProps,
       icon: 'Right-bottom',
-      content: 'My tip 6 to you! And this tip is a long one!',
+      content:
+        'My tip 6 to you! And this tip is a long one! It even has a link to <a href="www.google.com" target="_blank">Google</a>.',
       horiAlign: 'right',
     })
   );
