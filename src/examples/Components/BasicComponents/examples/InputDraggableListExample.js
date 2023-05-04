@@ -15,7 +15,7 @@ const InputDraggableListExample = (parent, InputDraggableList) => {
     { content: 'List item 7', orderNr: 1 },
     { content: 'List item 8', orderNr: 0 },
     { content: 'List item 9' },
-    { content: 'List item 10 <input type="text" />', orderNr: 2 },
+    { content: 'List item 10<br /><input type="text" />', orderNr: 2 },
   ];
 
   parent.addDraw({ attachId, text: 'Simple list 1:', tag: 'h3', style: { margin: 0 } });

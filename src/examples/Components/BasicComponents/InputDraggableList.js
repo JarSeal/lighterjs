@@ -6,9 +6,9 @@ import { Component } from '../../../Lighter';
 //     - orderNr?: number (the order number starting from 0 for the item on the list, if no orderNr is found,
 //                        the keys are created, the array is first sorted with orderNrs and then the ones without)
 //     - data?: any (will be passed to either the item specific component or common component)
-//     - content?: string/template (the string or template for the content, componentProps is prioritised)
+//     - content?: string/template (the string or template for the content, this is much lighter than components)
 //     - component?: Component (the content component to show as the item, this is prioritised before content)
-//     - componentProps?: Component props (the props to pass to the component)
+//     - componentProps?: Component props (the props per item to pass to the component)
 //   }
 // ]
 // @TODO: - commonComponent?: Component (list item component)
@@ -21,6 +21,12 @@ import { Component } from '../../../Lighter';
 // @TODO: - dragHandleAppend?: boolean (whether the drag handle, if used, is appended to the list item, default false = prepend)
 // - orderNrKey?: string (the order number key to sort with and possibly create if missing for each item on list, default 'orderNr')
 // - addStylesToHead?: boolean (whether to add basic CSS styles to document head, default true)
+
+// @CONSIDER/@TODO:
+// - scrolls shouldn't be just window, but all scrollable list parent elements
+// - drag movements should detect scroll area ends and start scrolling if dragging pointer is in that area
+// - draghandle could be always there (as an extra element on the item), then it would be up to CSS to determine how to display it (by default it would be the list item size)
+
 class InputDraggableList extends Component {
   constructor(props) {
     super(props);
@@ -84,7 +90,6 @@ class InputDraggableList extends Component {
     this.listComponent.draw({ template });
 
     // Create listeners
-    // let draggableElems = [...this.listComponent.elem.children];
 
     // Start drag
     let curElem = null,
@@ -97,6 +102,11 @@ class InputDraggableList extends Component {
       fn: (e) => {
         const elem = e.target;
         if (!elem.classList.contains('draggableListItem')) return;
+        const children = [...this.listComponent.elem.children];
+        for (let i = 0; i < children.length; i++) {
+          children[i].style.cssText = '';
+          children[i].classList.remove('dragging');
+        }
         curElem = elem;
         this.isDragging = true;
         const elemDimensions = elem.getBoundingClientRect();
@@ -125,22 +135,30 @@ class InputDraggableList extends Component {
     });
 
     // End drag
-    const returnAnimSpeed = 280;
+    const returnAnimSpeed = 300;
     this.listComponent.addListener({
       id: 'mouseup',
       target: window,
       type: 'mouseup',
-      fn: () => {
+      fn: (e) => {
         if (!this.isDragging) return;
         this.isDragging = false;
-        dragStartMousePos = null;
+        let animSpeed = returnAnimSpeed;
         if (curElem) {
-          curElem.style.transitionDuration = returnAnimSpeed + 'ms';
+          const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
+          const scrollOffset = [
+            dragStartScrollPos[0] - window.scrollX,
+            dragStartScrollPos[1] - window.scrollY,
+          ];
+          if (
+            Math.abs(offset[0] - scrollOffset[0]) < 100 &&
+            Math.abs(offset[1] - scrollOffset[1]) < 100
+          ) {
+            animSpeed = returnAnimSpeed * 0.4;
+          }
+          dragStartMousePos = null;
+          curElem.style.transitionDuration = animSpeed + 'ms';
           setTimeout(() => {
-            const scrollOffset = [
-              dragStartScrollPos[0] - window.scrollX,
-              dragStartScrollPos[1] - window.scrollY,
-            ];
             curElem.style.transform = `translate(${scrollOffset[0]}px, ${scrollOffset[1]}px)`;
           }, 5);
         }
@@ -160,11 +178,11 @@ class InputDraggableList extends Component {
             children[i].style.cssText = '';
           }
           this.listComponent.elem.style.removeProperty('user-select');
-        }, returnAnimSpeed + 5);
+        }, animSpeed + 5);
       },
     });
 
-    // Drag over
+    // Drag happening
     this.listComponent.addListener({
       id: 'mousemove',
       target: window,
@@ -173,6 +191,12 @@ class InputDraggableList extends Component {
         if (!this.isDragging || !curElem) return;
         const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
         curElem.style.transform = `translate(${offset[0]}px,${offset[1]}px)`;
+        // 1. Get all allowed container elems
+        // 2. Loop through them
+        //    - 3. Find which container is hovered on and add spacer to that container (if not hovering any, exit loop)
+        //    - 4. Loop through all of its children
+        //        - 5. Find child's getBoundingClientRect
+        //        - 6. Check if curElem is above that elem and add transform (push it down)
       },
     });
   };
@@ -198,7 +222,7 @@ export const addStylesToHead = () => {
     }
     .draggableListItem:first-child { border-top: none; }
     .draggableListItem.dragging {
-      transition: transform cubic-bezier(.17,.83,.68,.94), box-shadow ease-in;
+      transition: transform cubic-bezier(.42,.31,0,.95), box-shadow ease-in;
       box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
     }
     .draggableList.disabled .draggableListItem { cursor: auto; }
