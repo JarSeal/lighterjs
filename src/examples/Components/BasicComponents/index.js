@@ -36,6 +36,9 @@ import InputNumberExample from './examples/InputNumberExample';
 import Toaster from './Toaster';
 import ToasterCode from './Toaster?raw';
 import ToasterExample from './examples/ToasterExample';
+import InputDraggableList from './InputDraggableList';
+import InputDraggableListCode from './InputDraggableList?raw';
+import InputDraggableListExample from './examples/InputDraggableListExample';
 
 export const componentsList = [
   {
@@ -72,6 +75,13 @@ export const componentsList = [
     component: InputCheckbox,
     code: InputCheckboxCode,
     examples: InputCheckboxExample,
+  },
+  {
+    id: 'input-draggable-list',
+    name: 'InputDraggableList',
+    component: InputDraggableList,
+    code: InputDraggableListCode,
+    examples: InputDraggableListExample,
   },
   {
     id: 'input-dropdown',
@@ -129,6 +139,4 @@ export const componentsList = [
     code: ToolTipCode,
     examples: ToolTipExample,
   },
-  // input-draggable-list
-  // toaster
 ];
