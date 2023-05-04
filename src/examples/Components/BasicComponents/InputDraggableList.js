@@ -3,22 +3,25 @@ import { Component } from '../../../Lighter';
 // props:
 // - list: array of objects [
 //   {
-//     - orderNr?: number (the order number starting from 0 for the item on the list, if no orderNr is found, the key are created, the array is first sorted with orderNrs and then the ones without)
+//     - orderNr?: number (the order number starting from 0 for the item on the list, if no orderNr is found,
+//                        the keys are created, the array is first sorted with orderNrs and then the ones without)
 //     - content?: string/template (the string or template for the content, componentProps is prioritised)
 //     - component?: Component (the content component to show as the item, this is prioritised before content)
 //     - componentProps?: Component props (the props to pass to the component, the orderNr is passed to the props)
 //   }
 // ]
-// - orderNrKey?: string (the order number key to sort with and possibly create if missing for each item on list, default 'orderNr')
-// @TODO: - isHorisontal?: boolean (whether the list is horisontal or not/vertical, default false = vertical)
 // - onChange?: function(list, this) (when an order changes, the onChange callback is called)
 // - disabled?: boolean (whether the whole list is disabled or not, default false)
+// - dragToListIds?: string/array (list of draggable lists that this list can drag to, default undefined)
+// @TODO: - isHorisontal?: boolean (whether the list is horisontal or not/vertical, default false = vertical)
+// @TODO: - dragHandleTemplate?: template (if given, the drag handle is used to drag items, default undefined = whole item is draggable)
+// @TODO: - dragHandleAppend?: boolean (whether the drag handle, if used, is appended to the list item, default false = prepend)
+// - orderNrKey?: string (the order number key to sort with and possibly create if missing for each item on list, default 'orderNr')
 // - addStylesToHead?: boolean (whether to add basic CSS styles to document head, default true)
 class InputDraggableList extends Component {
   constructor(props) {
     super(props);
     if (props.addStylesToHead !== false) addStylesToHead();
-    this.draggingElem = null;
     this.elemsNotDragged = null;
     this.props.template = `<div class="inputDraggableList"></div>`;
     this.listComponent = this.add({ id: this.id + '-list-component' });
@@ -35,7 +38,15 @@ class InputDraggableList extends Component {
     this.orderNrKey = props.orderNrKey || defaultOrderNrKey;
     this.onChange = props.onChange || null;
     this.disabled = props.disabled || false;
-    this.listContainerIds = [this.id]; // @TODO: implement possibility to add other lists
+    let dragToListIds = [];
+    if (typeof props.dragToListIds === 'string') {
+      dragToListIds = [props.dragToListIds];
+    } else if (Array.isArray(props.dragToListIds)) {
+      dragToListIds = props.dragToListIds;
+    } else if (props.dragToListIds !== undefined) {
+      console.warn('"dragToListIds" prop, if defined, must be a string or an array, ID:', this.id);
+    }
+    this.dragToListIds = [this.id, ...dragToListIds];
     this.updateList(this.list);
   };
 
@@ -73,24 +84,37 @@ class InputDraggableList extends Component {
     // Create listeners
     let draggableElems = [...this.listComponent.elem.children];
     for (let i = 0; i < list.length; i++) {
+      // DRAG START:
       this.listComponent.addListener({
         id: 'dragstart-' + i,
         target: draggableElems[i],
         type: 'dragstart',
         fn: (e) => {
-          this.draggingElem = e.target;
-          this.elemsNotDragged = draggableElems.filter((elem) => elem !== this.draggingElem);
-          this.draggingElem.classList.add('dragging');
+          const elem = e.target;
+          this._setDraggingElem(elem);
+          let allOtherDraggableElems = draggableElems.filter((e) => e !== elem); // remove current dragged elem
+          for (let i = 0; i < this.dragToListIds.length; i++) {
+            if (this.dragToListIds[i] === this.id) continue;
+            const children = document.getElementById(this.dragToListIds[i])?.children;
+            if (children) {
+              allOtherDraggableElems = [...allOtherDraggableElems, ...children]; // add draggable elems from other lists
+            }
+          }
+          this.elemsNotDragged = allOtherDraggableElems;
+          elem.classList.add('dragging');
         },
       });
+
+      // DRAG END:
       this.listComponent.addListener({
         id: 'dragend-' + i,
         target: draggableElems[i],
         type: 'dragend',
         fn: () => {
-          this.draggingElem.classList.remove('dragging');
+          const elem = this._getDraggingElem();
+          elem.classList.remove('dragging');
           this.elemsNotDragged = null;
-          this.draggingElem = null;
+          this._setDraggingElem(null);
           draggableElems = [...this.listComponent.elem.children];
           const tempList = [];
           let changeHappened = false;
@@ -106,24 +130,35 @@ class InputDraggableList extends Component {
       });
     }
 
+    // DRAG OVER:
     this.listComponent.addListener({
       id: 'dragover',
       type: 'dragover',
       fn: (e) => {
-        if (!this.listContainerIds.includes(this.id)) return;
+        const elem = this._getDraggingElem();
+        const draggingElemParentId = elem?.parentNode.getAttribute('id');
+        // console.log(
+        //   'TADAA',
+        //   this.dragToListIds.includes(draggingElemParentId),
+        //   draggingElemParentId
+        // );
+        if (!this.dragToListIds.includes(draggingElemParentId)) return;
         e.preventDefault();
         const afterElement = this._getYDragAfterElement(e.clientY);
+        const parentElem = this._getParentElem(afterElement);
+        // console.log('AFTER LEME', afterElement, parentElem);
         if (!afterElement) {
-          this.listComponent.elem.appendChild(this.draggingElem);
-        } else {
-          this.listComponent.elem.insertBefore(this.draggingElem, afterElement);
+          parentElem.appendChild(elem);
+          return;
         }
+        parentElem.insertBefore(elem, afterElement);
       },
     });
   };
 
-  _getYDragAfterElement = (mouseY) =>
-    this.elemsNotDragged.reduce(
+  _getYDragAfterElement = (mouseY) => {
+    if (!this.elemsNotDragged) return;
+    return this.elemsNotDragged.reduce(
       (closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = mouseY - box.top - box.height * 0.5;
@@ -132,7 +167,20 @@ class InputDraggableList extends Component {
       },
       { offset: Number.NEGATIVE_INFINITY }
     ).element;
+  };
+
+  _getParentElem = (elem) => {
+    if (!elem) return this.listComponent.elem;
+    const id = elem.parentNode.getAttribute('id');
+    if (id === this.id) return this.listComponent.elem;
+    return document.getElementById(id);
+  };
+
+  _getDraggingElem = () => draggingElem;
+  _setDraggingElem = (elem) => (draggingElem = elem);
 }
+
+let draggingElem = null;
 
 export let defaultOrderNrKey = 'orderNr';
 
@@ -144,6 +192,7 @@ export const addStylesToHead = () => {
     .draggableListItem { background-color: #fafafa; padding: 16px; cursor: move; transition: opacity 0.1s ease-out; }
     .draggableListItem + .draggableListItem { margin-top: 8px; }
     .draggableListItem.dragging { opacity: 0.5; }
+    .draggableList.disabled .draggableListItem { cursor: auto; }
   `;
   const style = document.createElement('style');
   style.textContent = css;
