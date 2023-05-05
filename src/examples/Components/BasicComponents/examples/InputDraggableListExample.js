@@ -6,7 +6,7 @@ const InputDraggableListExample = (parent, InputDraggableList) => {
     { content: 'List item 1' },
     { content: 'List item 2', orderNr: 1 },
     { content: 'List item 3', orderNr: 0 },
-    { content: 'List item 4' },
+    { content: 'List item 4 <button>A button</button>' },
     { content: 'List item 5 <input type="text" />', orderNr: 2 },
   ];
 

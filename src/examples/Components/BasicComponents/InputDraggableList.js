@@ -17,7 +17,7 @@ import { Component } from '../../../Lighter';
 // - disabled?: boolean (whether the whole list is disabled or not, default false)
 // - dragToListIds?: string/array (list of draggable lists that this list can drag to, default undefined)
 // @TODO: - isHorisontal?: boolean (whether the list is horisontal or not/vertical, default false = vertical) // I DON'T KNOW ABOUT THIS ONE???
-// @TODO: - dragHandleTemplate?: template (if given, the drag handle is used to drag items, default undefined = whole item is draggable)
+// - dragHandleTemplate?: template (if given, the drag handle is used to drag items, default undefined = whole item is draggable)
 // - orderNrKey?: string (the order number key to sort with and possibly create if missing for each item on list, default 'orderNr')
 // - addStylesToHead?: boolean (whether to add basic CSS styles to document head, default true)
 
@@ -56,6 +56,7 @@ class InputDraggableList extends Component {
       console.warn('"dragToListIds" prop, if defined, must be a string or an array, ID:', this.id);
     }
     this.dragToListIds = [this.id, ...dragToListIds];
+    this.dragHandleTemplate = props.dragHandleTemplate || '';
     this.updateList(this.list);
   };
 
@@ -83,7 +84,10 @@ class InputDraggableList extends Component {
       template += `<div
         class="draggableListItem"
         data-order="${i}"
-      >${list[i].content}</div>`;
+      >
+        <div class="draggableHandle">${this.dragHandleTemplate}</div>
+        <div class="draggableItemContent">${list[i].content}</div>
+      </div>`;
     }
     template += '</div>';
 
@@ -105,10 +109,16 @@ class InputDraggableList extends Component {
       id: 'mousedown',
       type: 'mousedown',
       fn: (e) => {
-        // e.preventDefault(); // @TODO: create the handle element and check that the e.target is exactly that, the e.preventDefault()
-        if (this.disabled) return;
-        const elem = e.target;
-        if (!elem.classList.contains('draggableListItem')) return;
+        let elem = e.target;
+        if (
+          !this._clickedOnDragHandle(e, elem) ||
+          this.disabled ||
+          !elem.parentNode.classList.contains('draggableListItem')
+        ) {
+          return;
+        }
+        e.preventDefault();
+        elem = elem.parentNode;
         const children = [...this.listComponent.elem.children];
         for (let i = 0; i < children.length; i++) {
           children[i].style.cssText = '';
@@ -367,6 +377,16 @@ class InputDraggableList extends Component {
       elemBox.right > e.clientX
     );
   };
+
+  _clickedOnDragHandle = (e, elem) => {
+    const dragHandleClass = 'draggableHandle';
+    if (elem.classList.contains(dragHandleClass)) return true;
+    const handle = elem.parentNode.children[0];
+    if (handle && handle.classList?.contains(dragHandleClass)) {
+      return this._mouseIsOnTopOfElem(e, handle);
+    }
+    return false;
+  };
 }
 
 export let defaultOrderNrKey = 'orderNr';
@@ -379,14 +399,26 @@ export const addStylesToHead = () => {
     .draggableList { padding: 8px; background-color: #eaeaea; overflow-anchor: none; }
     .draggableListItem {
       /* NEEDED */
+      position: relative;
       margin: 0 !important;
       box-sizing: border-box !important;
-      cursor: move;
 
       background-color: #fafafa;
       padding: 16px;
       border-top: 1px solid #e4e4e4;
       box-shadow: none;
+    }
+    .draggableListItem > .draggableHandle {
+      cursor: move;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+    }
+    .draggableListItem > .draggableItemContent {
+      position: relative;
+      z-index: 2;
     }
     .draggableListItem:first-child { border-top: none; }
     .draggableListItem.dragging {
