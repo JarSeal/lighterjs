@@ -176,8 +176,12 @@ class InputDraggableList extends Component {
             ) {
               positionFound = true;
               this.listComponent.elem.insertBefore(curElem, children[i]);
-              newTop =
-                children[i].getBoundingClientRect().top - curElem.getBoundingClientRect().height;
+              if (children[i].newTop) {
+                newTop = children[i].newTop;
+              } else {
+                newTop =
+                  children[i].getBoundingClientRect().top - curElem.getBoundingClientRect().height;
+              }
               break;
             }
           }
@@ -208,11 +212,11 @@ class InputDraggableList extends Component {
             e.clientY - dragStartMousePos[1],
           ];
           const newTopOffset = newTop - dragStartElemBox.top;
-          curElem.style.top = newTop + 'px';
           curElem.style.transitionDuration = '0ms';
           curElem.style.transform = `translate(${currentOffset[0]}px,${
             currentOffset[1] - newTopOffset
           }px)`;
+          curElem.style.top = newTop + 'px';
 
           // Calculate scrollOffset
           const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
@@ -220,7 +224,6 @@ class InputDraggableList extends Component {
             dragStartScrollPos[0] - window.scrollX,
             dragStartScrollPos[1] - window.scrollY,
           ];
-          console.log('TADAA', scrollOffset[1]);
 
           // Make the returnAnimSpeed faster if the original position is near enough
           if (
@@ -301,6 +304,7 @@ class InputDraggableList extends Component {
         curElemBox.top < childBox.top + childBox.height * 0.5 &&
         children[i]._draggableElemBelow
       ) {
+        children[i].newTop = children[i].getBoundingClientRect().top - curElemBox.height; // @TODO: fix this
         children[i].style.transform = `translate(0,${curElemBox.height}px)`;
         children[i].draggableElemBelow = false;
         setTimeout(() => (children[i]._draggableElemBelow = false), 200);
@@ -310,6 +314,7 @@ class InputDraggableList extends Component {
         curElemBox.bottom > childBox.top + childBox.height * 0.5 &&
         !children[i]._draggableElemBelow
       ) {
+        children[i].newTop = children[i].getBoundingClientRect().top + curElemBox.height; // @TODO: fix this
         children[i].style.transform = 'translate(0,0)';
         children[i].draggableElemBelow = true;
         setTimeout(() => (children[i]._draggableElemBelow = true), 200);
