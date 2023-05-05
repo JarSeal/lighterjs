@@ -166,20 +166,9 @@ class InputDraggableList extends Component {
         if (!this.listComponent?.elem) return;
         const children = [...this.listComponent.elem.children];
         if (curElem) {
-          const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
-          const scrollOffset = [
-            dragStartScrollPos[0] - window.scrollX,
-            dragStartScrollPos[1] - window.scrollY,
-          ];
-          if (
-            Math.abs(offset[0] - scrollOffset[0]) < 50 &&
-            Math.abs(offset[1] - scrollOffset[1]) < 50
-          ) {
-            // Make the returnAnimSpeed faster if the original position is near enough
-            animSpeed = returnAnimSpeed * 0.4;
-          }
-          curElem.style.transitionDuration = animSpeed + 'ms';
+          const curElemTop = curElem.getBoundingClientRect().top;
 
+          // Move curElem in DOM
           let positionFound = false,
             newTop = 0;
           for (let i = 0; i < children.length; i++) {
@@ -197,6 +186,26 @@ class InputDraggableList extends Component {
                 children[i].getBoundingClientRect().top - curElem.getBoundingClientRect().height;
               break;
             }
+            // const childTop = children[i].getBoundingClientRect().top;
+            // const nextChild = children[i + 1];
+            // const nextChildTop = nextChild ? nextChild.getBoundingClientRect().top : 0;
+            // if (
+            //   nextChild &&
+            //   children[i] !== curElem &&
+            //   children[i].classList.contains('draggableListItem') &&
+            //   childTop < curElemTop &&
+            //   nextChildTop > curElemTop
+            // ) {
+            //   positionFound = true;
+            //   const oldIndex = Number(curElem.getAttribute('data-order'));
+            //   newIndex = Number(nextChild.getAttribute('data-order'));
+            //   if (newIndex >= oldIndex) newIndex--;
+            //   console.log('INDEX', newIndex);
+            //   this.listComponent.elem.insertBefore(curElem, nextChild);
+            //   newTop =
+            //     nextChild.getBoundingClientRect().top - curElem.getBoundingClientRect().height;
+            //   break;
+            // }
           }
           if (!positionFound) {
             newIndex = this.list.length - 1;
@@ -205,7 +214,8 @@ class InputDraggableList extends Component {
               children[children.length - 1].getBoundingClientRect().top -
               curElem.getBoundingClientRect().height;
           }
-          console.log('NEWINDEX', newIndex);
+
+          // Reindex the elements
           const reOrderedChildren = [...this.listComponent.elem.children];
           let runningIndex = 0;
           for (let i = 0; i < reOrderedChildren.length; i++) {
@@ -220,19 +230,34 @@ class InputDraggableList extends Component {
             }
           }
 
+          // Correct the curElem top position
           const currentOffset = [
             e.clientX - dragStartMousePos[0],
             e.clientY - dragStartMousePos[1],
           ];
           const newTopOffset = newTop - dragStartElemBox.top;
-          console.log('new offset', newTopOffset);
           curElem.style.top = newTop + 'px';
           curElem.style.transitionDuration = '0ms';
           curElem.style.transform = `translate(${currentOffset[0]}px,${
             currentOffset[1] - newTopOffset
           }px)`;
 
+          // Calculate scrollOffset and animSpeed
+          const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
+          const scrollOffset = [
+            dragStartScrollPos[0] - window.scrollX,
+            dragStartScrollPos[1] - window.scrollY,
+          ];
+          if (
+            Math.abs(offset[0] - scrollOffset[0]) < 50 &&
+            Math.abs(offset[1] - scrollOffset[1]) < 50
+          ) {
+            // Make the returnAnimSpeed faster if the original position is near enough
+            animSpeed = returnAnimSpeed * 0.4;
+          }
+
           setTimeout(() => {
+            if (!curElem) return;
             curElem.style.transitionDuration = animSpeed + 'ms';
             curElem.style.transform = `translate(${scrollOffset[0]}px, ${scrollOffset[1]}px)`;
           }, 5);
