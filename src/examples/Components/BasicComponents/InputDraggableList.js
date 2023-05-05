@@ -260,7 +260,7 @@ class InputDraggableList extends Component {
           }px)`;
           curElem.style.top = newTop + 'px';
 
-          // Calculate scrollOffset
+          // Calculate scrollOffset (if dragging is going on and the page is scrolled)
           const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
           const scrollOffset = [
             dragStartScrollPos[0] - window.scrollX,
@@ -282,8 +282,8 @@ class InputDraggableList extends Component {
           }, 5);
         }
         dragStartMousePos = null;
+        dragStartScrollPos = null;
         setTimeout(() => {
-          dragStartScrollPos = null;
           if (curElem) {
             curElem.classList.remove('dragging');
             curElem.style.cssText = '';
