@@ -16,9 +16,8 @@ import { Component } from '../../../Lighter';
 // - onChange?: function(list, this) (when an order changes, the onChange callback is called)
 // - disabled?: boolean (whether the whole list is disabled or not, default false)
 // - dragToListIds?: string/array (list of draggable lists that this list can drag to, default undefined)
-// @TODO: - isHorisontal?: boolean (whether the list is horisontal or not/vertical, default false = vertical)
+// @TODO: - isHorisontal?: boolean (whether the list is horisontal or not/vertical, default false = vertical) // I DON'T KNOW ABOUT THIS ONE???
 // @TODO: - dragHandleTemplate?: template (if given, the drag handle is used to drag items, default undefined = whole item is draggable)
-// @TODO: - dragHandleAppend?: boolean (whether the drag handle, if used, is appended to the list item, default false = prepend)
 // - orderNrKey?: string (the order number key to sort with and possibly create if missing for each item on list, default 'orderNr')
 // - addStylesToHead?: boolean (whether to add basic CSS styles to document head, default true)
 
@@ -26,7 +25,6 @@ import { Component } from '../../../Lighter';
 // - scrolls shouldn't be just window, but all scrollable list parent elements
 // - drag movements should detect scroll area ends and start scrolling if dragging pointer is in that area
 // - draghandle could be always there (as an extra element on the item), then it would be up to CSS to determine how to display it (by default it would be the list item size)
-// - kill current return and other animations if another one starts before the last one has finished
 
 class InputDraggableList extends Component {
   constructor(props) {
@@ -97,7 +95,7 @@ class InputDraggableList extends Component {
 
     // Create listeners
 
-    // Start drag
+    // START DRAG
     let curElem = null,
       curSpacer = null,
       dragStartMousePos = null,
@@ -108,6 +106,7 @@ class InputDraggableList extends Component {
       type: 'mousedown',
       fn: (e) => {
         // e.preventDefault(); // @TODO: create the handle element and check that the e.target is exactly that, the e.preventDefault()
+        if (this.disabled) return;
         const elem = e.target;
         if (!elem.classList.contains('draggableListItem')) return;
         const children = [...this.listComponent.elem.children];
@@ -125,26 +124,16 @@ class InputDraggableList extends Component {
         const transform = `transform:translate(0,0);`;
         elem.style.cssText = position + size + transform + 'pointer-events:none;';
         elem.classList.add('dragging');
-        let loop = true,
-          nextSibling = elem.nextSibling,
+        let nextSibling = elem.nextSibling,
           prevSibling = elem.previousSibling;
-        while (loop) {
-          if (prevSibling) {
-            prevSibling.draggableElemBelow = true;
-            prevSibling = prevSibling.previousSibling;
-          } else {
-            loop = false;
-          }
+        while (prevSibling) {
+          prevSibling.draggableElemBelow = true;
+          prevSibling = prevSibling.previousSibling;
         }
-        loop = true;
-        while (loop) {
-          if (nextSibling) {
-            nextSibling.draggableElemBelow = false;
-            nextSibling.style.transform = `translate(0,${elem.offsetHeight}px)`;
-            nextSibling = nextSibling.nextSibling;
-          } else {
-            loop = false;
-          }
+        while (nextSibling) {
+          nextSibling.draggableElemBelow = false;
+          nextSibling.style.transform = `translate(0,${elem.offsetHeight}px)`;
+          nextSibling = nextSibling.nextSibling;
         }
         curSpacer = this.listComponent.addDraw({
           style: { width: elem.offsetWidth + 'px', height: elem.offsetHeight + 'px' },
@@ -155,13 +144,13 @@ class InputDraggableList extends Component {
       },
     });
 
-    // End drag
+    // END DRAG
     this.listComponent.addListener({
       id: 'mouseup',
       target: window,
       type: 'mouseup',
       fn: (e) => {
-        if (!this.isDragging) return;
+        if (!this.isDragging || this.disabled) return;
         this.isDragging = false;
         let animSpeed = returnAnimSpeed;
         if (!this.listComponent?.elem) return;
@@ -294,27 +283,29 @@ class InputDraggableList extends Component {
       },
     });
 
-    // Drag happening
+    // DRAG HAPPENING
     this.listComponent.addListener({
       id: 'mousemove',
       target: window,
       type: 'mousemove',
       fn: (e) => {
-        if (!this.isDragging || !curElem) return;
+        if (!this.isDragging || !curElem || this.disabled) return;
         const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
         curElem.style.transform = `translate(${offset[0]}px,${offset[1]}px)`;
         // Loop all allowed container elems
         for (let i = 0; i < this.dragToListIds.length; i++) {
           const containerId = this.dragToListIds[i];
-          let containerElem = null;
+          let containerElem = null,
+            dragComponent = null;
           if (containerId === this.id) {
             containerElem = this.listComponent.elem;
+            dragComponent = this;
           } else {
             containerElem = document.getElementById(containerId);
+            dragComponent = this.getComponentById(containerId);
           }
-          if (!containerElem) return;
+          if (!containerElem || dragComponent.disabled) return;
           if (this._mouseIsOnTopOfElem(e, containerElem)) {
-            // console.log('CONTAINER', containerId);
             this._checkPositionToSiblingsAndMoveThem(containerElem, curElem);
           } else {
             // @TODO: remove spacer and item position transforms from latestContainer and set latestContainer = null
