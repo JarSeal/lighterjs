@@ -128,7 +128,7 @@ class InputDraggableList extends Component {
           prevSibling = elem.previousSibling;
         while (loop) {
           if (prevSibling) {
-            prevSibling.inDraggableListIsAbove = true;
+            prevSibling.draggableElemBelow = true;
             prevSibling = prevSibling.previousSibling;
           } else {
             loop = false;
@@ -137,7 +137,7 @@ class InputDraggableList extends Component {
         loop = true;
         while (loop) {
           if (nextSibling) {
-            nextSibling.inDraggableListIsAbove = false;
+            nextSibling.draggableElemBelow = false;
             nextSibling.style.transform = `translate(0,${elem.offsetHeight}px)`;
             nextSibling = nextSibling.nextSibling;
           } else {
@@ -161,13 +161,10 @@ class InputDraggableList extends Component {
       fn: (e) => {
         if (!this.isDragging) return;
         this.isDragging = false;
-        let animSpeed = returnAnimSpeed,
-          newIndex = 0;
+        let animSpeed = returnAnimSpeed;
         if (!this.listComponent?.elem) return;
         const children = [...this.listComponent.elem.children];
         if (curElem) {
-          const curElemTop = curElem.getBoundingClientRect().top;
-
           // Move curElem in DOM
           let positionFound = false,
             newTop = 0;
@@ -175,50 +172,25 @@ class InputDraggableList extends Component {
             if (
               children[i] !== curElem &&
               children[i].classList.contains('draggableListItem') &&
-              children[i].inDraggableListIsAbove === false
+              children[i].draggableElemBelow === false
             ) {
               positionFound = true;
-              const oldIndex = Number(curElem.getAttribute('data-order'));
-              newIndex = Number(children[i].getAttribute('data-order'));
-              if (newIndex >= oldIndex) newIndex--;
               this.listComponent.elem.insertBefore(curElem, children[i]);
               newTop =
                 children[i].getBoundingClientRect().top - curElem.getBoundingClientRect().height;
               break;
             }
-            // const childTop = children[i].getBoundingClientRect().top;
-            // const nextChild = children[i + 1];
-            // const nextChildTop = nextChild ? nextChild.getBoundingClientRect().top : 0;
-            // if (
-            //   nextChild &&
-            //   children[i] !== curElem &&
-            //   children[i].classList.contains('draggableListItem') &&
-            //   childTop < curElemTop &&
-            //   nextChildTop > curElemTop
-            // ) {
-            //   positionFound = true;
-            //   const oldIndex = Number(curElem.getAttribute('data-order'));
-            //   newIndex = Number(nextChild.getAttribute('data-order'));
-            //   if (newIndex >= oldIndex) newIndex--;
-            //   console.log('INDEX', newIndex);
-            //   this.listComponent.elem.insertBefore(curElem, nextChild);
-            //   newTop =
-            //     nextChild.getBoundingClientRect().top - curElem.getBoundingClientRect().height;
-            //   break;
-            // }
           }
           if (!positionFound) {
-            newIndex = this.list.length - 1;
             this.listComponent.elem.insertBefore(curElem, children[children.length - 1]);
-            newTop =
-              children[children.length - 1].getBoundingClientRect().top -
-              curElem.getBoundingClientRect().height;
+            newTop = children[children.length - 1].getBoundingClientRect().top;
           }
 
           // Reindex the elements
           const reOrderedChildren = [...this.listComponent.elem.children];
           let runningIndex = 0;
           for (let i = 0; i < reOrderedChildren.length; i++) {
+            // @TODO: Reorder data (this.list) here
             if (reOrderedChildren[i] === curElem) {
               curElem.setAttribute('data-order', runningIndex);
               curElem.draggableListIndex = runningIndex;
@@ -242,17 +214,19 @@ class InputDraggableList extends Component {
             currentOffset[1] - newTopOffset
           }px)`;
 
-          // Calculate scrollOffset and animSpeed
+          // Calculate scrollOffset
           const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
           const scrollOffset = [
             dragStartScrollPos[0] - window.scrollX,
             dragStartScrollPos[1] - window.scrollY,
           ];
+          console.log('TADAA', scrollOffset[1]);
+
+          // Make the returnAnimSpeed faster if the original position is near enough
           if (
             Math.abs(offset[0] - scrollOffset[0]) < 50 &&
             Math.abs(offset[1] - scrollOffset[1]) < 50
           ) {
-            // Make the returnAnimSpeed faster if the original position is near enough
             animSpeed = returnAnimSpeed * 0.4;
           }
 
@@ -325,18 +299,20 @@ class InputDraggableList extends Component {
       const childBox = children[i].getBoundingClientRect();
       if (
         curElemBox.top < childBox.top + childBox.height * 0.5 &&
-        children[i].inDraggableListIsAbove
+        children[i]._draggableElemBelow
       ) {
         children[i].style.transform = `translate(0,${curElemBox.height}px)`;
-        setTimeout(() => (children[i].inDraggableListIsAbove = false), 200);
+        children[i].draggableElemBelow = false;
+        setTimeout(() => (children[i]._draggableElemBelow = false), 200);
         continue;
       }
       if (
         curElemBox.bottom > childBox.top + childBox.height * 0.5 &&
-        !children[i].inDraggableListIsAbove
+        !children[i]._draggableElemBelow
       ) {
         children[i].style.transform = 'translate(0,0)';
-        setTimeout(() => (children[i].inDraggableListIsAbove = true), 200);
+        children[i].draggableElemBelow = true;
+        setTimeout(() => (children[i]._draggableElemBelow = true), 200);
         continue;
       }
     }
