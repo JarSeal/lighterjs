@@ -24,7 +24,6 @@ import { Component } from '../../../Lighter';
 // @CONSIDER/@TODO:
 // - scrolls shouldn't be just window, but all scrollable list parent elements
 // - drag movements should detect scroll area ends and start scrolling if dragging pointer is in that area
-// - draghandle could be always there (as an extra element on the item), then it would be up to CSS to determine how to display it (by default it would be the list item size)
 
 class InputDraggableList extends Component {
   constructor(props) {
