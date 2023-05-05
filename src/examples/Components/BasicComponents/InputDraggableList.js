@@ -155,6 +155,7 @@ class InputDraggableList extends Component {
         let animSpeed = returnAnimSpeed;
         if (!this.listComponent?.elem) return;
         const children = [...this.listComponent.elem.children];
+        const newList = [];
         if (curElem) {
           // Move curElem in DOM
           let positionFound = false,
@@ -223,11 +224,19 @@ class InputDraggableList extends Component {
                   }
                 }
               }
-              // @TODO: Reorder data (this.list) here
+              const currentItem =
+                this.list[Number(reOrderedChildren[i].getAttribute('data-order'))];
+              newList[runningIndex] = currentItem;
               reOrderedChildren[i].setAttribute('data-order', runningIndex);
               reOrderedChildren[i].draggableListIndex = runningIndex;
               runningIndex++;
             }
+          }
+
+          // update list and call possible onChange
+          if (hasChanges) {
+            this.list = newList;
+            if (this.onChange) this.onChange(this.list, this);
           }
 
           // Correct the curElem top position
