@@ -412,7 +412,8 @@ export const addStylesToHead = () => {
       box-shadow: none;
     }
     .draggableListItem > .draggableHandle {
-      cursor: move;
+      cursor: -webkit-grab;
+      cursor: grab;
       position: absolute;
       width: 100%;
       height: 100%;
@@ -427,6 +428,10 @@ export const addStylesToHead = () => {
     .draggableListItem.dragging {
       transition: transform cubic-bezier(.42,.31,0,.95), box-shadow ease-in;
       box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    }
+    .draggableListItem.dragging > .draggableHandle {
+      cursor: -webkit-grabbing !important;
+      cursor: grabbing !important;
     }
     .draggableList.disabled .draggableListItem { cursor: auto; }
   `;
