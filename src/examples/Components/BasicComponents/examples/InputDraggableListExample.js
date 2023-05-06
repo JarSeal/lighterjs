@@ -3,19 +3,19 @@ const InputDraggableListExample = (parent, InputDraggableList) => {
   const breakProps = { attachId, attributes: { style: 'height: 30px;' } };
 
   const simpleList1 = [
-    { content: 'List item 1' },
-    { content: 'List item 2', orderNr: 1 },
-    { content: 'List item 3', orderNr: 0 },
-    { content: 'List item 4 <button>A button</button>' },
-    { content: 'List item 5 <input type="text" />', orderNr: 2 },
+    { template: 'List item 1' },
+    { template: 'List item 2', orderNr: 1 },
+    { template: 'List item 3', orderNr: 0 },
+    { template: 'List item 4 <button>A button</button>' },
+    { template: 'List item 5 <input type="text" />', orderNr: 2 },
   ];
 
   const simpleList2 = [
-    { content: 'List item 6' },
-    { content: 'List item 7', orderNr: 1 },
-    { content: 'List item 8', orderNr: 0 },
-    { content: 'List item 9' },
-    { content: 'List item 10<br /><input type="text" />', orderNr: 2 },
+    { template: 'List item 6' },
+    { template: 'List item 7', orderNr: 1 },
+    { template: 'List item 8', orderNr: 0 },
+    { template: 'List item 9' },
+    { template: 'List item 10<br /><input type="text" />', orderNr: 2 },
   ];
 
   parent.addDraw({ attachId, text: 'Simple list 1:', tag: 'h3', style: { margin: 0 } });

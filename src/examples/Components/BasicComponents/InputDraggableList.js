@@ -6,7 +6,7 @@ import { Component } from '../../../Lighter';
 //     - orderNr?: number (the order number starting from 0 for the item on the list, if no orderNr is found,
 //                        the keys are created, the array is first sorted with orderNrs and then the ones without)
 //     - data?: any (will be passed to either the item specific component or common component)
-//     - content?: string/template (the string or template for the content, this is much lighter than components)
+//     - template?: string/template (the string or template for the content, for simple lists)
 //     - component?: Component (the content component to show as the item, this is prioritised before content)
 //     - componentProps?: Component props (the props per item to pass to the component)
 //   }
@@ -85,7 +85,7 @@ class InputDraggableList extends Component {
         data-order="${i}"
       >
         <div class="draggableHandle">${this.dragHandleTemplate}</div>
-        <div class="draggableItemContent">${list[i].content}</div>
+        <div class="draggableItemContent">${list[i].template || ''}</div>
       </div>`;
     }
     template += '</div>';
@@ -108,6 +108,7 @@ class InputDraggableList extends Component {
       id: 'mousedown',
       type: 'mousedown',
       fn: (e) => {
+        // @TODO: refactor and make this tidy
         let elem = e.target;
         if (
           !this._clickedOnDragHandle(e, elem) ||
@@ -159,6 +160,7 @@ class InputDraggableList extends Component {
       target: window,
       type: 'mouseup',
       fn: (e) => {
+        // @TODO: refactor and make this tidy
         if (!this.isDragging || this.disabled) return;
         this.isDragging = false;
         let animSpeed = returnAnimSpeed;
@@ -307,9 +309,11 @@ class InputDraggableList extends Component {
       target: window,
       type: 'mousemove',
       fn: (e) => {
+        // @TODO: refactor and make this tidy
         if (!this.isDragging || !curElem || this.disabled) return;
         const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
         curElem.style.transform = `translate(${offset[0]}px,${offset[1]}px)`;
+
         // Loop all allowed container elems
         for (let i = 0; i < this.dragToListIds.length; i++) {
           const containerId = this.dragToListIds[i];
