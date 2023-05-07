@@ -345,7 +345,7 @@ class InputDraggableList extends Component {
     const children = [...containerElem.children];
     for (let i = 0; i < children.length; i++) {
       if (children[i] === curElem || !children[i].classList.contains('draggableListItem')) continue;
-      children[i].style.transition = 'transform 0.2s ease-in-out'; // @TODO: move this Drag start (mousedown) and remove this style in Drag stop (mouseup)
+      children[i].style.transition = 'transform 0.2s ease-in-out';
       const curElemBox = curElem.getBoundingClientRect();
       const childBox = children[i].getBoundingClientRect();
       if (
