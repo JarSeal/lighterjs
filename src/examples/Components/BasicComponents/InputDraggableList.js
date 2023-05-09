@@ -24,6 +24,7 @@ import { Component } from '../../../Lighter';
 // @CONSIDER/@TODO:
 // - scrolls shouldn't be just window, but all scrollable list parent elements
 // - drag movements should detect scroll area ends and start scrolling if dragging pointer is in that area
+// - needs tests with a touch device and possibly needs own listeners for that
 
 class InputDraggableList extends Component {
   constructor(props) {
@@ -101,14 +102,17 @@ class InputDraggableList extends Component {
     // START DRAG
     let curElem = null,
       curSpacer = null,
+      externalSpacers = {},
       dragStartMousePos = null,
       dragStartScrollPos = null,
-      dragStartElemBox = null;
+      dragStartElemBox = null,
+      dragContainerWidths = [],
+      curContainerIndex = 0;
     this.listComponent.addListener({
       id: 'mousedown',
       type: 'mousedown',
       fn: (e) => {
-        // @TODO: refactor and make this tidy
+        // @TODO: refactor and make this tidy (also detect left click)
         let elem = e.target;
         if (
           !this._clickedOnDragHandle(e, elem) ||
@@ -118,14 +122,26 @@ class InputDraggableList extends Component {
           return;
         }
         e.preventDefault();
+
         elem = elem.parentNode;
+        curContainerIndex = 0;
         const children = [...this.listComponent.elem.children];
+        // Get current container elem width
         for (let i = 0; i < children.length; i++) {
           children[i].style.cssText = '';
           children[i].classList.remove('dragging');
           children[i]._startTopPos = children[i].getBoundingClientRect().top;
           children[i]._startBottomPos = children[i].getBoundingClientRect().bottom;
         }
+        // Get all containers elem widths
+        for (let i = 0; i < this.dragToListIds.length; i++) {
+          const container = document.getElementById(this.dragToListIds[i]);
+          const children = container?.children;
+          if (children) {
+            dragContainerWidths[i] = children[0].getBoundingClientRect().width;
+          }
+        }
+        console.log('WIDTHs', dragContainerWidths);
         curElem = elem;
         this.isDragging = true;
         dragStartElemBox = elem.getBoundingClientRect();
@@ -134,6 +150,8 @@ class InputDraggableList extends Component {
         const transform = `transform:translate(0,0);`;
         elem.style.cssText = position + size + transform + 'pointer-events:none;';
         elem.classList.add('dragging');
+
+        // @TODO: put this to its own component and run this when the element changes container
         let nextSibling = elem.nextSibling,
           prevSibling = elem.previousSibling;
         while (prevSibling) {
@@ -145,12 +163,17 @@ class InputDraggableList extends Component {
           nextSibling.style.transform = `translate(0,${elem.offsetHeight}px)`;
           nextSibling = nextSibling.nextSibling;
         }
+
         curSpacer = this.listComponent.addDraw({
-          style: { width: elem.offsetWidth + 'px', height: elem.offsetHeight + 'px' },
+          style: {
+            width: elem.offsetWidth + 'px',
+            height: elem.offsetHeight + 'px',
+            userSelect: 'none',
+          },
         });
+
         dragStartMousePos = [e.clientX, e.clientY];
         dragStartScrollPos = [window.scrollX, window.scrollY];
-        this.listComponent.elem.style.userSelect = 'none';
       },
     });
 
@@ -295,6 +318,12 @@ class InputDraggableList extends Component {
             curSpacer.discard(true);
             curSpacer = null;
           }
+          for (let i = 0; i < this.dragToListIds.length; i++) {
+            const containerId = this.dragToListIds[i];
+            if (containerId !== this.id && externalSpacers[containerId]?.isComponent) {
+              externalSpacers[containerId].discard();
+            }
+          }
           for (let i = 0; i < children.length; i++) {
             children[i].style.cssText = '';
           }
@@ -328,6 +357,15 @@ class InputDraggableList extends Component {
           }
           if (!containerElem || dragComponent.disabled) return;
           if (this._mouseIsOnTopOfElem(e, containerElem)) {
+            if (containerId !== this.id && !externalSpacers[containerId]) {
+              externalSpacers[containerId] = dragComponent.listComponent.addDraw({
+                style: {
+                  width: dragContainerWidths[0] + 'px',
+                  height: curElem.offsetHeight + 'px',
+                },
+              });
+              console.log('CONTAINERID', dragComponent.id);
+            }
             this._checkPositionToSiblingsAndMoveThem(containerElem, curElem);
           } else {
             // @TODO: remove spacer and item position transforms from latestContainer and set latestContainer = null

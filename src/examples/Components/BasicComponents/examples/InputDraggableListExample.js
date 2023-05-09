@@ -37,6 +37,7 @@ const InputDraggableListExample = (parent, InputDraggableList) => {
       id: 'simpleList2',
       dragToListIds: 'simpleList1',
       list: simpleList2,
+      style: { width: '600px' },
       onChange: (list, compo) => console.log(compo.id, list),
     })
   );
