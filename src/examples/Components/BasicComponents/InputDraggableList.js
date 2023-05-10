@@ -123,25 +123,26 @@ class InputDraggableList extends Component {
         }
         e.preventDefault();
 
-        elem = elem.parentNode;
+        elem = elem.parentNode; // Because we are dragging the drag handle
         curContainerIndex = 0;
         const children = [...this.listComponent.elem.children];
-        // Get current container elem width
         for (let i = 0; i < children.length; i++) {
           children[i].style.cssText = '';
           children[i].classList.remove('dragging');
           children[i]._startTopPos = children[i].getBoundingClientRect().top;
           children[i]._startBottomPos = children[i].getBoundingClientRect().bottom;
         }
+
         // Get all containers elem widths
         for (let i = 0; i < this.dragToListIds.length; i++) {
-          const container = document.getElementById(this.dragToListIds[i]);
-          const children = container?.children;
-          if (children) {
-            dragContainerWidths[i] = children[0].getBoundingClientRect().width;
-          }
+          const containerElem = this.getComponentById(this.dragToListIds[i])?.listComponent?.elem;
+          const cs = getComputedStyle(containerElem);
+          // @TODO: move this to component paint and also calculate paddingY and borderY (rename them to paddingAndBorderTop, paddingAndBorderLeft.. etc.)
+          const paddingX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+          const borderX = parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+          dragContainerWidths[i] = containerElem.getBoundingClientRect().width - paddingX - borderX;
         }
-        console.log('WIDTHs', dragContainerWidths);
+
         curElem = elem;
         this.isDragging = true;
         dragStartElemBox = elem.getBoundingClientRect();
@@ -155,11 +156,11 @@ class InputDraggableList extends Component {
         let nextSibling = elem.nextSibling,
           prevSibling = elem.previousSibling;
         while (prevSibling) {
-          prevSibling.draggableElemBelow = true;
+          prevSibling.draggableElemIsBelow = true;
           prevSibling = prevSibling.previousSibling;
         }
         while (nextSibling) {
-          nextSibling.draggableElemBelow = false;
+          nextSibling.draggableElemIsBelow = false;
           nextSibling.style.transform = `translate(0,${elem.offsetHeight}px)`;
           nextSibling = nextSibling.nextSibling;
         }
@@ -186,10 +187,18 @@ class InputDraggableList extends Component {
         // @TODO: refactor and make this tidy
         if (!this.isDragging || this.disabled) return;
         this.isDragging = false;
-        let animSpeed = returnAnimSpeed;
-        if (!this.listComponent?.elem) return;
-        const children = [...this.listComponent.elem.children];
-        const newList = [];
+        let animSpeed = returnAnimSpeed,
+          currentTargetList = this.listComponent,
+          isTransfer = false;
+        if (curContainerIndex !== 0) {
+          currentTargetList = this.getComponentById(
+            this.dragToListIds[curContainerIndex]
+          ).listComponent;
+          isTransfer = true;
+        }
+        if (!this.listComponent?.elem || !currentTargetList?.elem) return;
+        const children = [...currentTargetList.elem.children];
+        let newList = [];
         if (curElem) {
           // Move curElem in DOM
           let positionFound = false,
@@ -198,78 +207,112 @@ class InputDraggableList extends Component {
             if (
               children[i] !== curElem &&
               children[i].classList.contains('draggableListItem') &&
-              children[i].draggableElemBelow === false
+              children[i].draggableElemIsBelow === false
             ) {
               positionFound = true;
-              this.listComponent.elem.insertBefore(curElem, children[i]);
+              currentTargetList.elem.insertBefore(curElem, children[i]);
               break;
             }
           }
           if (!positionFound) {
             // Insert as the last element
-            this.listComponent.elem.insertBefore(curElem, children[children.length - 1]);
+            currentTargetList.elem.insertBefore(curElem, children[children.length - 1]);
           }
 
-          // Reindex the elements and set newTop for dragged elem
-          const reOrderedChildren = [...this.listComponent.elem.children];
-          let runningIndex = 0,
-            hasChanges = true;
-          for (let i = 0; i < reOrderedChildren.length; i++) {
-            if (reOrderedChildren[i].classList.contains('draggableListItem')) {
-              if (reOrderedChildren[i] === curElem) {
-                hasChanges = Number(curElem.getAttribute('data-order')) !== runningIndex;
-                if (dragStartElemBox.top < curElem.getBoundingClientRect().top) {
-                  // Moved down
-                  if (
-                    reOrderedChildren[i + 1] &&
-                    reOrderedChildren[i + 1].classList.contains('draggableListItem') &&
-                    hasChanges
-                  ) {
-                    newTop =
-                      reOrderedChildren[i + 1]._startTopPos -
-                      curElem.getBoundingClientRect().height;
-                  } else if (
-                    reOrderedChildren[i - 1] &&
-                    reOrderedChildren[i - 1].classList.contains('draggableListItem') &&
-                    hasChanges
-                  ) {
-                    newTop =
-                      reOrderedChildren[i - 1]._startBottomPos -
-                      curElem.getBoundingClientRect().height;
+          let hasChanges = false,
+            curData = null;
+          if (!isTransfer) {
+            // The drag is a local drag
+            const reOrderedChildren = [...this.listComponent.elem.children];
+            let runningIndex = 0;
+            // Reindex the elements and set newTop for dragged elem
+            for (let i = 0; i < reOrderedChildren.length; i++) {
+              if (reOrderedChildren[i].classList.contains('draggableListItem')) {
+                if (reOrderedChildren[i] === curElem) {
+                  hasChanges = Number(curElem.getAttribute('data-order')) !== runningIndex;
+                  if (dragStartElemBox.top < curElem.getBoundingClientRect().top) {
+                    // Moved down
+                    if (
+                      reOrderedChildren[i + 1] &&
+                      reOrderedChildren[i + 1].classList.contains('draggableListItem') &&
+                      hasChanges
+                    ) {
+                      newTop =
+                        reOrderedChildren[i + 1]._startTopPos -
+                        curElem.getBoundingClientRect().height;
+                    } else if (
+                      reOrderedChildren[i - 1] &&
+                      reOrderedChildren[i - 1].classList.contains('draggableListItem') &&
+                      hasChanges
+                    ) {
+                      newTop =
+                        reOrderedChildren[i - 1]._startBottomPos -
+                        curElem.getBoundingClientRect().height;
+                    } else {
+                      newTop = dragStartElemBox.top;
+                    }
                   } else {
-                    newTop = dragStartElemBox.top;
-                  }
-                } else {
-                  // Moved up
-                  if (
-                    reOrderedChildren[i - 1] &&
-                    reOrderedChildren[i - 1].classList.contains('draggableListItem') &&
-                    hasChanges
-                  ) {
-                    newTop = reOrderedChildren[i - 1]._startBottomPos;
-                  } else if (
-                    reOrderedChildren[i + 1] &&
-                    reOrderedChildren[i + 1].classList.contains('draggableListItem') &&
-                    hasChanges
-                  ) {
-                    newTop = reOrderedChildren[i + 1]._startTopPos;
-                  } else {
-                    newTop = dragStartElemBox.top;
+                    // Moved up
+                    if (
+                      reOrderedChildren[i - 1] &&
+                      reOrderedChildren[i - 1].classList.contains('draggableListItem') &&
+                      hasChanges
+                    ) {
+                      newTop = reOrderedChildren[i - 1]._startBottomPos;
+                    } else if (
+                      reOrderedChildren[i + 1] &&
+                      reOrderedChildren[i + 1].classList.contains('draggableListItem') &&
+                      hasChanges
+                    ) {
+                      newTop = reOrderedChildren[i + 1]._startTopPos;
+                    } else {
+                      newTop = dragStartElemBox.top;
+                    }
                   }
                 }
+                const currentItem =
+                  this.list[Number(reOrderedChildren[i].getAttribute('data-order'))];
+                newList[runningIndex] = currentItem;
+                reOrderedChildren[i].setAttribute('data-order', runningIndex);
+                reOrderedChildren[i].draggableListIndex = runningIndex;
+                runningIndex++;
               }
-              const currentItem =
-                this.list[Number(reOrderedChildren[i].getAttribute('data-order'))];
-              newList[runningIndex] = currentItem;
-              reOrderedChildren[i].setAttribute('data-order', runningIndex);
-              reOrderedChildren[i].draggableListIndex = runningIndex;
+            }
+          } else {
+            // The drag is transfer to another container
+            const reOrderedChildren = [...currentTargetList.elem.children];
+            let runningIndex = 0;
+            // Reindex the elements and set newTop for dragged elem
+            for (let i = 0; i < reOrderedChildren.length; i++) {
+              // WIP
+              if (reOrderedChildren[i].classList.contains('draggableListItem')) {
+                if (reOrderedChildren[i] === curElem) {
+                  if (curElem.previousSibling) {
+                    newTop = curElem.previousSibling._startBottomPos;
+                  } else if (curElem.nextSibling) {
+                    newTop = curElem.nextSibling._startTopPos;
+                  } else {
+                    newTop = currentTargetList.getBoundingClientRect().top;
+                  }
+                }
+                reOrderedChildren[i].setAttribute('data-order', runningIndex);
+                reOrderedChildren[i].draggableListIndex = runningIndex;
+              }
               runningIndex++;
             }
+            hasChanges = true;
+            const curIndex = Number(curElem.getAttribute('data-order'));
+            curData = this.list[curIndex]; // @TODO: Transfer this data to the other draggable list component
+            console.log('TESTING', curData);
+            newList = this.list.filter((_, i) => i !== curIndex);
           }
 
-          // update list and call possible onChange
+          // Update list and call possible onChange
           if (hasChanges) {
-            this.list = newList;
+            this.list = newList.map((item, index) => {
+              item[this.orderNrKey] = index;
+              return item;
+            });
             if (this.onChange) this.onChange(this.list, this);
           }
 
@@ -324,9 +367,13 @@ class InputDraggableList extends Component {
               externalSpacers[containerId].discard();
               externalSpacers[containerId] = null;
             }
-          }
-          for (let i = 0; i < children.length; i++) {
-            children[i].style.cssText = '';
+            const containerChildren = [
+              ...this.getComponentById(containerId).listComponent.elem.children,
+            ];
+            for (let j = 0; j < containerChildren.length; j++) {
+              const child = containerChildren[j];
+              child.style.cssText = '';
+            }
           }
           this.listComponent.elem.style.removeProperty('user-select');
         }, animSpeed + 5);
@@ -343,12 +390,14 @@ class InputDraggableList extends Component {
         if (!this.isDragging || !curElem || this.disabled) return;
         const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
         curElem.style.transform = `translate(${offset[0]}px,${offset[1]}px)`;
+        let isHoveringContainer = false;
 
-        // Loop all allowed container elems
+        // Loop all allowed containers
         for (let i = 0; i < this.dragToListIds.length; i++) {
           const containerId = this.dragToListIds[i];
           let containerElem = null,
-            dragComponent = null;
+            dragComponent = null,
+            containerChanged = false;
           if (containerId === this.id) {
             containerElem = this.listComponent.elem;
             dragComponent = this;
@@ -358,34 +407,75 @@ class InputDraggableList extends Component {
           }
           if (!containerElem || dragComponent.disabled) return;
           if (this._mouseIsOnTopOfElem(e, containerElem)) {
-            curContainerIndex = i;
-            if (containerId !== this.id && !externalSpacers[containerId]) {
-              externalSpacers[containerId] = dragComponent.listComponent.addDraw({
-                style: {
-                  width: dragContainerWidths[0] + 'px',
-                  height: curElem.offsetHeight + 'px',
-                  userSelect: 'none',
-                },
-              });
-              const curElemTop = curElem.getBoundingClientRect().top;
-              const containerChildren = [...dragComponent.listComponent.elem.children];
-              console.log('stuut', containerChildren);
-              for (let j = 0; j < containerChildren.length; j++) {
-                const child = containerChildren[j];
-                child.style.transform = `translate(0,${curElem.offsetHeight}px)`;
-                // @TODO: put _checkPositionToSiblingsAndMoveThem here (without transition maybe)
+            isHoveringContainer = true;
+            if (containerId !== this.id) {
+              // External container
+              if (curContainerIndex !== i) containerChanged = true;
+              curContainerIndex = i;
+              if (!externalSpacers[containerId]) {
+                // Create the spacer if not found
+                externalSpacers[containerId] = dragComponent.listComponent.addDraw({
+                  style: {
+                    width: 0,
+                    height: 0,
+                    transition: `height ${siblingAnimSpeed}ms ease-in-out`,
+                    userSelect: 'none',
+                  },
+                });
+              }
+              if (containerChanged) {
+                const containerChildren = [...containerElem.children];
+                const curElemTop = curElem.getBoundingClientRect().top;
+                for (let j = 0; j < containerChildren.length; j++) {
+                  const child = containerChildren[j];
+                  if (!child.classList.contains('draggableListItem')) continue;
+                  child.style.transition = `transform ${siblingAnimSpeed}ms ease-in-out`;
+                  const childBox = child.getBoundingClientRect();
+                  // Set _draggableElemIsBelow to wrong (opposite) values so that they are checked in _checkPositionToSiblingsAndMoveThem
+                  if (curElemTop < childBox.top + childBox.height * 0.5) {
+                    child._draggableElemIsBelow = true;
+                  } else {
+                    child._draggableElemIsBelow = false;
+                  }
+                  containerChildren[j]._startTopPos =
+                    containerChildren[j].getBoundingClientRect().top;
+                  containerChildren[j]._startBottomPos =
+                    containerChildren[j].getBoundingClientRect().bottom;
+                }
+                setTimeout(() => {
+                  externalSpacers[containerId].elem.style.width =
+                    dragContainerWidths[curContainerIndex] + 'px';
+                  externalSpacers[containerId].elem.style.height = curElem.offsetHeight + 'px';
+                  for (let j = 0; j < containerChildren.length; j++) {
+                    const child = containerChildren[j];
+                    child.style.transform = `translate(0,${curElem.offsetHeight}px)`;
+                  }
+                  this._checkPositionToSiblingsAndMoveThem(containerElem, curElem);
+                }, 5);
+              } else {
+                this._checkPositionToSiblingsAndMoveThem(containerElem, curElem);
+              }
+            } else {
+              // Same container that the drag started in or no container hovered
+              this._checkPositionToSiblingsAndMoveThem(containerElem, curElem);
+              if (containerId !== this.id && externalSpacers[containerId]) {
+                externalSpacers[containerId].elem.style.height = curElem.offsetHeight + 'px';
               }
             }
-            this._checkPositionToSiblingsAndMoveThem(containerElem, curElem);
           } else {
-            // @TODO: remove spacer and item position transforms from latestContainer and set latestContainer = null
-            curContainerIndex = 0;
+            if (containerId !== this.id) {
+              const containerChildren = [...dragComponent.listComponent.elem.children];
+              for (let j = 0; j < containerChildren.length; j++) {
+                const child = containerChildren[j];
+                child.style.transform = 'translate(0,0)';
+              }
+              if (externalSpacers[containerId]) externalSpacers[containerId].elem.style.height = 0;
+            } else {
+              this._checkPositionToSiblingsAndMoveThem(containerElem, curElem);
+            }
           }
         }
-        //    - Find which container is hovered on and add spacer to that container (if not hovering any, exit loop)
-        //    - 4. Loop through all of its children
-        //        - 5. Find child's getBoundingClientRect
-        //        - 6. Check if curElem is above that elem and add transform (push it down)
+        if (!isHoveringContainer) curContainerIndex = 0;
       },
     });
   };
@@ -394,27 +484,27 @@ class InputDraggableList extends Component {
     const children = [...containerElem.children];
     for (let i = 0; i < children.length; i++) {
       if (children[i] === curElem || !children[i].classList.contains('draggableListItem')) continue;
-      children[i].style.transition = 'transform 0.2s ease-in-out';
+      children[i].style.transition = `transform ${siblingAnimSpeed}ms ease-in-out`;
       const curElemBox = curElem.getBoundingClientRect();
       const childBox = children[i].getBoundingClientRect();
       if (
         curElemBox.top < childBox.top + childBox.height * 0.5 &&
-        children[i]._draggableElemBelow
+        children[i]._draggableElemIsBelow
       ) {
         children[i].prevTop = children[i].getBoundingClientRect().top;
         children[i].style.transform = `translate(0,${curElemBox.height}px)`;
-        children[i].draggableElemBelow = false;
-        setTimeout(() => (children[i]._draggableElemBelow = false), 200);
+        children[i].draggableElemIsBelow = false;
+        setTimeout(() => (children[i]._draggableElemIsBelow = false), 200);
         continue;
       }
       if (
         curElemBox.bottom > childBox.top + childBox.height * 0.5 &&
-        !children[i]._draggableElemBelow
+        !children[i]._draggableElemIsBelow
       ) {
         children[i].prevTop = children[i].getBoundingClientRect().top;
         children[i].style.transform = 'translate(0,0)';
-        children[i].draggableElemBelow = true;
-        setTimeout(() => (children[i]._draggableElemBelow = true), 200);
+        children[i].draggableElemIsBelow = true;
+        setTimeout(() => (children[i]._draggableElemIsBelow = true), siblingAnimSpeed);
         continue;
       }
     }
@@ -443,6 +533,7 @@ class InputDraggableList extends Component {
 
 export let defaultOrderNrKey = 'orderNr';
 export let returnAnimSpeed = 250;
+export let siblingAnimSpeed = 200;
 
 let stylesAdded = false;
 export const addStylesToHead = () => {
