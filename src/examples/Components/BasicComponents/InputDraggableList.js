@@ -151,7 +151,7 @@ class InputDraggableList extends Component {
         elem.style.cssText = position + size + transform + 'pointer-events:none;';
         elem.classList.add('dragging');
 
-        // @TODO: put this to its own component and run this when the element changes container
+        // @TODO: put this to its own method and run this when the element changes container
         let nextSibling = elem.nextSibling,
           prevSibling = elem.previousSibling;
         while (prevSibling) {
@@ -322,6 +322,7 @@ class InputDraggableList extends Component {
             const containerId = this.dragToListIds[i];
             if (containerId !== this.id && externalSpacers[containerId]?.isComponent) {
               externalSpacers[containerId].discard();
+              externalSpacers[containerId] = null;
             }
           }
           for (let i = 0; i < children.length; i++) {
@@ -357,18 +358,28 @@ class InputDraggableList extends Component {
           }
           if (!containerElem || dragComponent.disabled) return;
           if (this._mouseIsOnTopOfElem(e, containerElem)) {
+            curContainerIndex = i;
             if (containerId !== this.id && !externalSpacers[containerId]) {
               externalSpacers[containerId] = dragComponent.listComponent.addDraw({
                 style: {
                   width: dragContainerWidths[0] + 'px',
                   height: curElem.offsetHeight + 'px',
+                  userSelect: 'none',
                 },
               });
-              console.log('CONTAINERID', dragComponent.id);
+              const curElemTop = curElem.getBoundingClientRect().top;
+              const containerChildren = [...dragComponent.listComponent.elem.children];
+              console.log('stuut', containerChildren);
+              for (let j = 0; j < containerChildren.length; j++) {
+                const child = containerChildren[j];
+                child.style.transform = `translate(0,${curElem.offsetHeight}px)`;
+                // @TODO: put _checkPositionToSiblingsAndMoveThem here (without transition maybe)
+              }
             }
             this._checkPositionToSiblingsAndMoveThem(containerElem, curElem);
           } else {
             // @TODO: remove spacer and item position transforms from latestContainer and set latestContainer = null
+            curContainerIndex = 0;
           }
         }
         //    - Find which container is hovered on and add spacer to that container (if not hovering any, exit loop)
