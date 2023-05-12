@@ -22,8 +22,8 @@ import { Component } from '../../../Lighter';
 // - addStylesToHead?: boolean (whether to add basic CSS styles to document head, default true)
 
 // @CONSIDER/@TODO:
-// - scrolls shouldn't be just window, but all scrollable list parent elements
 // - drag movements should detect scroll area ends and start scrolling if dragging pointer is in that area
+// - scrolls shouldn't be just window, but all scrollable list parent elements
 // - needs tests with a touch device and possibly needs own listeners for that
 // - add also a common item class for each container's list item, and make it switch the class when the item is transferred to another container (or remove the previous if that class is not defined)
 
@@ -37,7 +37,7 @@ class InputDraggableList extends Component {
     this.listComponent = this.add({ id: this.id + '-list-component' });
   }
 
-  ignorePropChanges = () => ['template'];
+  ignorePropChanges = () => ['template', 'orderNrKey', 'addStylesToHead', 'dragHandleTemplate'];
 
   paint = (props) => {
     if (!props.list) {
@@ -114,13 +114,15 @@ class InputDraggableList extends Component {
       id: 'mousedown',
       type: 'mousedown',
       fn: (e) => {
-        // @TODO: refactor and make this tidy (also detect left click)
         let elem = e.target;
         if (
+          e.button !== 0 ||
           !this._clickedOnDragHandle(e, elem) ||
           this.disabled ||
           !elem.parentNode.classList.contains('draggableListItem')
         ) {
+          // Has to be a left click, on the drag handle, list should not be disabled,
+          // and the drag handle parent elem should have the draggableListItem class
           return;
         }
         e.preventDefault();
@@ -186,186 +188,201 @@ class InputDraggableList extends Component {
       target: window,
       type: 'mouseup',
       fn: (e) => {
-        // @TODO: refactor and make this tidy
         if (!this.isDragging || this.disabled) return;
         this.isDragging = false;
+        if (!curElem) return;
         let animSpeed = returnAnimSpeed,
           currentTargetList = this.listComponent,
-          isTransfer = false;
+          isTransfer = false,
+          targetComponent;
         if (curContainerIndex !== 0) {
           currentTargetList = this.getComponentById(
             this.dragToListIds[curContainerIndex]
           ).listComponent;
+          targetComponent = this.getComponentById(this.dragToListIds[curContainerIndex]);
           isTransfer = true;
         }
         if (!this.listComponent?.elem || !currentTargetList?.elem) return;
         const children = [...currentTargetList.elem.children];
         let newList = [];
-        if (curElem) {
-          // Move curElem in DOM
-          let positionFound = false,
-            newTop = 0;
-          for (let i = 0; i < children.length; i++) {
-            if (
-              children[i] !== curElem &&
-              children[i].classList.contains('draggableListItem') &&
-              children[i].draggableElemIsBelow === false
-            ) {
-              positionFound = true;
-              currentTargetList.elem.insertBefore(curElem, children[i]);
-              break;
-            }
-          }
-          if (!positionFound) {
-            // Insert as the last element
-            currentTargetList.elem.insertBefore(curElem, children[children.length - 1]);
-          }
 
-          let hasChanges = false,
-            curData = null;
-          if (!isTransfer) {
-            // The drag is a local drag
-            const reOrderedChildren = [...this.listComponent.elem.children];
-            let runningIndex = 0;
-            // Reindex the elements and set newTop for dragged elem
-            for (let i = 0; i < reOrderedChildren.length; i++) {
-              if (reOrderedChildren[i].classList.contains('draggableListItem')) {
-                if (reOrderedChildren[i] === curElem) {
-                  hasChanges = Number(curElem.getAttribute('data-order')) !== runningIndex;
-                  if (dragStartElemBox.top < curElem.getBoundingClientRect().top) {
-                    // Moved down
-                    if (
-                      reOrderedChildren[i + 1] &&
-                      reOrderedChildren[i + 1].classList.contains('draggableListItem') &&
-                      hasChanges
-                    ) {
-                      newTop =
-                        reOrderedChildren[i + 1]._startTopPos -
-                        curElem.getBoundingClientRect().height;
-                    } else if (
-                      reOrderedChildren[i - 1] &&
-                      reOrderedChildren[i - 1].classList.contains('draggableListItem') &&
-                      hasChanges
-                    ) {
-                      newTop =
-                        reOrderedChildren[i - 1]._startBottomPos -
-                        curElem.getBoundingClientRect().height;
-                    } else {
-                      newTop = dragStartElemBox.top;
-                    }
-                  } else {
-                    // Moved up
-                    if (
-                      reOrderedChildren[i - 1] &&
-                      reOrderedChildren[i - 1].classList.contains('draggableListItem') &&
-                      hasChanges
-                    ) {
-                      newTop = reOrderedChildren[i - 1]._startBottomPos;
-                    } else if (
-                      reOrderedChildren[i + 1] &&
-                      reOrderedChildren[i + 1].classList.contains('draggableListItem') &&
-                      hasChanges
-                    ) {
-                      newTop = reOrderedChildren[i + 1]._startTopPos;
-                    } else {
-                      newTop = dragStartElemBox.top;
-                    }
-                  }
-                }
-                const currentItem =
-                  this.list[Number(reOrderedChildren[i].getAttribute('data-order'))];
-                newList[runningIndex] = currentItem;
-                reOrderedChildren[i].setAttribute('data-order', runningIndex);
-                reOrderedChildren[i].draggableListIndex = runningIndex;
-                runningIndex++;
-              }
-            }
-          } else {
-            // The drag is transfer to another container
-            const reOrderedChildren = [...currentTargetList.elem.children];
-            let runningIndex = 0;
-            // Reindex the elements and set newTop for dragged elem
-            for (let i = 0; i < reOrderedChildren.length; i++) {
-              // WIP
-              if (reOrderedChildren[i].classList.contains('draggableListItem')) {
-                if (reOrderedChildren[i] === curElem) {
-                  if (curElem.previousSibling) {
-                    newTop = curElem.previousSibling._startBottomPos;
-                  } else if (
-                    curElem.nextSibling &&
-                    curElem.nextSibling.classList.contains('draggableListItem')
+        // Move curElem in DOM
+        let positionFound = false,
+          newTop = 0;
+        for (let i = 0; i < children.length; i++) {
+          if (
+            children[i] !== curElem &&
+            children[i].classList.contains('draggableListItem') &&
+            children[i].draggableElemIsBelow === false
+          ) {
+            positionFound = true;
+            currentTargetList.elem.insertBefore(curElem, children[i]);
+            break;
+          }
+        }
+        if (!positionFound) {
+          // Insert as the last element
+          currentTargetList.elem.insertBefore(curElem, children[children.length - 1]);
+        }
+
+        let hasChanges = false,
+          curItem = null;
+        if (!isTransfer) {
+          // The drag is a local drag
+          const reOrderedChildren = [...this.listComponent.elem.children];
+          let runningIndex = 0;
+          // Reindex the elements and set newTop for dragged elem
+          for (let i = 0; i < reOrderedChildren.length; i++) {
+            if (reOrderedChildren[i].classList.contains('draggableListItem')) {
+              if (reOrderedChildren[i] === curElem) {
+                hasChanges = Number(curElem.getAttribute('data-order')) !== runningIndex;
+                if (dragStartElemBox.top < curElem.getBoundingClientRect().top) {
+                  // Moved down
+                  if (
+                    reOrderedChildren[i + 1] &&
+                    reOrderedChildren[i + 1].classList.contains('draggableListItem') &&
+                    hasChanges
                   ) {
-                    newTop = curElem.nextSibling._startTopPos;
-                  } else {
                     newTop =
-                      currentTargetList.elem.getBoundingClientRect().top +
-                      dragContainerTopPaddingAndBorders[curContainerIndex];
+                      reOrderedChildren[i + 1]._startTopPos -
+                      curElem.getBoundingClientRect().height;
+                  } else if (
+                    reOrderedChildren[i - 1] &&
+                    reOrderedChildren[i - 1].classList.contains('draggableListItem') &&
+                    hasChanges
+                  ) {
+                    newTop =
+                      reOrderedChildren[i - 1]._startBottomPos -
+                      curElem.getBoundingClientRect().height;
+                  } else {
+                    newTop = dragStartElemBox.top;
+                  }
+                } else {
+                  // Moved up
+                  if (
+                    reOrderedChildren[i - 1] &&
+                    reOrderedChildren[i - 1].classList.contains('draggableListItem') &&
+                    hasChanges
+                  ) {
+                    newTop = reOrderedChildren[i - 1]._startBottomPos;
+                  } else if (
+                    reOrderedChildren[i + 1] &&
+                    reOrderedChildren[i + 1].classList.contains('draggableListItem') &&
+                    hasChanges
+                  ) {
+                    newTop = reOrderedChildren[i + 1]._startTopPos;
+                  } else {
+                    newTop = dragStartElemBox.top;
                   }
                 }
-                reOrderedChildren[i].setAttribute('data-order', runningIndex);
-                reOrderedChildren[i].draggableListIndex = runningIndex;
               }
+              const currentItem =
+                this.list[Number(reOrderedChildren[i].getAttribute('data-order'))];
+              newList[runningIndex] = currentItem;
+              reOrderedChildren[i].setAttribute('data-order', runningIndex);
+              reOrderedChildren[i].draggableListIndex = runningIndex;
               runningIndex++;
             }
-            hasChanges = true;
-            const curIndex = Number(curElem.getAttribute('data-order'));
-            curData = this.list[curIndex]; // @TODO: Transfer this data to the other draggable list component
-            console.log('TESTING', curData);
-            newList = this.list.filter((_, i) => i !== curIndex);
           }
-
-          // Update list and call possible onChange
           if (hasChanges) {
             this.list = newList.map((item, index) => {
               item[this.orderNrKey] = index;
               return item;
             });
-            if (this.onChange) this.onChange(this.list, this);
           }
-
-          // Correct the curElem top position
-          const currentOffset = [
-            e.clientX - dragStartMousePos[0],
-            e.clientY - dragStartMousePos[1],
-          ];
-          const newTopOffset = newTop - dragStartElemBox.top;
-          curElem.style.transitionDuration = '0ms';
-          curElem.style.transform = `translate(${currentOffset[0]}px,${
-            currentOffset[1] - newTopOffset
-          }px)`;
-          curElem.style.top = newTop + 'px';
-
-          // Calculate scrollOffset (if dragging is going on and the page is scrolled)
-          const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
-          const scrollOffset = [
-            dragStartScrollPos[0] - window.scrollX,
-            dragStartScrollPos[1] - window.scrollY,
-          ];
-
-          // Make the returnAnimSpeed faster if the original position is near enough
-          if (
-            Math.abs(offset[0] - scrollOffset[0]) < 50 &&
-            Math.abs(offset[1] - scrollOffset[1]) < 50
-          ) {
-            animSpeed = returnAnimSpeed * 0.4;
-          }
-          if (isTransfer)
-            curSpacer.elem.style.transition = `height ${animSpeed * 0.5}ms ease-in-out`;
-
-          setTimeout(() => {
-            if (!curElem) return;
-            curElem.style.transitionDuration = animSpeed + 'ms';
-            curElem.style.transform = `translate(${scrollOffset[0]}px, ${scrollOffset[1]}px)`;
-            if (isTransfer) {
-              const children = [...this.listComponent.elem.children];
-              for (let i = 0; i < children.length; i++) {
-                if (children[i].classList.contains('draggableListItem')) {
-                  children[i].style.transform = 'translate(0,0)';
+        } else {
+          // The drag is transfer to another container
+          const reOrderedChildren = [...currentTargetList.elem.children];
+          let runningIndex = 0,
+            newIndex = 0;
+          const curIndex = Number(curElem.getAttribute('data-order'));
+          // Reindex the elements in the target container and set newTop for dragged elem
+          for (let i = 0; i < reOrderedChildren.length; i++) {
+            if (reOrderedChildren[i].classList.contains('draggableListItem')) {
+              if (reOrderedChildren[i] === curElem) {
+                if (curElem.previousSibling) {
+                  newTop = curElem.previousSibling._startBottomPos;
+                  newIndex = Number(curElem.previousSibling.getAttribute('data-order')) + 1;
+                } else if (
+                  curElem.nextSibling &&
+                  curElem.nextSibling.classList.contains('draggableListItem')
+                ) {
+                  newTop = curElem.nextSibling._startTopPos;
+                  newIndex = Number(curElem.nextSibling.getAttribute('data-order'));
+                } else {
+                  newTop =
+                    currentTargetList.elem.getBoundingClientRect().top +
+                    dragContainerTopPaddingAndBorders[curContainerIndex];
                 }
               }
+              reOrderedChildren[i].setAttribute('data-order', runningIndex);
+              reOrderedChildren[i].draggableListIndex = runningIndex;
             }
-          }, 5);
+            runningIndex++;
+          }
+          hasChanges = true;
+          curItem = this.list[curIndex];
+          this.removeFromList(curIndex, false);
+          targetComponent.addToList(newIndex, curItem, false);
+          const children = [...this.listComponent.elem.children];
+          // Reindex the elements in the old container
+          runningIndex = 0;
+          for (let i = 0; i < children.length; i++) {
+            const child = children[i];
+            if (child.classList.contains('draggableListItem')) {
+              child.setAttribute('data-order', runningIndex);
+              runningIndex++;
+            }
+          }
         }
+
+        // Update list and call possible onChange
+        if (hasChanges) {
+          if (this.onChange) this.onChange(this.list, this);
+          if (targetComponent?.onChange) {
+            targetComponent.onChange(targetComponent.list, targetComponent);
+          }
+        }
+
+        // Correct the curElem top position
+        const currentOffset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
+        const newTopOffset = newTop - dragStartElemBox.top;
+        curElem.style.transitionDuration = '0ms';
+        curElem.style.transform = `translate(${currentOffset[0]}px,${
+          currentOffset[1] - newTopOffset
+        }px)`;
+        curElem.style.top = newTop + 'px';
+
+        // Calculate scrollOffset (if dragging is going on and the page is scrolled)
+        const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
+        const scrollOffset = [
+          dragStartScrollPos[0] - window.scrollX,
+          dragStartScrollPos[1] - window.scrollY,
+        ];
+
+        // Make the returnAnimSpeed faster if the original position is near enough
+        if (
+          Math.abs(offset[0] - scrollOffset[0]) < 50 &&
+          Math.abs(offset[1] - scrollOffset[1]) < 50
+        ) {
+          animSpeed = returnAnimSpeed * 0.4;
+        }
+        if (isTransfer) curSpacer.elem.style.transition = `height ${animSpeed * 0.5}ms ease-in-out`;
+
+        setTimeout(() => {
+          if (!curElem) return;
+          curElem.style.transitionDuration = animSpeed + 'ms';
+          curElem.style.transform = `translate(${scrollOffset[0]}px, ${scrollOffset[1]}px)`;
+          if (isTransfer) {
+            const children = [...this.listComponent.elem.children];
+            for (let i = 0; i < children.length; i++) {
+              if (children[i].classList.contains('draggableListItem')) {
+                children[i].style.transform = 'translate(0,0)';
+              }
+            }
+          }
+        }, 5);
+
         dragStartMousePos = null;
         dragStartScrollPos = null;
         setTimeout(() => {
@@ -374,7 +391,7 @@ class InputDraggableList extends Component {
             curElem.style.cssText = '';
             curElem = null;
           }
-          curSpacer.elem.style.height = 0;
+          if (curSpacer?.elem) curSpacer.elem.style.height = 0;
           for (let i = 0; i < this.dragToListIds.length; i++) {
             const containerId = this.dragToListIds[i];
             if (containerId !== this.id && externalSpacers[containerId]?.isComponent) {
@@ -407,7 +424,6 @@ class InputDraggableList extends Component {
       target: window,
       type: 'mousemove',
       fn: (e) => {
-        // @TODO: refactor and make this tidy
         if (!this.isDragging || !curElem || this.disabled) return;
         const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
         curElem.style.transform = `translate(${offset[0]}px,${offset[1]}px)`;
@@ -499,6 +515,63 @@ class InputDraggableList extends Component {
         if (!isHoveringContainer) curContainerIndex = 0;
       },
     });
+  };
+
+  // if index is 'null' or a negative number, the newItem will be placed at the end of the list
+  addToList = (index, newItem, reDraw = true) => {
+    if (isNaN(index) || !newItem) {
+      console.error(
+        `The index and/or newItem have to be the arguments of addToList, ID: ${this.id}`
+      );
+      throw new Error('index and/or newItem missing or invalid type');
+    }
+    const newList = [];
+    const listLength = this.list.length;
+    if (index === null || index < 0) index = Infinity;
+    let newItemAdded = false;
+    for (let i = 0; i < listLength + 1; i++) {
+      if ((i === index || i === listLength) && !newItemAdded) {
+        newItem[this.orderNrKey] = i;
+        newList.push(newItem);
+        newItemAdded = true;
+      }
+      if (i === listLength) break;
+      let newIndex = i;
+      if (index <= i) newIndex = i + 1;
+      this.list[i][this.orderNrKey] = newIndex;
+      newList.push(this.list[i]);
+    }
+    this.list = newList;
+    if (reDraw) this.draw({ list: this.list });
+    return this.list;
+  };
+
+  removeFromList = (indexOrFilterFn, reDraw = true) => {
+    if (isNaN(indexOrFilterFn) && typeof indexOrFilterFn !== 'function') {
+      console.error(
+        `Provide either the index number of the item to be removed or the filterFn, ID: ${this.id}`
+      );
+      throw new Error('index and filterFn missing or invalid type');
+    }
+    let newList;
+    if (isNaN(indexOrFilterFn)) {
+      // indexOrFilterFn is a function
+      newList = this.list.filter(indexOrFilterFn).map((item, i) => {
+        item[this.orderNrKey] = i;
+        return item;
+      });
+    } else {
+      // indexOrFilterFn is a number
+      newList = this.list
+        .filter((_, i) => i !== indexOrFilterFn)
+        .map((item, i) => {
+          item[this.orderNrKey] = i;
+          return item;
+        });
+    }
+    this.list = newList;
+    if (reDraw) this.draw({ list: this.list });
+    return this.list;
   };
 
   _checkPositionToSiblingsAndMoveThem = (containerElem, curElem) => {
