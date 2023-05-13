@@ -62,24 +62,16 @@ class InputDraggableList extends Component {
   };
 
   updateList = (list) => {
-    const foundComponentProps = list.find((item) => item.componentProps);
+    let foundComponentProps = list.find((item) => item.componentProps);
+    if (this.props.commonComponentProps) foundComponentProps = true;
     list.sort((a, b) => {
       if (isNaN(a[this.orderNrKey])) return 1;
       if (isNaN(b[this.orderNrKey])) return -1;
       return a[this.orderNrKey] - b[this.orderNrKey];
     });
 
-    // Create a list of components
-    if (foundComponentProps) {
-      for (let i = 0; i < list.length; i++) {
-        // const item = list[i];
-        // @TODO: implement components based list
-      }
-      return;
-    }
-
-    // Create a list with a single template (lighter)
     let template = `<div class="draggableList${this.disabled ? ' disabled' : ''}" id="${this.id}">`;
+    // Create a list with a single template
     for (let i = 0; i < list.length; i++) {
       list[i][this.orderNrKey] = i;
       template += `<div
@@ -87,12 +79,38 @@ class InputDraggableList extends Component {
         data-order="${i}"
       >
         <div class="draggableHandle">${this.dragHandleTemplate}</div>
-        <div class="draggableItemContent">${list[i].template || ''}</div>
+        <div class="draggableItemContent"${foundComponentProps ? ` id="${this.id}-item-${i}"` : ''}>
+          ${foundComponentProps ? '' : list[i].template || ''}
+        </div>
       </div>`;
     }
     template += '</div>';
-
     this.listComponent.draw({ template });
+
+    if (foundComponentProps) {
+      // Create an all component based list
+      for (let i = 0; i < list.length; i++) {
+        list[i][this.orderNrKey] = i;
+        let props = {
+          ...(this.props.commonComponentProps || {}),
+          ...(list[i].componentProps || {}),
+        };
+        props.attachId = `${this.id}-item-${i}`;
+        if (list[i].component) {
+          // per item component
+          this.listComponent.addDraw(new list[i].component(props));
+          continue;
+        }
+        if (this.props.commonComponent) {
+          // commonComponent
+          this.listComponent.addDraw(new this.props.commonComponent(props));
+          continue;
+        }
+        // basic div component
+        this.listComponent.addDraw(props);
+      }
+    }
+
     const children = [...this.listComponent.elem.children];
     for (let i = 0; i < children.length; i++) {
       children[i].draggableListIndex = i;
@@ -125,6 +143,7 @@ class InputDraggableList extends Component {
           // and the drag handle parent elem should have the draggableListItem class
           return;
         }
+        this.elem.classList.add('dragHappening');
         e.preventDefault();
 
         elem = elem.parentNode; // Because we are dragging the drag handle
@@ -154,7 +173,7 @@ class InputDraggableList extends Component {
         const position = `top:${dragStartElemBox.top}px;left:${dragStartElemBox.left};z-index:900;position:fixed;margin:0;`;
         const size = `box-sizing:border-box;width:${elem.offsetWidth}px;height:${elem.offsetHeight}px;`;
         const transform = `transform:translate(0,0);`;
-        elem.style.cssText = position + size + transform + 'pointer-events:none;';
+        elem.style.cssText = position + size + transform;
         elem.classList.add('dragging');
 
         let nextSibling = elem.nextSibling,
@@ -190,6 +209,7 @@ class InputDraggableList extends Component {
       fn: (e) => {
         if (!this.isDragging || this.disabled) return;
         this.isDragging = false;
+        this.elem.classList.remove('dragHappening');
         if (!curElem) return;
         let animSpeed = returnAnimSpeed,
           currentTargetList = this.listComponent,
@@ -520,9 +540,7 @@ class InputDraggableList extends Component {
   // if index is 'null' or a negative number, the newItem will be placed at the end of the list
   addToList = (index, newItem, reDraw = true) => {
     if (isNaN(index) || !newItem) {
-      console.error(
-        `The index and/or newItem have to be the arguments of addToList, ID: ${this.id}`
-      );
+      console.error(`'addToList' has to have an index and/or newItem, ID: ${this.id}`);
       throw new Error('index and/or newItem missing or invalid type');
     }
     const newList = [];
@@ -646,14 +664,24 @@ export const addStylesToHead = () => {
       box-shadow: none;
     }
     .draggableListItem > .draggableHandle {
-      cursor: -webkit-grab;
-      cursor: grab;
       position: absolute;
       width: 100%;
       height: 100%;
       left: 0;
       top: 0;
     }
+    :not(.dragHappening) .draggableListItem > .draggableHandle {
+      cursor: move;
+      cursor: -webkit-grab;
+      cursor: grab;
+    }
+    .dragHappening .draggableListItem > .draggableHandle,
+    .dragHappening .draggableListItem * {
+      cursor: move;
+      cursor: -webkit-grabbing;
+      cursor: grabbing;
+    }
+    .draggableList.disabled .draggableListItem > .draggableHandle { cursor: auto; }
     .draggableListItem > .draggableItemContent {
       position: relative;
       z-index: 2;
@@ -663,11 +691,6 @@ export const addStylesToHead = () => {
       transition: transform cubic-bezier(.42,.31,0,.95), box-shadow ease-in;
       box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
     }
-    .draggableListItem.dragging > .draggableHandle {
-      cursor: -webkit-grabbing !important;
-      cursor: grabbing !important;
-    }
-    .draggableList.disabled .draggableListItem { cursor: auto; }
   `;
   const style = document.createElement('style');
   style.textContent = css;

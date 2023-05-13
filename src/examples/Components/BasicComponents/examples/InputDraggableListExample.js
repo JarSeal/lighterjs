@@ -18,7 +18,12 @@ const InputDraggableListExample = (parent, InputDraggableList) => {
     { template: 'List item 10<br /><input type="text" />', orderNr: 2 },
   ];
 
-  parent.addDraw({ attachId, text: 'Simple list 1:', tag: 'h3', style: { margin: 0 } });
+  parent.addDraw({
+    attachId,
+    text: 'Simple list 1 (can be moved to Simple list 2):',
+    tag: 'h3',
+    style: { margin: 0 },
+  });
   parent.addDraw(
     new InputDraggableList({
       attachId,
@@ -30,7 +35,12 @@ const InputDraggableListExample = (parent, InputDraggableList) => {
   );
 
   parent.addDraw(breakProps);
-  parent.addDraw({ attachId, text: 'Simple list 2:', tag: 'h3', style: { margin: 0 } });
+  parent.addDraw({
+    attachId,
+    text: 'Simple list 2 (can be moved to Simple list 1):',
+    tag: 'h3',
+    style: { margin: 0 },
+  });
   parent.addDraw(
     new InputDraggableList({
       attachId,
@@ -38,6 +48,25 @@ const InputDraggableListExample = (parent, InputDraggableList) => {
       dragToListIds: 'simpleList1',
       list: simpleList2,
       style: { width: '600px' },
+      onChange: (list, compo) => console.log('onChangeFn', compo.id, list),
+    })
+  );
+
+  const commonComponentList = [
+    { componentProps: { text: 'Component item 1' } },
+    { componentProps: { text: 'Component item 2' } },
+    { componentProps: { text: 'Component item 3' } },
+    { componentProps: { text: 'Component item 4' } },
+    { componentProps: { text: 'Component item 5' } },
+  ];
+  parent.addDraw(breakProps);
+  parent.addDraw({ attachId, text: 'Common component list:', tag: 'h3', style: { margin: 0 } });
+  parent.addDraw(
+    new InputDraggableList({
+      attachId,
+      id: 'commonComponentList',
+      list: commonComponentList,
+      commonComponentProps: { style: { pointerEvents: 'none' } },
       onChange: (list, compo) => console.log('onChangeFn', compo.id, list),
     })
   );
