@@ -11,6 +11,11 @@ class AppRoot extends Component {
     super(props);
     this.mainMenuData = [
       { text: 'Home', path: '/' },
+      // @TODO: LighterJS (docs):
+      // @TODO:   - Component
+      // @TODO:   - Router
+      // @TODO:   - State
+      // @TODO:   - utils
       { text: 'Basic Components', path: '/basic-components' },
     ];
     this.contentAreaId = 'page-area';
