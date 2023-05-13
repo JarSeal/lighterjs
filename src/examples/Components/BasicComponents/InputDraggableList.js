@@ -11,8 +11,8 @@ import { Component } from '../../../Lighter';
 //     - componentProps?: Component props (the props per item to pass to the component)
 //   }
 // ]
-// @TODO: - commonComponent?: Component (list item component)
-// @TODO: - commonComponentProps?: (these props are passed to either the specific item component or the commonComponent)
+// - commonComponent?: Component (list item component)
+// - commonComponentProps?: (these props are passed to either the specific item component or the commonComponent)
 // - onChange?: function(list, this) (when an order changes, the onChange callback is called)
 // - disabled?: boolean (whether the whole list is disabled or not, default false)
 // - dragToListIds?: string/array (list of draggable lists that this list can drag to, default undefined)
@@ -25,7 +25,6 @@ import { Component } from '../../../Lighter';
 // - drag movements should detect scroll area ends and start scrolling if dragging pointer is in that area
 // - scrolls shouldn't be just window, but all scrollable list parent elements
 // - needs tests with a touch device and possibly needs own listeners for that
-// - add also a common item class for each container's list item, and make it switch the class when the item is transferred to another container (or remove the previous if that class is not defined)
 
 class InputDraggableList extends Component {
   constructor(props) {
