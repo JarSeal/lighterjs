@@ -70,6 +70,40 @@ const InputDraggableListExample = (parent, InputDraggableList) => {
       onChange: (list, compo) => console.log('onChangeFn', compo.id, list),
     })
   );
+
+  const simpleList3 = [
+    { template: 'List item 1' },
+    { template: 'List item 2' },
+    { template: 'List item 3' },
+    { template: 'List item 4' },
+    { template: 'List item 5' },
+    { template: 'List item 6' },
+    { template: 'List item 7' },
+    { template: 'List item 8' },
+    { template: 'List item 9' },
+    { template: 'List item 10' },
+    { template: 'List item 11' },
+    { template: 'List item 12' },
+    { template: 'List item 13' },
+    { template: 'List item 14' },
+    { template: 'List item 15' },
+    { template: 'List item 16' },
+    { template: 'List item 17' },
+    { template: 'List item 18' },
+    { template: 'List item 19' },
+    { template: 'List item 20' },
+  ];
+  parent.addDraw(breakProps);
+  parent.addDraw({ attachId, text: 'Scrollable list:', tag: 'h3', style: { margin: 0 } });
+  parent.addDraw(
+    new InputDraggableList({
+      attachId,
+      id: 'scrollableList',
+      list: simpleList3,
+      style: { maxHeight: '300px', overflow: 'auto' },
+      onChange: (list, compo) => console.log('onChangeFn', compo.id, list),
+    })
+  );
 };
 
 export default InputDraggableListExample;

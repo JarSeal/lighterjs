@@ -640,6 +640,39 @@ class InputDraggableList extends Component {
     }
     return false;
   };
+
+  _canScroll(el, scrollAxis) {
+    if (0 === el[scrollAxis]) {
+      el[scrollAxis] = 1;
+      if (1 === el[scrollAxis]) {
+        el[scrollAxis] = 0;
+        return true;
+      }
+    } else {
+      return true;
+    }
+    return false;
+  }
+
+  _isScrollableX(el) {
+    return (
+      el.scrollWidth > el.clientWidth &&
+      this.canScroll(el, 'scrollLeft') &&
+      'hidden' !== getComputedStyle(el).overflowX
+    );
+  }
+
+  _isScrollableY(el) {
+    return (
+      el.scrollHeight > el.clientHeight &&
+      this.canScroll(el, 'scrollTop') &&
+      'hidden' !== getComputedStyle(el).overflowY
+    );
+  }
+
+  _isScrollable(el) {
+    return this.isScrollableX(el) || this.isScrollableY(el);
+  }
 }
 
 export let defaultOrderNrKey = 'orderNr';
