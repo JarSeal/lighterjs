@@ -31,6 +31,8 @@ class InputDraggableList extends Component {
     super(props);
     this.isInputDraggableList = true;
     this.isDragging = false;
+    this.scrollXOffset = 0;
+    this.scrollYOffset = 0;
     if (props.addStylesToHead !== false) addStylesToHead();
     this.props.template = `<div class="inputDraggableList"></div>`;
     this.listComponent = this.add({ id: this.id + '-list-component' });
@@ -146,6 +148,11 @@ class InputDraggableList extends Component {
         e.preventDefault();
 
         elem = elem.parentNode; // Because we are dragging the drag handle
+
+        // Save start scroll positions
+        this.scrollYOffset = this._getScrollPos('Y', elem);
+        // console.log('SCROLL Y START', this.scrollYOffset);
+
         curContainerIndex = 0;
         const children = [...this.listComponent.elem.children];
         for (let i = 0; i < children.length; i++) {
@@ -372,12 +379,18 @@ class InputDraggableList extends Component {
         }px)`;
         curElem.style.top = newTop + 'px';
 
+        const newYOffset = this.scrollYOffset - this._getScrollPos('Y', curElem);
+        // console.log('SCROLL OFFSET', this.scrollYOffset);
+
         // Calculate scrollOffset (if dragging is going on and the page is scrolled)
         const offset = [e.clientX - dragStartMousePos[0], e.clientY - dragStartMousePos[1]];
         const scrollOffset = [
           dragStartScrollPos[0] - window.scrollX,
           dragStartScrollPos[1] - window.scrollY,
         ];
+        const scrollOffset2 = [dragStartScrollPos[0] - window.scrollX, newYOffset];
+        // console.log('NEW OFFSET', scrollOffset, scrollOffset2);
+        console.log('OFFSETSANDSHIT', newTopOffset);
 
         // Make the returnAnimSpeed faster if the original position is near enough
         if (
@@ -391,7 +404,7 @@ class InputDraggableList extends Component {
         setTimeout(() => {
           if (!curElem) return;
           curElem.style.transitionDuration = animSpeed + 'ms';
-          curElem.style.transform = `translate(${scrollOffset[0]}px, ${scrollOffset[1]}px)`;
+          curElem.style.transform = `translate(${scrollOffset[0]}px, 0px)`;
           if (isTransfer) {
             const children = [...this.listComponent.elem.children];
             for (let i = 0; i < children.length; i++) {
@@ -404,6 +417,8 @@ class InputDraggableList extends Component {
 
         dragStartMousePos = null;
         dragStartScrollPos = null;
+        this.scrollXOffset = 0;
+        this.scrollYOffset = 0;
         setTimeout(() => {
           if (curElem) {
             curElem.classList.remove('dragging');
@@ -518,6 +533,7 @@ class InputDraggableList extends Component {
                 externalSpacers[containerId].elem.style.height = curElem.offsetHeight + 'px';
               }
             }
+            // Check if container is scrollable and if mouse is on scroll top/bottom threshold
           } else {
             if (containerId !== this.id) {
               const containerChildren = [...dragComponent.listComponent.elem.children];
@@ -530,6 +546,7 @@ class InputDraggableList extends Component {
               this._checkPositionToSiblingsAndMoveThem(containerElem, curElem);
             }
           }
+          this._checkScrollAndPossiblyScroll(e, containerElem);
         }
         if (!isHoveringContainer) curContainerIndex = 0;
       },
@@ -641,10 +658,64 @@ class InputDraggableList extends Component {
     return false;
   };
 
-  _canScroll(el, scrollAxis) {
-    if (0 === el[scrollAxis]) {
+  _checkScrollAndPossiblyScroll = (e, curContainer) => {
+    let cont = curContainer,
+      safeExit = 100,
+      threshold = 50; // The threshold area to do the scroll in pixels
+    while (cont || safeExit === 0) {
+      if (this._isScrollableY(cont)) {
+        if (cont.nodeName === 'BODY') {
+          if (e.clientY < threshold) {
+            document.documentElement.scrollTop -= 10;
+            document.body.scrollTop -= 10;
+          } else if (e.clientY > window.innerHeight - threshold) {
+            document.documentElement.scrollTop += 10;
+            document.body.scrollTop += 10;
+          }
+        } else {
+          const contElemTop = cont.getBoundingClientRect().top;
+          const contElemBottom = cont.getBoundingClientRect().bottom;
+          if (contElemTop < e.clientY && contElemTop + threshold > e.clientY) {
+            cont.scrollTop -= 10;
+          } else if (contElemBottom > e.clientY && contElemBottom - threshold < e.clientY) {
+            cont.scrollTop += 10;
+          }
+        }
+      }
+      cont = cont.parentNode;
+      safeExit--;
+    }
+  };
+
+  _getScrollPos = (axis, curElem) => {
+    let elem = curElem.parentNode,
+      safeExit = 100,
+      scrollPos = 0,
+      axisKey = 'scrollTop'; // Vertical scroll
+    if (axis === 'X') {
+      // Horisontal scroll
+      axisKey = 'scrollLeft';
+    }
+    while (elem || safeExit === 0) {
+      if (this._isScrollableY(elem)) {
+        if (elem.nodeName === 'BODY') {
+          scrollPos += document.documentElement[axisKey] || document.body[axisKey];
+        } else {
+          scrollPos += elem[axisKey];
+        }
+      }
+      elem = elem.parentNode;
+      safeExit--;
+    }
+    return scrollPos;
+  };
+
+  _canScroll = (el, scrollAxis) => {
+    if (el.nodeName === 'HTML') return false;
+    if (el.nodeName === 'BODY') return true;
+    if (el[scrollAxis] === 0) {
       el[scrollAxis] = 1;
-      if (1 === el[scrollAxis]) {
+      if (el[scrollAxis] === 1) {
         el[scrollAxis] = 0;
         return true;
       }
@@ -652,27 +723,19 @@ class InputDraggableList extends Component {
       return true;
     }
     return false;
-  }
+  };
 
-  _isScrollableX(el) {
-    return (
-      el.scrollWidth > el.clientWidth &&
-      this.canScroll(el, 'scrollLeft') &&
-      'hidden' !== getComputedStyle(el).overflowX
-    );
-  }
+  _isScrollableX = (el) =>
+    el.scrollWidth > (el.nodeName === 'BODY' ? window.innerWidth : el.clientWidth) &&
+    this._canScroll(el, 'scrollLeft') &&
+    'hidden' !== getComputedStyle(el).overflowX;
 
-  _isScrollableY(el) {
-    return (
-      el.scrollHeight > el.clientHeight &&
-      this.canScroll(el, 'scrollTop') &&
-      'hidden' !== getComputedStyle(el).overflowY
-    );
-  }
+  _isScrollableY = (el) =>
+    el.scrollHeight > (el.nodeName === 'BODY' ? window.innerHeight : el.clientHeight) &&
+    this._canScroll(el, 'scrollTop') &&
+    'hidden' !== getComputedStyle(el).overflowY;
 
-  _isScrollable(el) {
-    return this.isScrollableX(el) || this.isScrollableY(el);
-  }
+  _isScrollable = (el) => this.isScrollableX(el) || this.isScrollableY(el);
 }
 
 export let defaultOrderNrKey = 'orderNr';
